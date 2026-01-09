@@ -7,7 +7,7 @@ HobbySwap is a web-based trading and marketplace platform designed for collctors
 
 
 # **Team Roster & Roles**
-**Group 1 - NCC - Seneca Polytechnic (PRJ566: Project Planning and Management)**
+**Group 2 - NCC - Seneca Polytechnic (PRJ666: Project Implementation)**
 
 - **Aaron Ngo** - Project Lead
 
