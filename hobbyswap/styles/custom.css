@@ -1,0 +1,40 @@
+.search-bar {
+  background-color: #8895b4;
+  width: 387px;
+}
+
+.gundam-model-position {
+  filter: drop-shadow(20px 5px 4px rgba(0, 0, 0, 0.3));
+  top: -20%;
+  left: 60%;
+}
+.gundam-landing-position {
+  filter: drop-shadow(20px 5px 4px rgba(0, 0, 0, 0.3));
+  width: 43%;
+  height: auto;
+  top: -25%;
+  left: 55%;
+}
+
+.hero-section {
+  background-image: url("/images/hero-01.jpg");
+  background-size: cover;
+}
+.pikachu-position {
+  filter: drop-shadow(20px 5px 4px rgba(0, 0, 0, 0.25));
+  width: 20%;
+  height: auto;
+  top: -50%;
+  right: 80%;
+}
+
+.smiski-position {
+  filter: drop-shadow(20px 5px 4px rgba(0, 0, 0, 0.25));
+  width: 21%;
+  height: auto;
+  top: -40%;
+  left: 80%;
+}
+.lh-lg {
+  line-height: 3rem;
+}
