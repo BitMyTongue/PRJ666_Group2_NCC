@@ -8,6 +8,7 @@ import {
   faMessage,
   faRotate,
 } from "@fortawesome/free-solid-svg-icons";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -27,7 +28,12 @@ export default function Home() {
             ultrices interdum sit.
           </p>
           <button className="btn btn-light text-primary rounded-5 fw-bold mt-4 px-4 fs-5">
-            Join Now
+            <Link
+              href="/register"
+              className="link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover fw-semibold"
+            >
+              Join Now
+            </Link>
           </button>
         </div>
       </div>

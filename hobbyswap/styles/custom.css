@@ -45,3 +45,11 @@
 .extra-margin-top {
   padding-top: 7rem;
 }
+
+.smiski-login-position {
+  filter: drop-shadow(20px 5px 4px rgba(0, 0, 0, 0.3));
+  bottom: -35%;
+  left: 80%;
+  width: 65%;
+  height: auto;
+}

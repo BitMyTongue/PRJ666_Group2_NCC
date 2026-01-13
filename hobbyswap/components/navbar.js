@@ -50,7 +50,7 @@ const Navbar = () => {
           </li>
           <li className="nav-item ms-md-5">
             <Link
-              href="/"
+              href="/login"
               className="nav-link text-uppercase fw-bold text-white fs-5 ms-md-5"
             >
               Login
