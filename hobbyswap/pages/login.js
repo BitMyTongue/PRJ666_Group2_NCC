@@ -25,13 +25,13 @@ export default function Login() {
             <form className="d-grid gap-4 px-2 px-sm-3 px-md-5 py-4">
               <input
                 type="email"
-                className="form-control bg-light "
+                className="form-control bg-light p-2"
                 id="email"
                 placeholder="Email or Username"
               />
               <input
                 type="password"
-                className="form-control  bg-light"
+                className="form-control bg-light p-2"
                 id="password"
                 placeholder="password"
               />
@@ -90,7 +90,10 @@ export default function Login() {
               </div>
               <div className="d-flex">
                 <p className="fw-semibold text-primary">Not a member?</p>
-                <Link href="/" className="fw-semibold text-secondary ms-2">
+                <Link
+                  href="/register"
+                  className="fw-semibold text-secondary ms-2"
+                >
                   Create a new account
                 </Link>
               </div>
