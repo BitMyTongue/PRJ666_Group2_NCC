@@ -18,7 +18,7 @@ const Navbar = () => {
     >
       <div className="d-flex justify-content-between align-items-center">
         <Link href="/" className="navbar-brand d-flex">
-          <Image src="/logo.png" width={255} height={54} alt="Logo" />
+          <Image src="/images/logo.png" width={255} height={54} alt="Logo" />
         </Link>
         <form className="d-none d-md-flex h-50 position-relative" role="search">
           <input
