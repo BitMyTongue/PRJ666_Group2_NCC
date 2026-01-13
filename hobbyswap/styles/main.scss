@@ -1,5 +1,10 @@
 $primary: #001f54;
 $secondary: #ff6b35;
 $light: #e6e9ee;
+$gray: #a9a8a8;
+
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+$font-family-sans-serif: "Poppins", sans-serif;
+$font-family-base: $font-family-sans-serif;
 
 @import "../node_modules/bootstrap/scss/bootstrap";
