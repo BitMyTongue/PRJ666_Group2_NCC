@@ -92,25 +92,11 @@ export default function Footer() {
           </div>
         </div>
 
-<<<<<<< HEAD
         {/* Logo Section */}
         <div className="col-12 col-md-3 d-flex justify-content-center justify-content-md-end align-self-end mt-4 mt-md-0">
           <Link href="/" className="navbar-brand d-flex">
-            <Image src="/logo.png" width={255} height={54} alt="Logo" />
+            <Image src="/images/logo.png" width={255} height={54} alt="Logo" />
           </Link>
-=======
-          {/* Logo Section */}
-          <div className="col-12 col-md-3 d-flex justify-content-center justify-content-md-end align-items-end mt-4 mt-md-0">
-            <Link href="/" className="navbar-brand d-flex">
-              <Image
-                src="/images/logo.png"
-                width={255}
-                height={54}
-                alt="Logo"
-              />
-            </Link>
-          </div>
->>>>>>> a4872c91885b4c4b683208ebcab74b4abb5f779e
         </div>
       </div>
     </footer>
