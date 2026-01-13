@@ -100,7 +100,12 @@ export default function Footer() {
           {/* Logo Section */}
           <div className="col-12 col-md-3 d-flex justify-content-center justify-content-md-end align-items-end mt-4 mt-md-0">
             <Link href="/" className="navbar-brand d-flex">
-              <Image src="/logo.png" width={255} height={54} alt="Logo" />
+              <Image
+                src="/images/logo.png"
+                width={255}
+                height={54}
+                alt="Logo"
+              />
             </Link>
           </div>
         </div>
