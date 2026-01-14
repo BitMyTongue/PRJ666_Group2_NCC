@@ -1,10 +1,10 @@
-const Star = function Star({ fill }) {
+const Star = function Star({ fill, size = 24 }) {
   return (
     <svg
       display={"inline"}
-      width="23"
-      height="24"
-      viewBox="0 0 23 24"
+      width={size}
+      height={size}
+      viewBox={`0 0 24 24`}
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
@@ -31,14 +31,14 @@ const Star = function Star({ fill }) {
   );
 };
 
-export default function Rating({ rating = 0 }) {
+export default function Rating({ rating = 0, size = 24 }) {
   return (
     <div style={{ gap: "5px", display: "flex" }}>
-      <Star fill={rating > 0} />
-      <Star fill={rating > 1} />
-      <Star fill={rating > 2} />
-      <Star fill={rating > 3} />
-      <Star fill={rating > 4} />
+      <Star fill={rating > 0} size={size} />
+      <Star fill={rating > 1} size={size} />
+      <Star fill={rating > 2} size={size} />
+      <Star fill={rating > 3} size={size} />
+      <Star fill={rating > 4} size={size} />
     </div>
   );
 }
