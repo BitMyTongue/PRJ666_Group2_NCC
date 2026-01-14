@@ -53,3 +53,7 @@
   width: 65%;
   height: auto;
 }
+
+.drop-shadow {
+  filter: drop-shadow(20px 5px 4px rgba(0, 0, 0, 0.3));
+}
