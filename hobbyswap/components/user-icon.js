@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-export default function UserIcon(props) {
+export default function UserIcon({ user, img, size }) {
   return (
     <>
       <div
@@ -8,16 +8,16 @@ export default function UserIcon(props) {
           display: "block",
           borderRadius: "100px",
           overflow: "hidden",
-          width: props.size,
-          height: props.size,
+          width: size,
+          height: size,
           backgroundColor: "white",
         }}
       >
         <Image
-          alt={props.user ?? "user"}
-          src={props.img}
-          width={props.size}
-          height={props.size}
+          alt={user ?? "user"}
+          src={img}
+          width={size}
+          height={size}
           style={{
             objectFit: "cover",
             aspectRatio: "1/1",
