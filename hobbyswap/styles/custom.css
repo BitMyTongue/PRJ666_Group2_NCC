@@ -57,3 +57,35 @@
 .drop-shadow {
   filter: drop-shadow(20px 5px 4px rgba(0, 0, 0, 0.3));
 }
+
+.card-max {
+  display: none;
+}
+.card-min {
+  display: flex;
+}
+
+@media screen and (width >= 995px) {
+  .card-max {
+    display: flex;
+  }
+  .card-min {
+    display: none;
+  }
+}
+
+.card-max hr {
+  color: black;
+  text-align: center;
+  overflow: visible;
+  opacity: 1;
+}
+
+.card-max hr::after {
+  color: black;
+  background: #e6e9ee;
+  content: "OR";
+  padding: 0 4px;
+  position: relative;
+  top: -13px;
+}
