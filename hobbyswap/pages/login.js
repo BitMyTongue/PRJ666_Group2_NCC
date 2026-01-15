@@ -78,7 +78,7 @@ export default function Login() {
                 type="email"
                 className="form-control bg-light p-2"
                 id="email"
-                placeholder="Email or Username"
+                placeholder="Email or Username" // TO DO: Allowing username as well for login ('@' validation issue)
                 value={formData.email}
                 onChange={handleChange}
               />
