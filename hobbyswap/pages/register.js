@@ -18,8 +18,8 @@ export default function Register() {
   const router = useRouter(); // Initializing the router for navigation
 
   const handleChange = (e) => { // Handling input changes
-    const {id, value} = e.target;
-    setFormData((prev) => ({ ...prev, [id]: value }));
+    const {id, value, type, checked} = e.target;
+    setFormData((prev) => ({ ...prev, [id]: type === 'checkbox' ? checked : value }));
   };
 
   const handleSubmit = async (e) => { // Handling form submission
@@ -27,8 +27,12 @@ export default function Register() {
     setError(""); // Resetting error state
 
     //Validation
-    if(!formData.firstName || !formData.lastName || !formData.username || !formData.email || !formData.password || !formData.passwordConfirm || !document.getElementById("terms").checked){
+    if(!formData.firstName || !formData.lastName || !formData.username || !formData.email || !formData.password || !formData.passwordConfirm){
       setError("All fields are required");
+      return;
+    }
+    if(!formData.terms){
+      setError("You must agree to the Terms and Conditions");
       return;
     }
 
@@ -134,8 +138,8 @@ export default function Register() {
                 type="checkbox"
                 className="form-check-input me-2 border border-primary"
                 id="terms"
-                checked={terms}
-                onChange={(e) => setTerms(e.target.checked)}
+                checked={formData.terms}
+                onChange={handleChange}
               />
               <label htmlFor="terms" className="text-primary fw-regular">
                 I agree to the Terms and Conditions
