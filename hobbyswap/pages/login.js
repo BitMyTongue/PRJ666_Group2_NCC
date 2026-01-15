@@ -44,7 +44,7 @@ export default function Login() {
       }
 
       // Store user data and redirect to home
-      localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("user", JSON.stringify(data.user)); // localStorage to keep user logged in -> To implement JWT (potentially)
       router.push("/");
     } catch (err) {
       setError("An error occurred. Please try again.");
