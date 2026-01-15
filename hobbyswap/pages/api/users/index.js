@@ -1,7 +1,7 @@
 import { UserModel, mongooseConnect } from "@/lib/dbUtils";
 
 export default async function handler(req, res) {
-  const { name } = req.body;
+  const { firstName, lastName, username, email, password } = req.body;
   const { method } = req;
 
   try {
@@ -13,7 +13,12 @@ export default async function handler(req, res) {
         res.status(200).json({ users });
         break;
       case "POST":
-        let newUser = new UserModel({ name });
+        // Check if user already exists in db
+        const existingUser = await UserModel.findOne({ $or: [{email}, {username}]});
+        if (existingUser){
+          return res.status(409).json({ error: "Email or username already exists"});
+        }
+        let newUser = new UserModel({ firstName, lastName, username, email, password });
         await newUser.save();
         res.status(201).json({ message: "User Created", user: newUser });
         break;
