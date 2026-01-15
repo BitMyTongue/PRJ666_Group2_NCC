@@ -258,7 +258,7 @@ const BaseLongCard = function BaseLongCard({
                   alt={offerItem.title}
                   src={offerItem.img}
                   width={149}
-                  height={176}
+                  height={196}
                 />
                 <div>
                   <h4>{offerItem.title}</h4>
@@ -309,7 +309,7 @@ const BaseLongCard = function BaseLongCard({
                       alt={requestItem.title}
                       src={requestItem.img}
                       width={149}
-                      height={176}
+                      height={196}
                     />
                   )}
                   <div>
