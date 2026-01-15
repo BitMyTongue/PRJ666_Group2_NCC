@@ -211,25 +211,35 @@ const BaseLongCard = function BaseLongCard({
                     height={96}
                   />
                 )}
-                <div style={{ display: "flex", gap: 10 }}>
+                <div
+                  style={{
+                    width: "100%",
+                    display: "flex",
+                    gap: 10,
+                    justifyContent: "space-between",
+                  }}
+                >
                   <div>
                     <h4>
                       {hasMultiple
                         ? "Multiple Items"
-                        : requestItem
-                        ? requestItem.title
-                        : "Unspecified"}
+                        : requestItem === undefined
+                        ? "Unspecified"
+                        : !requestItem && requestMoney
+                        ? `$${requestMoney.toFixed(2)}`
+                        : requestItem?.title}
                     </h4>
                     <p style={{ height: "50px", overflowY: "auto" }}>
                       {!hasMultiple && requestItem?.desc}
                     </p>
                   </div>
-                  {requestMoney > 0.0 && (
-                    <div>
-                      <span>OR</span>
-                      <h4>${requestMoney.toFixed(2)}</h4>
-                    </div>
-                  )}
+                  {(requestItem || requestItem === undefined) &&
+                    requestMoney > 0.0 && (
+                      <div>
+                        <span>OR</span>
+                        <h4>${requestMoney.toFixed(2)}</h4>
+                      </div>
+                    )}
                 </div>
               </div>
             </div>
@@ -306,19 +316,22 @@ const BaseLongCard = function BaseLongCard({
                     <h4>
                       {hasMultiple
                         ? "Multiple Items"
-                        : requestItem
-                        ? requestItem.title
-                        : "Unspecified"}
+                        : requestItem === undefined
+                        ? "Unspecified"
+                        : !requestItem && requestMoney
+                        ? `$${requestMoney.toFixed(2)}`
+                        : requestItem?.title}
                     </h4>
                     <p style={{ height: "100px", overflowY: "auto" }}>
-                      {!hasMultiple && requestItem.desc}
+                      {!hasMultiple && requestItem?.desc}
                     </p>
-                    {requestMoney > 0.0 && (
-                      <>
-                        <hr />
-                        <h4>${requestMoney.toFixed(2)}</h4>
-                      </>
-                    )}
+                    {(requestItem || requestItem === undefined) &&
+                      requestMoney > 0.0 && (
+                        <>
+                          <hr />
+                          <h4>${requestMoney.toFixed(2)}</h4>
+                        </>
+                      )}
                   </div>
                 </div>
               </div>
@@ -383,6 +396,7 @@ export default function TradeCard({
   return (
     <BaseLongCard
       userName={userName}
+      s
       userImg={userImg}
       offerItem={offerItem}
       requestItem={requestItem}
@@ -392,8 +406,8 @@ export default function TradeCard({
       rating={rating}
     >
       <Button variant="primary">View</Button>
-      <Button variant="secondary">Trade Now</Button>
-      <Button variant="secondary">Buy Now</Button>
+      {requestItem !== null && <Button variant="secondary">Trade Now</Button>}
+      {requestMoney && <Button variant="secondary">Buy Now</Button>}
     </BaseLongCard>
   );
 }
