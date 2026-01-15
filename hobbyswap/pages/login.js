@@ -1,7 +1,31 @@
 import Link from "next/link";
 import { Image } from "react-bootstrap";
+import { useState } from "react";
 
 export default function Login() {
+  const emailRegex = /^[^@]+@[^@]+\.[^@]+$/;
+
+  const [emailOrUsername, setEmailOrUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  function handleSubmit(e) { 
+    e.preventDefault();
+    setError(""); // initialize error to empty string
+
+    if (emailOrUsername.trim() === "") 
+      return setError("Please enter your email or username.")
+    if (password === "")
+      return setError("Please enter your password")
+
+    // if email/username field includes @, we check it against the emailRegex.
+    // otherwise assume it's a username
+    if (emailOrUsername.includes("@") && !emailRegex.test(emailOrUsername))
+      return setError("Please enter a valid email address.")
+
+    // Submit Logic TODO
+  }
+
   return (
     <div className="container-lg my-8 border border-gray rounded-5 mx-auto shadow">
       <div className="row pt-5">
@@ -22,18 +46,28 @@ export default function Login() {
             />
           </div>
           <div className="col-md-5 col-12 d-flex flex-column border-bottom ">
-            <form className="d-grid gap-4 px-2 px-sm-3 px-md-5 py-4">
+            <form className="d-grid gap-4 px-2 px-sm-3 px-md-5 py-4" onSubmit={handleSubmit}>
+              {/*Display alert if error encountered*/}
+              {error !== "" ? (
+                <div className="alert alert-danger">
+                  {error}
+                </div>
+              ) : null}
               <input
-                type="email"
+                type="text"
                 className="form-control bg-light p-2"
                 id="email"
                 placeholder="Email or Username"
+                value={emailOrUsername}
+                onChange={(e) => setEmailOrUsername(e.target.value)}
               />
               <input
                 type="password"
                 className="form-control bg-light p-2"
                 id="password"
                 placeholder="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
               <button
                 type="submit"
