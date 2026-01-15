@@ -11,6 +11,7 @@ export default function Register() {
     email: "",
     password: "",
     passwordConfirm: "",
+    terms: false,
   });
   const [error, setError] = useState(""); // Setting state for error messages
   const [loading, setLoading] = useState(false); // Setting state for loading indicator
