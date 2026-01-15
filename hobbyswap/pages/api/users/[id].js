@@ -2,7 +2,7 @@ import { UserModel, mongooseConnect } from "@/lib/dbUtils";
 
 export default async function handler(req, res) {
   const { id } = req.query;
-  const { name } = req.body;
+  const {firstName, lastName, username, email, password} = req.body
   const { method } = req;
 
   try {
@@ -14,7 +14,14 @@ export default async function handler(req, res) {
         res.status(200).json(users[0]);
         break;
       case "PUT":
-        await UserModel.updateOne({ _id: id }, { $set: { name: name } }).exec();
+        const updateData = {};
+        if (firstName) updateData.firstName = firstName;
+        if (lastName) updateData.lastName = lastName;
+        if (username) updateData.username = username;
+        if (email) updateData.email = email;
+        if (password) updateData.password = password;
+
+        await UserModel.updateOne({ _id: id }, { $set: updateData }).exec();
         res.status(200).json({ message: `User with id: ${id} updated` });
         break;
       case "DELETE":

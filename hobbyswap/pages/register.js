@@ -1,54 +1,76 @@
 import Link from "next/link";
 import { Image } from "react-bootstrap";
 import { useState } from "react";
+import { useRouter } from "next/router";
 
 export default function Register() {
-    const emailRegex = /^[^@]+@[^@]+\.[^@]+$/;
+  const [formData, setFormData] = useState({ // Setting states for the Form Data
+    firstName: "",
+    lastName: "",
+    username: "",
+    email: "",
+    password: "",
+    passwordConfirm: "",
+  });
+  const [error, setError] = useState(""); // Setting state for error messages
+  const [loading, setLoading] = useState(false); // Setting state for loading indicator
+  const router = useRouter(); // Initializing the router for navigation
 
-    const [firstName, setFirstName] = useState("");
-    const [lastName, setLastName] = useState("");
-    const [username, setUsername] = useState("");
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [passwordConfirm, setPasswordConfirm] = useState("");
-    const [terms, setTerms] = useState(false);
-    const [error, setError] = useState("");
+  const handleChange = (e) => { // Handling input changes
+    const {id, value} = e.target;
+    setFormData((prev) => ({ ...prev, [id]: value }));
+  };
 
-    function handleSubmit(e) {
-      e.preventDefault();
-      setError("");
+  const handleSubmit = async (e) => { // Handling form submission
+    e.preventDefault();
+    setError(""); // Resetting error state
 
-      if (firstName.trim() === "")
-        return setError("Please enter your first name.");
-
-      if (lastName.trim() === "")
-        return setError("Please enter your last name.");
-
-      if (username.trim() === "")
-        return setError("Please enter a username.");
-
-      if (email.trim() === "")
-        return setError("Please enter your email.");
-
-      if (!emailRegex.test(email))
-        return setError("Email address is invalid.");
-
-      if (password === "")
-        return setError("Please enter a password.");
-
-      if (passwordConfirm === "")
-        return setError("Please re-type your password.");
-
-      if (password !== passwordConfirm)
-        return setError("Passwords must match.");
-
-      if (!terms)
-        return setError("You must agree to the Terms and Conditions.");
-
-      // Submit Logic TODO
-
+    //Validation
+    if(!formData.firstName || !formData.lastName || !formData.username || !formData.email || !formData.password || !formData.passwordConfirm || !document.getElementById("terms").checked){
+      setError("All fields are required");
+      return;
     }
 
+    if(formData.password !== formData.passwordConfirm){
+      setError("Passwords do not match");
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      setError("Password must be at least 6 characters");
+      return;
+    }
+
+    setLoading(true); //while attemptiing to fetch data from API 
+
+    try {
+      const response = await fetch("/api/users", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          username: formData.username,
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      const data = await response.json(); // Parsing response data
+      console.log(data);
+
+      if (!response.ok) { // Verifying data received
+        setError(data.error || "Registration failed");
+        return;
+      }
+      router.push("/login"); // Successful registration redirects to login
+    } catch (err) {
+      console.log("Error")
+      setError("An error occurred while registering. Please try again.");
+    }finally { // Finalizing loading state
+      setLoading(false);
+    }
+  };
   return (
     <>
       <div className="container-lg my-7 border border-gray rounded-5 mx-auto shadow col-12 col-md-5 mx-auto position-relative">
@@ -57,59 +79,54 @@ export default function Register() {
             <p className="text-primary fw-bold fs-3">Create an account</p>
           </div>
           <form className="d-grid gap-3 pb-4 pt-5 px-md-8" onSubmit={handleSubmit}>
-            {/*Display alert if error encountered*/}
-              {error !== "" ? (
-                <div className="alert alert-danger">
-                  {error}
-                </div>
-            ) : null}
+          {error && <div className="alert alert-danger">{error}</div>}
             <input
               type="text"
               className="form-control bg-light p-3"
               id="firstName"
               placeholder="First Name"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
+              value={formData.firstName}
+              onChange={handleChange}
             />
             <input
               type="text"
               className="form-control bg-light p-3"
               id="lastName"
               placeholder="Last Name"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
+              value={formData.lastName}
+              onChange={handleChange}
             />
             <input
               type="text"
               className="form-control bg-light p-3 mt-5"
               id="username"
               placeholder="Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={formData.username}
+              onChange={handleChange}
             />
             <input
               type="email"
               className="form-control bg-light p-3"
               id="email"
               placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={formData.email}
+              onChange={handleChange}
             />
             <input
               type="password"
               className="form-control bg-light p-3"
               id="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              placeholder="password"
+              value={formData.password}
+              onChange={handleChange}
             />
             <input
               type="password"
               className="form-control bg-light p-3 mb-4"
               id="passwordConfirm"
-              placeholder="Re-enter password"
-              value={passwordConfirm}
-              onChange={(e) => setPasswordConfirm(e.target.value)}
+              placeholder="Confirm password"
+              value={formData.passwordConfirm}
+              onChange={handleChange}
             />
             <div>
               <input
@@ -125,9 +142,10 @@ export default function Register() {
             </div>
             <button
               type="submit"
+              disabled={loading} //disable the submit button while loading
               className="btn btn-primary w-100 mt-4 text-uppercase fw-bold rounded-pill p-3"
             >
-              Sign Up
+              {loading ? "Signing Up..." : "Sign Up"}
             </button>
           </form>
           <div className="d-flex text-center justify-content-center mb-5">

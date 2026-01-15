@@ -1,10 +1,33 @@
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
-  name: {
+    
+  firstName: {
+      type: String,
+      required: true,
+  },
+  lastName:{
+    type: String,
+    required: true,
+  },
+  username:{
     type: String,
     required: true,
     unique: true,
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  password: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
   },
 });
 
@@ -17,7 +40,8 @@ export async function mongooseConnect() {
   }
 
   try {
-    await mongoose.connect(`Your MongoDB Connection String Here`);
+    console.log(process.env.MONGODB_URI);
+    await mongoose.connect(process.env.MONGODB_URI);
     return true;
   } catch (err) {
     throw new Error(err);
