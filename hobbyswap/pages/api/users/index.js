@@ -18,6 +18,7 @@ export default async function handler(req, res) {
         if (existingUser){
           return res.status(409).json({ error: "Email or username already exists"});
         }
+
         let newUser = new UserModel({ firstName, lastName, username, email, password });
         await newUser.save();
         res.status(201).json({ message: "User Created", user: newUser });

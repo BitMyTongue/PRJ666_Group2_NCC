@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema({
       type: String,
       required: true,
   },
-  lasName:{
+  lastName:{
     type: String,
     required: true,
   },
@@ -40,6 +40,7 @@ export async function mongooseConnect() {
   }
 
   try {
+    console.log(process.env.MONGODB_URI);
     await mongoose.connect(process.env.MONGODB_URI);
     return true;
   } catch (err) {

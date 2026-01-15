@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Image } from "react-bootstrap";
-import { userState } from "react";
-import { userRouter } from "next/router";
+import { useState } from "react";
+import { useRouter } from "next/router";
 
 export default function Register() {
   const [formData, setFormData] = useState({ // Setting states for the Form Data
@@ -22,11 +22,11 @@ export default function Register() {
   };
 
   const handleSubmit = async (e) => { // Handling form submission
-    e.preventDefault
+    e.preventDefault();
     setError(""); // Resetting error state
 
     //Validation
-    if(!formData.firstName || !formData.lastName || !formData.username || !formData.email || !formData.password){
+    if(!formData.firstName || !formData.lastName || !formData.username || !formData.email || !formData.password || !formData.passwordConfirm || !document.getElementById("terms").checked){
       setError("All fields are required");
       return;
     }
@@ -57,6 +57,7 @@ export default function Register() {
       });
 
       const data = await response.json(); // Parsing response data
+      console.log(data);
 
       if (!response.ok) { // Verifying data received
         setError(data.error || "Registration failed");
@@ -64,10 +65,12 @@ export default function Register() {
       }
       router.push("/login"); // Successful registration redirects to login
     } catch (err) {
+      console.log("Error")
       setError("An error occurred while registering. Please try again.");
     }finally { // Finalizing loading state
       setLoading(false);
     }
+  };
   return (
     <>
       <div className="container-lg my-7 border border-gray rounded-5 mx-auto shadow col-12 col-md-5 mx-auto position-relative">
@@ -158,4 +161,4 @@ export default function Register() {
       </div>
     </>
   );
-  }};
+}
