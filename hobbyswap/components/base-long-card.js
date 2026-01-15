@@ -153,7 +153,7 @@ const BaseLongCard = function BaseLongCard({
           <div
             className="card-min"
             style={{
-              width: "100$",
+              width: "100%",
               flexDirection: "column",
               overflowY: "auto",
               borderRightColor: "#E6E9EE",
