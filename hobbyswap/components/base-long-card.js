@@ -7,9 +7,27 @@ import { useState } from "react";
 
 // Item Example (for now)
 const item = {
+  user: null,
   img: "/images/fake-card.png",
   title: "Raichu Card",
   desc: "This is a description",
+};
+
+const itemOffer = {
+  user: { userName: "", userImg: "" },
+  img: "/images/fake-card.png",
+  title: "Raichu Card",
+  desc: "This is a description",
+};
+
+const StatusType = {
+  DECLINED: 1,
+  IN_PROGRESS: 2,
+  COMPLETED: 3,
+  CANCELLED: 4,
+  RES_NEEDED: 5,
+  AWAIT_PROPOSAL: 6,
+  AWAIT_APPROVAL: 7,
 };
 
 const SubtractSVG = function SubtractSVG({
@@ -161,9 +179,9 @@ const BaseLongCard = function BaseLongCard({
             }}
           >
             <div style={{ width: "100%", paddingBlock: 20, paddingInline: 40 }}>
-              <p style={{ marginBottom: 5 }}>
+              <div style={{ marginBottom: 5 }}>
                 <strong>OFFERING</strong>
-              </p>
+              </div>
               <div
                 style={{
                   display: "flex",
@@ -194,9 +212,20 @@ const BaseLongCard = function BaseLongCard({
                 boxShadow: "inset 1px 1px 5px gray",
               }}
             >
-              <p style={{ marginBottom: 5 }}>
-                <strong>REQUESTING</strong>
-              </p>
+              <div style={{ marginBottom: 5 }}>
+                {requestItem?.user ? (
+                  <div style={{ display: "flex", gap: 10 }}>
+                    <UserIcon
+                      user={requestItem.user.userName}
+                      img={requestItem.user.userImg}
+                      size={20}
+                    />
+                    <span>{requestItem.user.userName}</span>
+                  </div>
+                ) : (
+                  <strong>REQUESTING</strong>
+                )}
+              </div>
               <div
                 style={{
                   display: "flex",
@@ -297,7 +326,20 @@ const BaseLongCard = function BaseLongCard({
                   marginLeft: 80,
                 }}
               >
-                <h4 style={{ marginBottom: 20 }}>REQUESTING</h4>
+                <h4 style={{ marginBottom: 20 }}>
+                  {requestItem?.user ? (
+                    <div style={{ display: "flex", gap: 10 }}>
+                      <UserIcon
+                        user={requestItem.user.userName}
+                        img={requestItem.user.userImg}
+                        size={40}
+                      />
+                      <span>{requestItem.user.userName}</span>
+                    </div>
+                  ) : (
+                    "REQUESTING"
+                  )}
+                </h4>
                 <div
                   style={{
                     display: "flex",
@@ -367,7 +409,8 @@ const BaseLongCard = function BaseLongCard({
               )}
               {cancelCallback && (
                 <Button
-                  variant="gray"
+                  className="w-100"
+                  variant="info"
                   onClick={() => {
                     cancelCallback();
                   }}
@@ -383,7 +426,7 @@ const BaseLongCard = function BaseLongCard({
   );
 };
 
-export default function TradeCard({
+const TradeCard = function TradeCard({
   userName,
   userImg,
   offerItem,
@@ -393,6 +436,7 @@ export default function TradeCard({
   requestMoney = 0.0,
   rating = 0,
 }) {
+  // TODO: Button implementation
   return (
     <BaseLongCard
       userName={userName}
@@ -410,4 +454,174 @@ export default function TradeCard({
       {requestMoney && <Button variant="secondary">Buy Now</Button>}
     </BaseLongCard>
   );
-}
+};
+
+/// buttons below are meant for StatusCard, mostly for organizing
+
+const OfferButton = function OfferButton({ variant, onClick }) {
+  return (
+    <Button variant={variant} onClick={onClick}>
+      View Offer
+    </Button>
+  );
+};
+
+const EditOfferButton = function EditOfferButton({ onClick }) {
+  return (
+    <Button variant={"secondary"} onClick={onClick}>
+      Edit Offer
+    </Button>
+  );
+};
+
+const TradeButton = function TradeButton({ variant, onClick }) {
+  return (
+    <Button variant={variant} onClick={onClick}>
+      View Trade
+    </Button>
+  );
+};
+
+const MsgButton = function MsgButton({ onClick }) {
+  return (
+    <Button variant={"secondary"} onClick={onClick}>
+      Message
+    </Button>
+  );
+};
+
+const AcceptButton = function AcceptButton({ onClick }) {
+  return (
+    <Button variant={"success"} onClick={onClick}>
+      Message
+    </Button>
+  );
+};
+
+const DeclineButton = function DeclineButton({ onClick }) {
+  return (
+    <Button variant={"danger"} onClick={onClick}>
+      Message
+    </Button>
+  );
+};
+
+const StatusCard = function StatusCard({
+  userName,
+  userImg,
+  offerItem,
+  requestItem,
+  statusType,
+  hasMultiple = false,
+  requestMoney = 0.0,
+}) {
+  // TODO: Button implementation
+  const handleViewOffer = () => {};
+  const handleEditOffer = () => {};
+  const handleViewTrade = () => {};
+  const handleMessage = () => {};
+  const handleAccept = () => {};
+  const handleDecline = () => {};
+
+  const ButtonLayout = {
+    MAIN_LAYOUT1: (
+      <>
+        <TradeButton variant={"primary"} onClick={handleViewTrade} />
+        <OfferButton variant={"secondary"} onClick={handleViewOffer} />
+        <MsgButton onClick={handleMessage} />
+      </>
+    ),
+    MAIN_LAYOUT2: (
+      <>
+        <OfferButton variant={"primary"} onClick={handleViewOffer} />
+        <MsgButton onClick={handleMessage} />
+      </>
+    ),
+    CHOICE_LAYOUT: (
+      <>
+        <AcceptButton onClick={handleAccept} />
+        <DeclineButton onClick={handleDecline} />
+        <OfferButton variant={"secondary"} onClick={handleViewOffer} />
+        <MsgButton onClick={handleMessage} />
+      </>
+    ),
+    EDIT_OFFER: (
+      <>
+        <OfferButton variant={"primary"} />
+        <EditOfferButton onClick={handleEditOffer} />
+      </>
+    ),
+  };
+
+  const StatusLayout = [
+    {
+      id: 1,
+      msg: "trade declined",
+      color: "#D00018",
+      layout: ButtonLayout.MAIN_LAYOUT2,
+      cancel: null,
+    },
+    {
+      id: 2,
+      msg: "trade in progress",
+      color: "#F79E1B",
+      layout: ButtonLayout.MAIN_LAYOUT1,
+      cancel: () => {},
+    },
+    {
+      id: 3,
+      msg: "trade completed",
+      color: "#3A8402",
+      layout: ButtonLayout.MAIN_LAYOUT1,
+      cancel: null,
+    },
+    {
+      id: 4,
+      msg: "trade cancelled",
+      color: "#777070",
+      layout: ButtonLayout.MAIN_LAYOUT1,
+      cancel: null,
+    },
+    {
+      id: 5,
+      msg: "proposal response needed",
+      color: "#00BAE8",
+      layout: ButtonLayout.CHOICE_LAYOUT,
+      cancel: () => {},
+    },
+    {
+      id: 6,
+      msg: "awaiting proposals...",
+      color: "#006FCF",
+      layout: ButtonLayout.EDIT_OFFER,
+      cancel: () => {},
+    },
+    {
+      id: 7,
+      msg: "awaiting trade approval...",
+      color: "#8895B4",
+      layout: ButtonLayout.MAIN_LAYOUT2,
+      cancel: null,
+    },
+  ];
+
+  const currType = StatusLayout.find((obj) => statusType === obj.id);
+  return (
+    <BaseLongCard
+      userName={userName}
+      status={currType.msg}
+      color={currType.color}
+      userImg={userImg}
+      offerItem={offerItem}
+      requestItem={requestItem}
+      hasMultiple={hasMultiple}
+      requestMoney={requestMoney}
+      showBookmark={false}
+      cancelCallback={currType.cancel}
+    >
+      {currType.layout}
+    </BaseLongCard>
+  );
+};
+
+export { TradeCard, StatusCard, StatusType };
