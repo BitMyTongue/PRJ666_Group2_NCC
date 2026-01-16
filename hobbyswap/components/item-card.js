@@ -20,7 +20,7 @@ export default function ItemCard({ img, name, desc, saved }) {
             marginTop: 20,
           }}
         >
-          <h3>{name}</h3>
+          <p className="h3">{name}</p>
           <BookmarkIcon fill={saved} />
         </div>
         <p>{desc}</p>
