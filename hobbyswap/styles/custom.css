@@ -89,3 +89,8 @@
   position: relative;
   top: -13px;
 }
+
+.caption {
+  font-size: 12;
+  color: gray;
+}
