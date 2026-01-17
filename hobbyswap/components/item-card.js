@@ -11,12 +11,12 @@ export default function ItemCard({ img, name, desc, saved }) {
         src={img}
         width={278}
         height={385}
+        style={{ objectFit: "contain" }}
       />
       <div>
         <div
+          className="d-flex justify-content-between"
           style={{
-            display: "flex",
-            justifyContent: "space-between",
             marginTop: 20,
           }}
         >
@@ -25,7 +25,7 @@ export default function ItemCard({ img, name, desc, saved }) {
         </div>
         <p>{desc}</p>
       </div>
-      <Button style={{ width: "100%" }} variant="secondary">
+      <Button className="w-100" variant="secondary">
         Trade Now
       </Button>
     </div>
