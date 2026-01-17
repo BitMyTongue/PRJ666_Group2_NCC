@@ -190,13 +190,14 @@ const BaseLongCard = function BaseLongCard({
                 }}
               >
                 <Image
+                  className="object-fit-contain"
                   alt={offerItem.title}
                   src={offerItem.img}
                   width={69}
                   height={96}
                 />
                 <div>
-                  <h4>{offerItem.title}</h4>
+                  <p className="h4">{offerItem.title}</p>
                   <p style={{ height: "50px", overflowY: "auto" }}>
                     {offerItem.desc}
                   </p>
@@ -234,6 +235,7 @@ const BaseLongCard = function BaseLongCard({
               >
                 {!hasMultiple && requestItem && (
                   <Image
+                    className="object-fit-contain"
                     alt={requestItem.title}
                     src={requestItem.img}
                     width={69}
@@ -249,7 +251,7 @@ const BaseLongCard = function BaseLongCard({
                   }}
                 >
                   <div>
-                    <h4>
+                    <p className="h4">
                       {hasMultiple
                         ? "Multiple Items"
                         : requestItem === undefined
@@ -257,7 +259,7 @@ const BaseLongCard = function BaseLongCard({
                         : !requestItem && requestMoney
                         ? `$${requestMoney.toFixed(2)}`
                         : requestItem?.title}
-                    </h4>
+                    </p>
                     <p style={{ height: "50px", overflowY: "auto" }}>
                       {!hasMultiple && requestItem?.desc}
                     </p>
@@ -266,7 +268,7 @@ const BaseLongCard = function BaseLongCard({
                     requestMoney > 0.0 && (
                       <div>
                         <span>OR</span>
-                        <h4>${requestMoney.toFixed(2)}</h4>
+                        <p className="h4">${requestMoney.toFixed(2)}</p>
                       </div>
                     )}
                 </div>
@@ -275,7 +277,9 @@ const BaseLongCard = function BaseLongCard({
           </div>
           <div className="card-max" style={{ width: "100%" }}>
             <div style={{ width: "45%", paddingBlock: 20, paddingInline: 40 }}>
-              <h4 style={{ marginBottom: 20 }}>OFFERING</h4>
+              <p className="h4" style={{ marginBottom: 20 }}>
+                OFFERING
+              </p>
               <div
                 style={{
                   display: "flex",
@@ -284,13 +288,14 @@ const BaseLongCard = function BaseLongCard({
                 }}
               >
                 <Image
+                  className="object-fit-contain"
                   alt={offerItem.title}
                   src={offerItem.img}
                   width={149}
                   height={196}
                 />
                 <div>
-                  <h4>{offerItem.title}</h4>
+                  <p className="h4">{offerItem.title}</p>
                   <p style={{ height: "100px", overflowY: "auto" }}>
                     {offerItem.desc}
                   </p>
@@ -326,20 +331,21 @@ const BaseLongCard = function BaseLongCard({
                   marginLeft: 80,
                 }}
               >
-                <h4 style={{ marginBottom: 20 }}>
-                  {requestItem?.user ? (
-                    <div style={{ display: "flex", gap: 10 }}>
-                      <UserIcon
-                        user={requestItem.user.userName}
-                        img={requestItem.user.userImg}
-                        size={40}
-                      />
-                      <span>{requestItem.user.userName}</span>
-                    </div>
-                  ) : (
-                    "REQUESTING"
-                  )}
-                </h4>
+                {requestItem?.user ? (
+                  <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
+                    <UserIcon
+                      user={requestItem.user.userName}
+                      img={requestItem.user.userImg}
+                      size={20}
+                    />
+                    <span>{requestItem.user.userName}</span>
+                  </div>
+                ) : (
+                  <p className="h4" style={{ marginBottom: 20 }}>
+                    REQUESTING
+                  </p>
+                )}
+
                 <div
                   style={{
                     display: "flex",
@@ -348,6 +354,7 @@ const BaseLongCard = function BaseLongCard({
                 >
                   {!hasMultiple && requestItem && (
                     <Image
+                      className="object-fit-contain"
                       alt={requestItem.title}
                       src={requestItem.img}
                       width={149}
@@ -355,7 +362,7 @@ const BaseLongCard = function BaseLongCard({
                     />
                   )}
                   <div>
-                    <h4>
+                    <p className="h4">
                       {hasMultiple
                         ? "Multiple Items"
                         : requestItem === undefined
@@ -363,7 +370,7 @@ const BaseLongCard = function BaseLongCard({
                         : !requestItem && requestMoney
                         ? `$${requestMoney.toFixed(2)}`
                         : requestItem?.title}
-                    </h4>
+                    </p>
                     <p style={{ height: "100px", overflowY: "auto" }}>
                       {!hasMultiple && requestItem?.desc}
                     </p>
@@ -371,7 +378,7 @@ const BaseLongCard = function BaseLongCard({
                       requestMoney > 0.0 && (
                         <>
                           <hr />
-                          <h4>${requestMoney.toFixed(2)}</h4>
+                          <p className="h4">${requestMoney.toFixed(2)}</p>
                         </>
                       )}
                   </div>
