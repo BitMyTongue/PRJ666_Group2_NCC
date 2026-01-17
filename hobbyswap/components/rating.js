@@ -33,7 +33,7 @@ const Star = function Star({ fill, size = 24 }) {
 
 export default function Rating({ rating = 0, size = 24 }) {
   return (
-    <div style={{ gap: "5px", display: "flex" }}>
+    <div className="d-flex gap-1">
       <Star fill={rating > 0} size={size} />
       <Star fill={rating > 1} size={size} />
       <Star fill={rating > 2} size={size} />
