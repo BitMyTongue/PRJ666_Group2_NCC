@@ -94,3 +94,7 @@
   font-size: 12;
   color: gray;
 }
+
+.sm-d-shadow {
+  box-shadow: 1px 1px 5px gray;
+}

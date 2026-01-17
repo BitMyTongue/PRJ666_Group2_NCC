@@ -22,35 +22,24 @@ export default function LongItemCard({
   return (
     <>
       <div
+        className="sm-d-shadow"
         style={{
           backgroundColor: "#D9D9D9",
           borderRadius: 18,
           width: "90%",
           minWidth: "550px",
           height: "400px",
-          boxShadow: "1px 1px 5px gray",
           marginBlock: "10px",
         }}
       >
         <div
+          className="d-flex justify-content-between align-items-center text-white"
           style={{
-            display: "flex",
-            justifyContent: "space-between",
-            paddingBlock: 10,
+            paddingBlock: 18,
             paddingInline: 25,
-            color: "white",
-
-            alignItems: "center",
           }}
         >
-          <div
-            style={{
-              display: "flex",
-              gap: 10,
-
-              alignItems: "center",
-            }}
-          >
+          <div className="d-flex gap-2 align-items-center">
             <strong>ITEM</strong>
           </div>
         </div>
@@ -62,7 +51,7 @@ export default function LongItemCard({
             borderRadius: 18,
           }}
         >
-          <div className="card-max" style={{ width: "100%" }}>
+          <div className="card-max w-100">
             <div style={{ width: "70%", paddingBlock: 40, paddingInline: 40 }}>
               <div
                 style={{
@@ -72,6 +61,7 @@ export default function LongItemCard({
                 }}
               >
                 <Image
+                  className="object-fit-contain"
                   alt={item.title}
                   src={item.img}
                   width={149}
@@ -106,18 +96,15 @@ export default function LongItemCard({
           </div>
 
           <div
+            className="position-relative d-flex flex-column justify-content-between"
             style={{
-              position: "relative",
-              display: "flex",
               width: "20%",
               minWidth: "150px",
               paddingBlock: 10,
               paddingInline: 20,
-              flexDirection: "column",
-              justifyContent: "space-between",
             }}
           >
-            <div style={{ display: "flex", gap: 10, flexDirection: "column" }}>
+            <div className="d-flex gap-2 flex-column">
               <Button variant={"primary"} onClick={handleViewOffer}>
                 View Offers
               </Button>
@@ -125,8 +112,9 @@ export default function LongItemCard({
                 Create Listing
               </Button>
             </div>
-            <div className="w-100" style={{ float: "left" }}>
+            <div className="w-100">
               <Button
+                className="position-absolute"
                 variant="none"
                 style={{ position: "absolute", bottom: 5, right: 5 }}
                 onClick={() => {
