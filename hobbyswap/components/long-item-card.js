@@ -44,13 +44,45 @@ export default function LongItemCard({
           </div>
         </div>
         <div
+          className="d-flex bg-white"
           style={{
-            display: "flex",
-            backgroundColor: "white",
             height: "340px",
             borderRadius: 18,
           }}
         >
+          <div
+            className="card-min flex-column overflow-y-auto"
+            style={{
+              width: "100%",
+              borderRightColor: "#E6E9EE",
+              borderRightStyle: "solid",
+              paddingBlock: 30,
+              paddingInline: 40,
+            }}
+          >
+            <div style={{ width: "100%", marginBottom: 30 }}>
+              <div
+                style={{
+                  display: "flex",
+                  gap: 20,
+                  margin: 0,
+                }}
+              >
+                <Image alt={item.title} src={item.img} width={69} height={96} />
+                <div>
+                  <p className="h4">{item.title}</p>
+                  <p style={{ height: "50px", overflowY: "auto" }}>
+                    {item.desc}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="d-flex gap-4">
+              <StatLabel label="total traded this month" stat={monthStats} />
+              <StatLabel label="total traded this year" stat={yearStats} />
+              <StatLabel label="total traded all time" stat={allTimeStats} />
+            </div>
+          </div>
           <div className="card-max w-100">
             <div style={{ width: "70%", paddingBlock: 40, paddingInline: 40 }}>
               <div
