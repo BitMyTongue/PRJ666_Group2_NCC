@@ -30,19 +30,17 @@ export default function UserReview({
   const [likesNum, setLikesNum] = useState(likes);
   const [dislikesNum, setDislikesNum] = useState(dislikes);
   return (
-    <div style={{ display: "flex", gap: 20, marginBlock: 20, width: "100%" }}>
-      <div style={{ display: "flex", flexDirection: "column", width: "20%" }}>
+    <div className="d-flex gap-3 my-4" style={{ width: "100%" }}>
+      <div className="d-flex flex-column" style={{ width: "20%" }}>
         <p>{date}</p>
-        <div style={{ display: "flex", gap: 10 }}>
+        <div className="d-flex gap-2">
           <UserIcon user={userName} img={userImg} size={40} />
           <div>{userName}</div>
         </div>
       </div>
       <div
+        className="d-flex flex-column gap-3"
         style={{
-          display: "flex",
-          gap: 20,
-          flexDirection: "column",
           width: "60%",
         }}
       >
@@ -53,17 +51,19 @@ export default function UserReview({
         <p>{desc}</p>
         {item && (
           <div
+            className="d-flex gap-2 py-3 px-4 sm-d-shadow "
             style={{
-              display: "flex",
-              gap: 10,
               backgroundColor: "#D9D9D9",
-              paddingBlock: 20,
-              paddingInline: 30,
               borderRadius: 18,
-              boxShadow: "1px 1px 5px gray",
             }}
           >
-            <Image alt={item.title} src={item.img} width={149} height={196} />
+            <Image
+              className="object-fit-contain"
+              alt={item.title}
+              src={item.img}
+              width={149}
+              height={196}
+            />
             <div>
               <h4>{item.title}</h4>
               <p style={{ height: "100px", overflowY: "auto" }}>{item.desc}</p>
@@ -72,10 +72,8 @@ export default function UserReview({
         )}
       </div>
       <div
+        className="d-flex justify-content-end gap-2 "
         style={{
-          display: "flex",
-          justifyContent: "end",
-          gap: 10,
           color: "#9A9393",
           width: "20%",
         }}
