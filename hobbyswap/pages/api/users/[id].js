@@ -2,7 +2,7 @@ import { UserModel, mongooseConnect } from "@/lib/dbUtils";
 
 export default async function handler(req, res) {
   const { id } = req.query;
-  const {firstName, lastName, username, email, password} = req.body
+  const { firstName, lastName, username, email, password } = req.body;
   const { method } = req;
 
   try {
@@ -10,9 +10,17 @@ export default async function handler(req, res) {
 
     switch (method) {
       case "GET":
-        let users = await UserModel.find({ _id: id }).exec();
-        res.status(200).json(users[0]);
+        const user = await UserModel.findById(id).exec();
+
+        if (!user) {
+          return res
+            .status(404)
+            .json({ message: `User with id: ${id} not found` });
+        }
+
+        res.status(200).json(user);
         break;
+
       case "PUT":
         const updateData = {};
         if (firstName) updateData.firstName = firstName;
