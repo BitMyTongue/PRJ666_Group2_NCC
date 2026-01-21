@@ -10,10 +10,11 @@ import {
   faStar,
 } from "@fortawesome/free-solid-svg-icons";
 import UserIcon from "@/components/user-icon";
+import Link from "next/link";
 export default function User() {
   const [user, setUser] = useState(null);
   const router = useRouter();
-  const isOwnerOfProfile = false; //TODO: Implement logic to check if the logged-in user is the owner of the profile
+  const isOwnerOfProfile = true; //TODO: Implement logic to check if the logged-in user is the owner of the profile
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -72,17 +73,26 @@ export default function User() {
           <div className="col-12 col-md-4 border border-gray rounded rounded-4 shadow py-8 d-flex flex-column justify-content-center align-items-center gap-3">
             <UserIcon img="/images/default-avatar.png" size={120} />
             <p className="fw-semibold fs-2 text-primary">{`${user?.firstName} ${user?.lastName}`}</p>
-            <button className="btn btn-light text-primary border-primary border rounded-pill py-2 fw-semibold w-50 w-md-100">
-              Edit Profile
-            </button>
-            <div className="d-flex flex-column align-items-center gap-2 w-50 w-md-100">
-              <button className="btn btn-primary rounded-pill py-2 fw-semibold w-100 border border-primary border-3">
-                View Your Marketplace
-              </button>
-              <button className="btn btn-light text-primary border-primary rounded-pill py-2 fw-semibold w-100">
-                List An Item
-              </button>
-            </div>
+            {isOwnerOfProfile && (
+              <div className="w-100 text-center align-self-center">
+                <button className="btn btn-light text-primary border-primary border rounded-pill py-2 fw-semibold w-50 w-md-100">
+                  Edit Profile
+                </button>
+                <div className="d-flex flex-column align-items-center gap-2 w-50 w-md-100 text-center mt-3 mx-auto">
+                  <button className="btn btn-primary rounded-pill py-2 fw-semibold w-100 border border-primary border-3">
+                    View Your Marketplace
+                  </button>
+                  <button className="btn btn-light text-primary border-primary rounded-pill py-2 fw-semibold w-100">
+                    <Link
+                      className="link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover fw-semibold"
+                      href="/listings/create"
+                    >
+                      List An Item
+                    </Link>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
           <div className="col-11 col-md-6 border border-gray rounded rounded-4 shadow p-4 d-flex flex-column justify-content-center align-items-center ">
             <div className="row border-bottom border-gray pb-3 w-100 mb-3">
