@@ -49,6 +49,7 @@ const currentUser = {
   rating: 5,
 };
 const fakeSuccessfullyCreatedData = {
+  id: 1,
   itemName: "Charizard Card",
   category: "Pokemon Card",
   condition: "New",
@@ -296,7 +297,10 @@ export default function CreateListing() {
           </p>
           <button className="btn btn-primary rounded-5 fw-semibold px-4 text-white">
             <Link
-              href="#"
+              href={{
+                pathname: "/listings/[id]",
+                query: { id: fakeSuccessfullyCreatedData.id },
+              }}
               className="link-light link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover fw-semibold text-white"
             >
               View Listing
