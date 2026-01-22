@@ -59,7 +59,7 @@ const fakeSuccessfullyCreatedData = {
   location: "Wheels &Wings Hobbies",
 };
 
-export default function CreateListing() {
+export default function CreateListing() { // http://localhost:3000/listings/create
   const router = useRouter();
   const searchParams = useSearchParams();
   const status = searchParams.get("status");

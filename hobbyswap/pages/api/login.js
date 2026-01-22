@@ -35,6 +35,18 @@ export default async function handler(req, res) {
     // Return user data (exclude password)
     const { password: _, ...userWithoutPassword } = user.toObject();
     res.status(200).json({ user: userWithoutPassword });
+
+    // Bicrypt implementation example:
+    // const isMatch = await bcrypt.compare(password, user.password);
+    // if (!isMatch) {
+    //   return res.status(401).json({ error: "Invalid email or password" });
+    // }
+
+    // Confirm userdata received.
+
+    // In production, implement session management or JWT here
+
+
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
