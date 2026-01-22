@@ -1,11 +1,10 @@
-import Image from "next/image";
 import { forwardRef } from "react";
 import { Button, Dropdown } from "react-bootstrap";
 import UserIcon from "../user-icon";
 
 const CustomToggle = forwardRef(function CustomToggle(
   { children, onClick },
-  ref
+  ref,
 ) {
   return (
     <a
@@ -23,7 +22,7 @@ const CustomToggle = forwardRef(function CustomToggle(
 
 const CustomMenu = forwardRef(function CustomMenu(
   { children, style, className },
-  ref
+  ref,
 ) {
   return (
     <div ref={ref} style={style} className={className}>
@@ -33,11 +32,11 @@ const CustomMenu = forwardRef(function CustomMenu(
   );
 });
 
-export default function CurrentUserDropdown(props) {
+export default function CurrentUserDropdown({ userName, userImg }) {
   return (
     <Dropdown>
       <Dropdown.Toggle as={CustomToggle} id="store-options">
-        <UserIcon user="" img="/images/gundam.png" size={40} />
+        <UserIcon user={userName} img={userImg} size={40} />
       </Dropdown.Toggle>
 
       <Dropdown.Menu as={CustomMenu}>
