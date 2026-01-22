@@ -11,8 +11,10 @@ import {
   faThumbsDown as outlineThumbsDown,
 } from "@fortawesome/free-regular-svg-icons";
 import Image from "next/image";
+import { useRouter } from "next/router";
 
 export default function UserReview({
+  userId,
   userName,
   userImg,
   date,
@@ -25,6 +27,7 @@ export default function UserReview({
   isLiked = false,
   isDisliked = false,
 }) {
+  const router = useRouter();
   const [likeToggle, setLikeToggle] = useState(isLiked);
   const [dislikeToggle, setDislikeToggle] = useState(isDisliked);
   const [likesNum, setLikesNum] = useState(likes);
@@ -33,7 +36,12 @@ export default function UserReview({
     <div className="d-flex gap-3 my-4" style={{ width: "100%" }}>
       <div className="d-flex flex-column" style={{ width: "20%" }}>
         <p>{date}</p>
-        <div className="d-flex gap-2">
+        <div
+          className="d-flex gap-2"
+          onClick={() => {
+            router.push("/user/" + userId);
+          }}
+        >
           <UserIcon user={userName} img={userImg} size={40} />
           <div>{userName}</div>
         </div>

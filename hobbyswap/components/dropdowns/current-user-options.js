@@ -32,7 +32,8 @@ const CustomMenu = forwardRef(function CustomMenu(
   );
 });
 
-export default function CurrentUserDropdown({ userName, userImg }) {
+// TODO: Add other links when possible (store, user listings, trade history, bookmarks, etc)
+export default function CurrentUserDropdown({ userId, userName, userImg }) {
   return (
     <Dropdown>
       <Dropdown.Toggle as={CustomToggle} id="store-options">
@@ -52,7 +53,11 @@ export default function CurrentUserDropdown({ userName, userImg }) {
         <Dropdown.Item as="button" className="btn btn-primary" href="#">
           View Your Bookmarks
         </Dropdown.Item>
-        <Dropdown.Item as="button" className="btn btn-primary" href="#">
+        <Dropdown.Item
+          as="button"
+          className="btn btn-primary"
+          href={`/users/` + userId}
+        >
           View Your Profile
         </Dropdown.Item>
         <Dropdown.Item as="button" className="btn btn-primary mt-3" href="#">

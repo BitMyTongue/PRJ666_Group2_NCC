@@ -4,6 +4,7 @@ import Image from "next/image";
 import BookmarkIcon from "./bookmark-icon";
 import UserIcon from "./user-icon";
 import { useState } from "react";
+import { useRouter } from "next/router";
 
 // Item Example (for now)
 const item = {
@@ -14,7 +15,7 @@ const item = {
 };
 
 const itemOffer = {
-  user: { userName: "", userImg: "" },
+  user: { userId: "", userName: "", userImg: "" },
   img: "/images/fake-card.png",
   title: "Raichu Card",
   desc: "This is a description",
@@ -115,6 +116,7 @@ const BaseLongCard = function BaseLongCard({
   color = null,
 }) {
   const [saved, setSaved] = useState(isBookmarked);
+  const router = useRouter();
   const bookmarkCallback = () => {
     setSaved(!saved);
   };
@@ -149,6 +151,9 @@ const BaseLongCard = function BaseLongCard({
               gap: 10,
 
               alignItems: "center",
+            }}
+            onClick={() => {
+              router.push("/users/" + userId);
             }}
           >
             <strong>FROM:</strong>
@@ -255,10 +260,10 @@ const BaseLongCard = function BaseLongCard({
                       {hasMultiple
                         ? "Multiple Items"
                         : requestItem === undefined
-                        ? "Unspecified"
-                        : !requestItem && requestMoney
-                        ? `$${requestMoney.toFixed(2)}`
-                        : requestItem?.title}
+                          ? "Unspecified"
+                          : !requestItem && requestMoney
+                            ? `$${requestMoney.toFixed(2)}`
+                            : requestItem?.title}
                     </p>
                     <p style={{ height: "50px", overflowY: "auto" }}>
                       {!hasMultiple && requestItem?.desc}
@@ -366,10 +371,10 @@ const BaseLongCard = function BaseLongCard({
                       {hasMultiple
                         ? "Multiple Items"
                         : requestItem === undefined
-                        ? "Unspecified"
-                        : !requestItem && requestMoney
-                        ? `$${requestMoney.toFixed(2)}`
-                        : requestItem?.title}
+                          ? "Unspecified"
+                          : !requestItem && requestMoney
+                            ? `$${requestMoney.toFixed(2)}`
+                            : requestItem?.title}
                     </p>
                     <p style={{ height: "100px", overflowY: "auto" }}>
                       {!hasMultiple && requestItem?.desc}
