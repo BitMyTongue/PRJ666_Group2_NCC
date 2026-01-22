@@ -15,6 +15,7 @@ const Navbar = ({ user = true }) => {
     setIsOpen(!isOpen);
   };
 
+  // TODO: Add other links when possible (store, user listings, trade history, bookmarks, user, etc)
   return (
     <nav
       className="bg-primary mx-auto p-3 px-5
@@ -146,7 +147,11 @@ const Navbar = ({ user = true }) => {
                       <Link as="button" className="btn btn-primary" href="#">
                         View Your Bookmarks
                       </Link>
-                      <Link as="button" className="btn btn-primary" href="#">
+                      <Link
+                        as="button"
+                        className="btn btn-primary"
+                        href={`/users/` + user}
+                      >
                         View Your Profile
                       </Link>
                       <Link
