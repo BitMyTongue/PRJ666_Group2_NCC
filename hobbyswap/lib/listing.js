@@ -1,38 +1,51 @@
-import mongoose from "mongoose";
-const Schema = mongoose.Schema;
-const userSchema = new mongoose.Schema({
-    
-  firstName: {
+const mongoose = require('mongoose');
+
+const listingSchema = new mongoose.Schema({
+  userId: {
       type: String,
       required: true,
+      unique: true,
   },
-  lastName:{
+  title:{
     type: String,
     required: true,
   },
-  username:{
+  description:{
     type: String,
     required: true,
-    unique: true,
   },
-  email: {
+  category: {
     type: String,
     required: true,
-    unique: true,
   },
-  password: {
+  brand: {
     type: String,
     required: true,
-    unique: true,
   },
-  createdAt: {
+  condition: {
+    type: String,
+    required: true,
+  },
+  images: {
+    type: [String],
+    required: true,
+  },
+  status: {
+    type: Boolean,
+    required: true,
+  },
+  location: {
+    type: String,
+    required: true,
+  },
+  datePosted: {
     type: Date,
     default: Date.now,
   },
 });
 
 mongoose.models = {};
-export const UserModel = mongoose.model("users", userSchema);
+export const ListingModel = mongoose.model("listings", listingSchema);
 
 export async function mongooseConnect() {
   if (mongoose.connections[0].readyState) {
