@@ -17,6 +17,25 @@ import {
   MarkerF,
   useJsApiLoader,
 } from "@react-google-maps/api";
+import Carousel from "react-multi-carousel";
+import "react-multi-carousel/lib/styles.css";
+const responsive = {
+  desktop: {
+    breakpoint: { max: 3000, min: 768 },
+    items: 4,
+    slidesToSlide: 1,
+  },
+  tablet: {
+    breakpoint: { max: 768, min: 576 },
+    items: 3,
+    slidesToSlide: 1,
+  },
+  mobile: {
+    breakpoint: { max: 576, min: 0 },
+    items: 2,
+    slidesToSlide: 1,
+  },
+};
 
 //TODO: Pull from database, use fake data for UI implement only
 const fakeSuccessfullyCreatedData = {
@@ -26,7 +45,13 @@ const fakeSuccessfullyCreatedData = {
   condition: "New",
   description:
     "Lorem ipsum dolor sit amet consectetur. A commodo arcu dictum volutpat donec magna magna lacus eu. Ornare aliquam tristique feugiat amet lobortis. Erat dolor gravida augue tristique dolor. Metus donec viverra pulvinar enim est sagittis. ",
-  imageUrl: ["/images/charizard-card.png"],
+  imageUrl: [
+    "/images/charizard-card.png",
+    "/images/details-photo-1.png",
+    "/images/details-photo-2.jpg",
+    "/images/details-photo-3.jpg",
+    "/images/details-photo-4.png",
+  ],
   meetUp: true,
   location: "Wheels &Wings Hobbies",
 };
@@ -111,6 +136,9 @@ export default function Listing() {
     const province = parts[parts.length - 1].trim().split(" ")[0];
     return `${city}, ${province}`;
   };
+  const [selectedImage, setSelectedImage] = useState(
+    fakeSuccessfullyCreatedData.imageUrl[0],
+  );
 
   return (
     <>
@@ -185,12 +213,54 @@ export default function Listing() {
       <div className="container-sm my-6">
         {/* Product general details */}
         <div className="row d-flex flex-column flex-md-row mt-5 gap-3">
-          <div className="col-12 col-md-7 border border-gray rounded-5 shadow"></div>
+          <div className="col-12 col-md-7 border border-gray rounded-5 shadow d-flex flex-column">
+            <div className="text-center mb-2 px-8 py-5">
+              <Image
+                src={selectedImage}
+                alt="Selected"
+                fluid
+                className=" rounded-4
+                 shadow"
+              />
+            </div>
+            {/* Carousel */}
+            <div className="row">
+              <Carousel
+                responsive={responsive}
+                arrows
+                swipeable
+                draggable
+                infinite={true}
+                keyBoardControl
+              >
+                {fakeSuccessfullyCreatedData.imageUrl.map((img, index) => (
+                  <div
+                    key={index}
+                    className={`text-center rounded-3 ${
+                      selectedImage === img
+                        ? "border border-primary border-3"
+                        : ""
+                    }`}
+                  >
+                    <Image
+                      src={img}
+                      alt={`thumb-${index}`}
+                      className={`img-thumbnail w-50 thumbnail-img `}
+                      style={{ cursor: "pointer" }}
+                      onClick={() => setSelectedImage(img)}
+                    />
+                  </div>
+                ))}
+              </Carousel>
+            </div>
+
+            {/* End Carousel */}
+          </div>
           <div className=" py-6 col-12 col-md-4 rounded-5 border border-gray shadow d-flex flex-column justify-content-center align-items-center mx-auto">
             <p className="fw-semibold fs-2 text-primary text-uppercase mb-4">
               {fakeSuccessfullyCreatedData.itemName}
             </p>
-            <div className="col-7 d-flex flex-column gap-3">
+            <div className="col-8 d-flex flex-column gap-3">
               <div className="d-flex justify-content-between align-items-center col-12">
                 <p className="rounded-pill bg-success text-center py-2 text-white fw-semibold col-4 mb-0">
                   Trade
