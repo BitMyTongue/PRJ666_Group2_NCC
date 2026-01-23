@@ -66,9 +66,35 @@ export default function CreateListing() {
   const searchParams = useSearchParams();
   const status = searchParams.get("status");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    router.push("/listings/create?status=true");
+
+    if (!selectedFile.length) {
+      setErrorMsg("Please select at least one image.");
+      return;
+    }
+
+    const formData = new FormData();
+    selectedFile.forEach((file) => formData.append("files", file));
+
+    try {
+      const response = await fetch("/api/listings/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setImageUrl(result.imageUrl); // Assuming backend returns an array
+        router.push("/listings/create?status=true");
+      } else {
+        setErrorMsg(result.message || "Upload failed");
+      }
+    } catch (err) {
+      console.error(err);
+      setErrorMsg("Error uploading files");
+    }
   };
 
   const { isLoaded } = useJsApiLoader({
@@ -99,6 +125,24 @@ export default function CreateListing() {
   const onUnmount = useCallback(function callback(map) {
     setMap(null);
   }, []);
+
+  //TODO: Upload images
+  const [errorMsg, setErrorMsg] = useState(null);
+  const [selectedFile, setSelectedFile] = useState([]);
+  const [imageUrl, setImageUrl] = useState([]);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const previewUrl = URL.createObjectURL(file);
+
+    setSelectedFile((prev) => [...prev, file]);
+    setImageUrl((prev) => [...prev, previewUrl]);
+
+    // reset input so user can upload the SAME file again if they want
+    e.target.value = "";
+  };
 
   if (status === "true") {
     return (
@@ -291,28 +335,51 @@ export default function CreateListing() {
           {/* Listing basic info */}
           <div className="row mb-3 d-flex justify-content-center gap-md-3 mt-5">
             <div className="col-md-4 col-12 text-center text-md-start">
-              <Image
-                src="/images/white-square-photo-frame.png"
-                alt="upload icon"
-                width={350}
-                className="mb-3 border border-gray rounded shadow img-fluid"
-              />
-              <div className="d-flex justify-content-start gap-3">
+              {imageUrl.length > 0 ? (
+                <Image
+                  src={imageUrl[imageUrl.length - 1]}
+                  alt="upload icon"
+                  width={350}
+                  className="mb-3 border border-gray rounded shadow img-fluid"
+                />
+              ) : (
                 <Image
                   src="/images/white-square-photo-frame.png"
                   alt="upload icon"
-                  width={55}
-                  height={55}
-                  className="my-3 border border-gray rounded-2 shadow"
+                  width={350}
+                  className="mb-3 border border-gray rounded shadow img-fluid"
                 />
-                <Image
-                  src="/images/upload-icon.png"
-                  alt="upload icon"
-                  width={55}
-                  height={55}
-                  className="my-3"
+              )}
+              <div className="d-flex justify-content-start align-items-center gap-3">
+                {imageUrl.map((url, index) => (
+                  <Image
+                    key={index}
+                    src={url}
+                    alt={`preview-${index}`}
+                    width={55}
+                    height={55}
+                    className="border border-gray rounded-2 shadow"
+                  />
+                ))}
+
+                <input
+                  type="file"
+                  id="file-upload"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  style={{ display: "none" }}
                 />
+                <label htmlFor="file-upload" className="cursor-pointer">
+                  <Image
+                    src="/images/upload-icon.png"
+                    alt="upload icon"
+                    width={55}
+                    height={55}
+                    className="my-3"
+                  />
+                </label>
               </div>
+              {errorMsg && <p className="text-danger fst-italic">{errorMsg}</p>}
             </div>
             <div className="col-md-7 col-12">
               <div className="form-group mb-3">
