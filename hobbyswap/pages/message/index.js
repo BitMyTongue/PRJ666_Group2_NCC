@@ -16,7 +16,6 @@ const id = "test";
 const token = "";
 
 export default function MessagePage() {
-  const [channel, setChannel] = useState();
   const router = useRouter();
   const client = useCreateChatClient({
     apiKey: apiKey,
