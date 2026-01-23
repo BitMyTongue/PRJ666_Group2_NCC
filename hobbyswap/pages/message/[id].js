@@ -45,7 +45,7 @@ export default function MessagePage() {
   if (!client) return <div>Setting up client & connection...</div>;
 
   return (
-    <div id="root">
+    <div id="root" className="sm-d-shadow">
       <Chat client={client}>
         <ChannelList filters={filters} sort={sort} options={options} />
         <Channel>

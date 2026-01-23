@@ -18,7 +18,7 @@ const Navbar = ({ user = true }) => {
   // TODO: Add other links when possible (store, user listings, trade history, bookmarks, user, etc)
   return (
     <nav
-      className="bg-primary mx-auto p-3 px-5
+      className="bg-primary mx-auto p-3 px-5 z-2
     "
     >
       <div className="d-flex justify-content-between align-items-center">
