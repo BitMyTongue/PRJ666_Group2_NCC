@@ -26,7 +26,9 @@
     "react": "19.2.3",
     "react-bootstrap": "^2.10.10",
     "react-dom": "19.2.3",
-    "react-multi-carousel": "^2.8.6"
+    "react-multi-carousel": "^2.8.5",
+    "stream-chat": "^9.29.0",
+    "stream-chat-react": "^13.13.4"
   },
   "devDependencies": {
     "eslint": "^9",

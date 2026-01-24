@@ -1,11 +1,10 @@
-import Image from "next/image";
 import { forwardRef } from "react";
 import { Button, Dropdown } from "react-bootstrap";
 import UserIcon from "../user-icon";
 
 const CustomToggle = forwardRef(function CustomToggle(
   { children, onClick },
-  ref
+  ref,
 ) {
   return (
     <a
@@ -23,7 +22,7 @@ const CustomToggle = forwardRef(function CustomToggle(
 
 const CustomMenu = forwardRef(function CustomMenu(
   { children, style, className },
-  ref
+  ref,
 ) {
   return (
     <div ref={ref} style={style} className={className}>
@@ -33,11 +32,12 @@ const CustomMenu = forwardRef(function CustomMenu(
   );
 });
 
-export default function CurrentUserDropdown(props) {
+// TODO: Add other links when possible (store, user listings, trade history, bookmarks, etc)
+export default function CurrentUserDropdown({ userId, userName, userImg }) {
   return (
     <Dropdown>
       <Dropdown.Toggle as={CustomToggle} id="store-options">
-        <UserIcon user="" img="/images/gundam.png" size={40} />
+        <UserIcon user={userName} img={userImg} size={40} />
       </Dropdown.Toggle>
 
       <Dropdown.Menu as={CustomMenu}>
@@ -53,7 +53,11 @@ export default function CurrentUserDropdown(props) {
         <Dropdown.Item as="button" className="btn btn-primary" href="#">
           View Your Bookmarks
         </Dropdown.Item>
-        <Dropdown.Item as="button" className="btn btn-primary" href="#">
+        <Dropdown.Item
+          as="button"
+          className="btn btn-primary"
+          href={`/users/` + userId}
+        >
           View Your Profile
         </Dropdown.Item>
         <Dropdown.Item as="button" className="btn btn-primary mt-3" href="#">
