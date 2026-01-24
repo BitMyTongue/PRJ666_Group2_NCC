@@ -389,7 +389,7 @@ export default function CreateListing() {
                   placeholder="Item Name*"
                 />
               </div>
-              <div className="form-group mb-5">
+              <div className="form-group mb-3">
                 <select
                   id="condition"
                   className="form-control bg-light text-gray p-3 fs-regular rounded-3"
@@ -400,11 +400,24 @@ export default function CreateListing() {
                   <option value="">Used</option>
                 </select>
               </div>
+              <div className="form-group mb-5">
+                <select
+                  id="Category"
+                  className="form-control bg-light text-gray p-3 fs-regular rounded-3"
+                  required
+                >
+                  <option value="">Category</option>
+                  <option value="">Pokemon Card</option>
+                  <option value="">Blind Box</option>
+                  <option value="">Yu-gi-oh Card</option>
+                  <option value="">Figure</option>
+                </select>
+              </div>
               <div className="form-group mb-3">
                 <textarea
                   className="form-control bg-light text-gray p-3 fs-regular rounded-3"
                   placeholder="Description"
-                  rows="7"
+                  rows="5"
                 />
               </div>
             </div>
