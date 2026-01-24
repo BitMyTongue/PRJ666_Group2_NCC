@@ -64,9 +64,58 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
   const searchParams = useSearchParams();
   const status = searchParams.get("status");
 
-  const handleSubmit = (e) => {
+  const [itemName, setItemName] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("");   // temp dropdown soon
+  const [condition, setCondition] = useState("");
+
+  const [requestItemInput, setRequestItemInput] = useState("");
+  const [requestItems, setRequestItems] = useState([]);
+
+  const [requestMoney, setRequestMoney] = useState("");
+
+  const [meetUp, setMeetUp] = useState(false);
+  const [meetUpLocation, setMeetUpLocation] = useState("");   // store selectedLocation.name
+
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    router.push("/listings/create?status=true");
+    setError("");
+
+    // Logged in user from localStorage
+    const user = JSON.parse(localStorage.getItem("user"));
+    const userId = user._id;
+
+    if(!userId) {
+      setError("You must be logged in to create a listing.");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/listings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        // CHANGE category and images when those are wired
+        body: JSON.stringify({ 
+          userId, itemName, description, category: "Pokemon Cards", condition, images: [], meetUp, location: meetUp ? meetUpLocation : "", requestItems, requestMoney,})
+        });
+
+      const data = await res.json();
+
+      // Fail
+      if (!res.ok) {
+        throw new Error(data?.error || "Create listing failed");
+      }
+
+      // Success
+      router.push("/listings/create?status=true");
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   const { isLoaded } = useJsApiLoader({
@@ -106,10 +155,10 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
       longitude: -79.2908465,
     },
   ]);
-  //TODO: CHANGE TO RETRIEVE DYNAMICALLY
-  const meetUpLocation = pickUpLocations.find(
-    (loc) => loc.name === fakeSuccessfullyCreatedData.location,
-  );
+  // //TODO: CHANGE TO RETRIEVE DYNAMICALLY
+  // const meetUpLocation = pickUpLocations.find(
+  //   (loc) => loc.name === fakeSuccessfullyCreatedData.location,
+  // );
   const getCityProvince = (address) => {
     if (!address) return "";
     const parts = address.split(",");
@@ -348,6 +397,8 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
                   type="text"
                   className="form-control bg-light text-gray p-3 fs-regular rounded-3"
                   placeholder="Item Name*"
+                  value={itemName}
+                  onChange={(e) => setItemName(e.target.value)}
                 />
               </div>
               <div className="form-group mb-5">
@@ -355,10 +406,12 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
                   id="condition"
                   className="form-control bg-light text-gray p-3 fs-regular rounded-3"
                   required
+                  value={condition}
+                  onChange={(e) => setCondition(e.target.value)}
                 >
                   <option value="">Condition*</option>
-                  <option value="">New</option>
-                  <option value="">Used</option>
+                  <option value="NEW">New</option>
+                  <option value="USED">Used</option>
                 </select>
               </div>
               <div className="form-group mb-3">
@@ -366,6 +419,8 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
                   className="form-control bg-light text-gray p-3 fs-regular rounded-3"
                   placeholder="Description"
                   rows="7"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
                 />
               </div>
             </div>
@@ -403,9 +458,11 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
             <p className="text-primary mt-4 mb-4 fw-bold fs-5">Request Money</p>
             <div className="form-group col-md-6 col-lg-5 col-12">
               <input
-                type="text"
+                type="number"
                 className="form-control bg-light text-gray p-3 fs-regular rounded-3"
-                placeholder="$0"
+                placeholder="0"
+                value={requestMoney}
+                onChange={(e) => setRequestMoney(e.target.value)}
               />
             </div>
           </div>
@@ -418,6 +475,8 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
                 className="form-check-input border-primary rounded-0"
                 type="checkbox"
                 id="meetUpOption"
+                value={meetUp}
+                onChange={(e) => setMeetUp(e.target.checked)}
               />
               <label
                 className="form-check-label text-primary fw-semibold"
@@ -474,7 +533,6 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
           <button
             type="submit"
             className="btn btn-primary fw-semibold rounded-pill px-4 py-2 mt-3 mb-5"
-            onClick={handleSubmit}
           >
             Post Listing
           </button>
