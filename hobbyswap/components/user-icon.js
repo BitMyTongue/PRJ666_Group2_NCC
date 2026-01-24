@@ -14,8 +14,8 @@ export default function UserIcon({ user, img, size }) {
         }}
       >
         <Image
-          alt={user ?? "user"}
-          src={img}
+          alt={user ?? "null"}
+          src={img ?? "/images/default-avatar.png"}
           width={size}
           height={size}
           style={{

@@ -17,6 +17,7 @@ const listingSchema = new mongoose.Schema({
   },
   category: {
     type: String,
+    enum: ["POKEMON CARD", "BLIND BOX", "YUGIOH CARD", "FIGURINE"],
     required: true,
   },
   brand: {

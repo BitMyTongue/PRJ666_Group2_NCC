@@ -19,6 +19,7 @@ import {
 import { faStar as emptyStar } from "@fortawesome/free-regular-svg-icons";
 import UserIcon from "@/components/user-icon";
 import Link from "next/link";
+import { pickUpLocations } from "@/lib/data/pickupLocations";
 
 const containerStyle = {
   width: "100%",
@@ -49,6 +50,7 @@ const currentUser = {
   rating: 5,
 };
 const fakeSuccessfullyCreatedData = {
+  id: 1,
   itemName: "Charizard Card",
   category: "Pokemon Card",
   condition: "New",
@@ -78,7 +80,6 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
   const [meetUpLocation, setMeetUpLocation] = useState("");   // store selectedLocation.name
 
   const [error, setError] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -86,22 +87,80 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
 
     // Logged in user from localStorage
     const user = JSON.parse(localStorage.getItem("user"));
-    const userId = user._id;
+    const userId = user?._id;
 
+    // --------- Validation --------- //
     if(!userId) {
       setError("You must be logged in to create a listing.");
       return;
     }
+    if (!itemName || !itemName.trim()) {
+      setError("Item name is required.");
+      return;
+    }
+    if (!description || !description.trim()) {
+      setError("Description is required.");
+      return;
+    }
+    if (!category) {
+      setError("Category is required.");
+      return;
+    }
+    if (!condition) {
+      setError("Condition is required.");
+      return;
+    }
+    if (meetUp && (!meetUpLocation || meetUpLocation.trim() === "")) {
+      setError("If meet up option is offered, you must provide a meet up location.");
+      return;
+    }
+    // Must request item(s) and/or money
+    const itemArr = Array.isArray(requestItems) ? requestItems : [];
+    const moneyNum = Number(requestMoney) || 0;
+    if (!(itemArr.length > 0) && !(moneyNum > 0)) {
+      setError("You must request item(s) and/or money.");
+      return;
+    }
 
+    if (!selectedFile.length) {
+      setError("Please select at least one image.");
+      return;
+    }
+
+    let uploadedImageUrls = [];
+
+    // Upload Images
+    const formData = new FormData();
+    selectedFile.forEach((file) => formData.append("files", file));
+    try {
+      const response = await fetch("/api/listings/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        setImageUrl(result.imageUrl); // Assuming backend returns an array
+        uploadedImageUrls = result.imageUrl;
+      } else {
+        setError(result.message || "Upload failed");
+        return;
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Error uploading files");
+      return;
+    }
+    
     try {
       const res = await fetch("/api/listings", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
-        // CHANGE category and images when those are wired
         body: JSON.stringify({ 
-          userId, itemName, description, category: "Pokemon Cards", condition, images: [], meetUp, location: meetUp ? meetUpLocation : "", requestItems, requestMoney,})
+          userId, itemName, description, category, condition, images: uploadedImageUrls, meetUp, location: meetUp ? meetUpLocation : "", requestItems: itemArr, requestMoney: moneyNum,})
         });
 
       const data = await res.json();
@@ -122,43 +181,10 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
     id: "google-map-script",
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY,
   });
-
-  const [pickUpLocations] = useState([
-    {
-      name: "Wheels &Wings Hobbies",
-      address: "1880 Danforth Ave, Toronto, ON M4C 1J4",
-      latitude: 43.684998,
-      longitude: -79.317024,
-    },
-    {
-      name: "VTR Gaming",
-      address: "714 Burnhamthorpe Rd E, Mississauga, ON L4Y 2X3",
-      latitude: 43.60821,
-      longitude: -79.617512,
-    },
-    {
-      name: "Emmett’s ToyStop",
-      address: "5324 Dundas St W, Etobicoke, ON M9B 1B4",
-      latitude: 43.6348156,
-      longitude: -79.542055,
-    },
-    {
-      name: "L&M Trading",
-      address: "434 Queen Street West, Toronto, ON",
-      latitude: 43.6484492,
-      longitude: -79.3987024,
-    },
-    {
-      name: "GameSwap",
-      address: "1601 Birchmount Rd, Scarborough, ON M1P 2H5",
-      latitude: 43.763242,
-      longitude: -79.2908465,
-    },
-  ]);
-  // //TODO: CHANGE TO RETRIEVE DYNAMICALLY
-  // const meetUpLocation = pickUpLocations.find(
-  //   (loc) => loc.name === fakeSuccessfullyCreatedData.location,
-  // );
+  //TODO: CHANGE TO RETRIEVE DYNAMICALLY
+  const selectedMeetUpLocation = pickUpLocations.find(
+    (loc) => loc.name === fakeSuccessfullyCreatedData.location,
+  );
   const getCityProvince = (address) => {
     if (!address) return "";
     const parts = address.split(",");
@@ -179,6 +205,23 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
   const onUnmount = useCallback(function callback(map) {
     setMap(null);
   }, []);
+
+  //TODO: Upload images
+  const [selectedFile, setSelectedFile] = useState([]);
+  const [imageUrl, setImageUrl] = useState([]);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const previewUrl = URL.createObjectURL(file);
+
+    setSelectedFile((prev) => [...prev, file]);
+    setImageUrl((prev) => [...prev, previewUrl]);
+
+    // reset input so user can upload the SAME file again if they want
+    e.target.value = "";
+  };
 
   if (status === "true") {
     return (
@@ -345,7 +388,10 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
           </p>
           <button className="btn btn-primary rounded-5 fw-semibold px-4 text-white">
             <Link
-              href="#"
+              href={{
+                pathname: "/listings/[id]",
+                query: { id: fakeSuccessfullyCreatedData.id },
+              }}
               className="link-light link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover fw-semibold text-white"
             >
               View Listing
@@ -365,30 +411,53 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
 
         {/* SINGLE FORM WRAP */}
         <form onSubmit={handleSubmit}>
+          {error && <div className="alert alert-danger">{error}</div>}
           {/* Listing basic info */}
           <div className="row mb-3 d-flex justify-content-center gap-md-3 mt-5">
             <div className="col-md-4 col-12 text-center text-md-start">
-              <Image
-                src="/images/white-square-photo-frame.png"
-                alt="upload icon"
-                width={350}
-                className="mb-3 border border-gray rounded shadow img-fluid"
-              />
-              <div className="d-flex justify-content-start gap-3">
+              {imageUrl.length > 0 ? (
+                <Image
+                  src={imageUrl[imageUrl.length - 1]}
+                  alt="upload icon"
+                  width={350}
+                  className="mb-3 border border-gray rounded shadow img-fluid"
+                />
+              ) : (
                 <Image
                   src="/images/white-square-photo-frame.png"
                   alt="upload icon"
-                  width={55}
-                  height={55}
-                  className="my-3 border border-gray rounded-2 shadow"
+                  width={350}
+                  className="mb-3 border border-gray rounded shadow img-fluid"
                 />
-                <Image
-                  src="/images/upload-icon.png"
-                  alt="upload icon"
-                  width={55}
-                  height={55}
-                  className="my-3"
+              )}
+              <div className="d-flex justify-content-start align-items-center gap-3">
+                {imageUrl.map((url, index) => (
+                  <Image
+                    key={index}
+                    src={url}
+                    alt={`preview-${index}`}
+                    width={55}
+                    height={55}
+                    className="border border-gray rounded-2 shadow"
+                  />
+                ))}
+
+                <input
+                  type="file"
+                  id="file-upload"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  style={{ display: "none" }}
                 />
+                <label htmlFor="file-upload" className="cursor-pointer">
+                  <Image
+                    src="/images/upload-icon.png"
+                    alt="upload icon"
+                    width={55}
+                    height={55}
+                    className="my-3"
+                  />
+                </label>
               </div>
             </div>
             <div className="col-md-7 col-12">
@@ -401,7 +470,7 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
                   onChange={(e) => setItemName(e.target.value)}
                 />
               </div>
-              <div className="form-group mb-5">
+              <div className="form-group mb-3">
                 <select
                   id="condition"
                   className="form-control bg-light text-gray p-3 fs-regular rounded-3"
@@ -414,11 +483,26 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
                   <option value="USED">Used</option>
                 </select>
               </div>
+              <div className="form-group mb-5">
+                <select
+                  id="Category"
+                  className="form-control bg-light text-gray p-3 fs-regular rounded-3"
+                  required
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                >
+                  <option value="">Category</option>
+                  <option value="POKEMON CARD">Pokemon Card</option>
+                  <option value="BLIND BOX">Blind Box</option>
+                  <option value="YUGIOH CARD">Yu-gi-oh Card</option>
+                  <option value="FIGURINE">Figurine</option>
+                </select>
+              </div>
               <div className="form-group mb-3">
                 <textarea
                   className="form-control bg-light text-gray p-3 fs-regular rounded-3"
                   placeholder="Description"
-                  rows="7"
+                  rows="5"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                 />
