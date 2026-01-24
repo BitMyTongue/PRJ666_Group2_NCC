@@ -102,3 +102,10 @@
 .custom-sm-text {
   font-size: small;
 }
+.custom-shadow-secondary {
+  text-shadow: 5 5 10 #ff6b35;
+}
+.thumbnail-img {
+  object-fit: contain; /* keeps image from overflowing */
+  max-height: 100%;
+}
