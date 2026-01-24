@@ -8,7 +8,7 @@ import {
   MarkerF,
   useJsApiLoader,
 } from "@react-google-maps/api";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -65,10 +65,19 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
   const router = useRouter();
   const searchParams = useSearchParams();
   const status = searchParams.get("status");
+  const [error, setError] = useState("");
+
+  // Snap to the top of the form if error to better display the alert
+  const errorRef = useRef(null);
+  useEffect(() => {
+    if (error && errorRef.current) {
+      errorRef.current.scrollIntoView();
+    }
+  }, [error]);
 
   const [itemName, setItemName] = useState("");
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("");   // temp dropdown soon
+  const [category, setCategory] = useState("");
   const [condition, setCondition] = useState("");
 
   const [requestItemInput, setRequestItemInput] = useState("");
@@ -78,8 +87,6 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
 
   const [meetUp, setMeetUp] = useState(false);
   const [meetUpLocation, setMeetUpLocation] = useState("");   // store selectedLocation.name
-
-  const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -411,7 +418,11 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
 
         {/* SINGLE FORM WRAP */}
         <form onSubmit={handleSubmit}>
-          {error && <div className="alert alert-danger">{error}</div>}
+          {error && (
+            <div ref={errorRef} className="alert alert-danger">
+              {error}
+            </div>
+          )}
           {/* Listing basic info */}
           <div className="row mb-3 d-flex justify-content-center gap-md-3 mt-5">
             <div className="col-md-4 col-12 text-center text-md-start">
