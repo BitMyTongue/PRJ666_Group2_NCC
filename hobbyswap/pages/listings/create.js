@@ -188,6 +188,7 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
     id: "google-map-script",
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY,
   });
+
   //TODO: CHANGE TO RETRIEVE DYNAMICALLY
   const selectedMeetUpLocation = pickUpLocations.find(
     (loc) => loc.name === fakeSuccessfullyCreatedData.location,
@@ -229,6 +230,14 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
     // reset input so user can upload the SAME file again if they want
     e.target.value = "";
   };
+
+  const handleAddRequestItem = () => {
+    const trimmedItem = requestItemInput.trim();
+    if (!trimmedItem) return;       // clicking Add button with no input 
+
+    setRequestItems((prev) => [...prev, trimmedItem]);    // spread existing Requested Items array, add trimmed to the end
+    setRequestItemInput("");    // Reset field
+  }
 
   if (status === "true") {
     return (
@@ -530,14 +539,35 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
                   type="text"
                   className="form-control bg-light text-gray p-3 fs-regular rounded-3"
                   placeholder="Item Name*"
+                  value={requestItemInput}
+                  onChange={(e) => setRequestItemInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleAddRequestItem();  
+                    }
+                  }}
                 />
               </div>
-              <Image
-                src="/images/upload-icon.png"
-                alt="upload icon"
-                width={55}
-                height={55}
-              />
+              <button
+                type="button"
+                onClick={handleAddRequestItem}
+                className="btn p-0 border-0 bg-transparent"
+                aria-label="Add requested item"
+              >
+                <Image
+                  src="/images/upload-icon.png"
+                  alt="add item"
+                  width={55}
+                  height={55}
+                />
+              </button>
+            </div>
+            {/* TEMP: showing the requested items */}
+            <div className="mb-3">
+                {requestItems.map((item, index) => (
+                  <div key={index}>{item}</div>
+                ))}
             </div>
             <div className="form-group my-3">
               <textarea
@@ -570,8 +600,17 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
                 className="form-check-input border-primary rounded-0"
                 type="checkbox"
                 id="meetUpOption"
-                value={meetUp}
-                onChange={(e) => setMeetUp(e.target.checked)}
+                checked={meetUp}
+                onChange={(e) => {
+                  const checked = e.target.checked;
+                  setMeetUp(checked);
+
+                  // if they turn it off, clear selection
+                  if (!checked) {
+                    setMeetUpLocation("");
+                    setSelectedLocation(null);
+                  }
+                }}
               />
               <label
                 className="form-check-label text-primary fw-semibold"
@@ -583,6 +622,7 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
             <p className="text-primary mt-4 mb-3 fw-semibold">
               Meet up location
             </p>
+            
             {isLoaded && (
               <GoogleMap
                 mapContainerStyle={containerStyle}
@@ -594,14 +634,15 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
                 {pickUpLocations.map((location) => (
                   <MarkerF
                     key={`${location.address}-${location.name}`}
-                    onClick={() =>
-                      location === selectedLocation
-                        ? setSelectedLocation(null)
-                        : setSelectedLocation(location)
-                    }
-                    position={{
-                      lat: location.latitude,
-                      lng: location.longitude,
+                    position={{ lat: location.latitude, lng: location.longitude }}
+                    onClick={() => {
+                      if (location === selectedLocation) {
+                        setSelectedLocation(null);
+                        setMeetUpLocation("");
+                      } else {
+                        setSelectedLocation(location);
+                        setMeetUpLocation(location.name);
+                      }
                     }}
                   />
                 ))}

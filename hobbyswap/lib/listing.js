@@ -4,8 +4,6 @@ const listingSchema = new mongoose.Schema({
   userId: {
       type: String,
       required: true,
-      //// Users should be able to create multiple listings
-      // unique: true,
   },
   itemName:{
     type: String,
@@ -20,11 +18,6 @@ const listingSchema = new mongoose.Schema({
     enum: ["POKEMON CARD", "BLIND BOX", "YUGIOH CARD", "FIGURINE"],
     required: true,
   },
-  brand: {
-    type: String,
-    //// Probably removing this field entirely
-    // required: true,
-  },
   condition: {
     type: String,
     enum: ["USED", "NEW"],
@@ -32,8 +25,7 @@ const listingSchema = new mongoose.Schema({
   },
   images: {
     type: [String],
-    //// Commenting out required to allow posting without images for now
-    // required: true,
+    required: true,
   },
   meetUp: {
     type: Boolean,
@@ -48,8 +40,6 @@ const listingSchema = new mongoose.Schema({
   },
   location: {
     type: String,
-    //// Should only be required if is meetup selected
-    // required: true,
   },
   requestItems: {
     // Requested items stored as a string array ( [Charizard, Pikachu... ] )
