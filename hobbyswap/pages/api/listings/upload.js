@@ -40,7 +40,8 @@ export default async function handler(req, res) {
       const newFileName = `${uniqueSuffix}-${file.originalFilename}`;
       const newFilePath = path.join(uploadDir, newFileName);
 
-      await fs.rename(file.filepath, newFilePath);
+      await fs.copyFile(file.filepath, newFilePath);
+      await fs.unlink(file.filepath);
 
       uploadedFilesUrls.push(`/uploads/${newFileName}`);
     }

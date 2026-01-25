@@ -9,7 +9,7 @@ import {
   faStar as solidStar,
 } from "@fortawesome/free-solid-svg-icons";
 import { faStar as emptyStar } from "@fortawesome/free-regular-svg-icons";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import BookmarkIcon from "@/components/bookmark-icon";
 import {
   GoogleMap,
@@ -39,24 +39,6 @@ const responsive = {
   },
 };
 
-//TODO: Pull from database, use fake data for UI implement only
-const fakeSuccessfullyCreatedData = {
-  id: 1,
-  itemName: "Charizard Card",
-  category: "Pokemon Card",
-  condition: "New",
-  description:
-    "Lorem ipsum dolor sit amet consectetur. A commodo arcu dictum volutpat donec magna magna lacus eu. Ornare aliquam tristique feugiat amet lobortis. Erat dolor gravida augue tristique dolor. Metus donec viverra pulvinar enim est sagittis. ",
-  imageUrl: [
-    "/images/charizard-card.png",
-    "/images/details-photo-1.png",
-    "/images/details-photo-2.jpg",
-    "/images/details-photo-3.jpg",
-    "/images/details-photo-4.png",
-  ],
-  meetUp: true,
-  location: "Wheels &Wings Hobbies",
-};
 const currentUser = {
   userName: "test1",
   avatar: "/images/default-avatar.png",
@@ -81,6 +63,34 @@ export default function Listing() {
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [map, setMap] = useState(null);
 
+  const [listing, setListing] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+
+  useEffect(() => {
+    if (!router.isReady || !id) return;     // undefined on first render
+
+    const load = async () => {
+      try {
+        setLoading(true);
+        setLoadError("");
+
+        const res = await fetch(`/api/listings/${id}`);
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data?.error || "Failed to load listing");
+
+        setListing(data.listing);
+      } catch (e) {
+        setLoadError(e.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    load();
+  }, [router.isReady, id]);
+
   const onLoad = useCallback(function callback(map) {
     const bounds = new window.google.maps.LatLngBounds(center);
     setMap(map);
@@ -94,9 +104,9 @@ export default function Listing() {
     id: "google-map-script",
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY,
   });
-  //TODO: CHANGE TO RETRIEVE DYNAMICALLY
+
   const meetUpLocation = pickUpLocations.find(
-    (loc) => loc.name === fakeSuccessfullyCreatedData.location,
+    (loc) => loc.name === listing?.location
   );
   const getCityProvince = (address) => {
     if (!address) return "";
@@ -107,12 +117,21 @@ export default function Listing() {
     const province = parts[parts.length - 1].trim().split(" ")[0];
     return `${city}, ${province}`;
   };
-  const [selectedImage, setSelectedImage] = useState(
-    fakeSuccessfullyCreatedData.imageUrl[0],
-  );
+  const [selectedImage, setSelectedImage] = useState("");
+
+  useEffect(() => {
+    if (listing?.images?.length > 0) {
+      setSelectedImage(listing.images[0]);
+    }
+  }, [listing]);
+
+  if (loading) return <h1>Loading the listing...</h1>;
+  if (loadError) return <h1 className="text-danger">{loadError}</h1>;
+  if (!listing) return <h1>Listing not found.</h1>;
 
   return (
     <>
+    
       {/* Category Section */}
       <div className="bg-light">
         <div className="container py-5">
@@ -122,7 +141,7 @@ export default function Listing() {
               <Link
                 href="#"
                 className={
-                  fakeSuccessfullyCreatedData.category.toLowerCase() ===
+                  listing.category.toLowerCase() ===
                   "pokemon card"
                     ? "text-primary fw-semibold text-shadow custom-shadow-secondary"
                     : "text-primary fw-semibold link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
@@ -140,7 +159,7 @@ export default function Listing() {
               <Link
                 href="#"
                 className={
-                  fakeSuccessfullyCreatedData.category.toLowerCase() ===
+                  listing.category.toLowerCase() ===
                   "blind box"
                     ? "text-primary fw-semibold text-shadow custom-shadow-secondary"
                     : "text-primary fw-semibold link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
@@ -154,8 +173,8 @@ export default function Listing() {
               <Link
                 href="#"
                 className={
-                  fakeSuccessfullyCreatedData.category.toLowerCase() ===
-                  "yu-gi-oh card"
+                  listing.category.toLowerCase() ===
+                  "yugioh card"
                     ? "text-primary fw-semibold text-shadow custom-shadow-secondary"
                     : "text-primary fw-semibold link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
                 }
@@ -168,13 +187,13 @@ export default function Listing() {
               <Link
                 href="#"
                 className={
-                  fakeSuccessfullyCreatedData.category.toLowerCase() ===
-                  "figurines"
+                  listing.category.toLowerCase() ===
+                  "figurine"
                     ? "text-primary fw-semibold text-shadow custom-shadow-secondary"
                     : "text-primary fw-semibold link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
                 }
               >
-                figurines
+                Figurine
               </Link>
             </div>
           </div>
@@ -204,7 +223,7 @@ export default function Listing() {
                 infinite={true}
                 keyBoardControl
               >
-                {fakeSuccessfullyCreatedData.imageUrl.map((img, index) => (
+                {listing.images.map((img, index) => (
                   <div
                     key={index}
                     className={`text-center rounded-3 ${
@@ -229,7 +248,7 @@ export default function Listing() {
           </div>
           <div className=" py-6 col-12 col-md-4 rounded-5 border border-gray shadow d-flex flex-column justify-content-center align-items-center mx-auto">
             <p className="fw-semibold fs-2 text-primary text-uppercase mb-4">
-              {fakeSuccessfullyCreatedData.itemName}
+              {listing.itemName}
             </p>
             <div className="col-8 d-flex flex-column gap-3">
               <div className="d-flex justify-content-between align-items-center col-12">
@@ -245,7 +264,7 @@ export default function Listing() {
                   Sell
                 </p>
                 <p className="fw-semibold mb-0 align-self-center text-primary">
-                  $ 30.00
+                    ${listing.requestMoney.toFixed(2)}
                 </p>
               </div>
               <div className="d-grid my-3">
@@ -257,7 +276,7 @@ export default function Listing() {
                   </div>
                   <div className="col-7">
                     <p className="text-primary text-capitalize fw-light">
-                      {fakeSuccessfullyCreatedData.category}
+                      {listing.category}
                     </p>
                   </div>
                 </div>
@@ -269,7 +288,7 @@ export default function Listing() {
                   </div>
                   <div className="col-7">
                     <p className="text-primary text-uppercase fw-light">
-                      {fakeSuccessfullyCreatedData.condition}
+                      {listing.condition}
                     </p>
                   </div>
                 </div>
@@ -320,7 +339,7 @@ export default function Listing() {
                 </button>
               </div>
               <div className="d-flex flex-column gap-1 border-bottom border-primary pb-4">
-                {fakeSuccessfullyCreatedData.meetUp && (
+                {listing.meetUp && (
                   <div className="d-flex justify-content-start align-items-center gap-2 mt-2">
                     <FontAwesomeIcon
                       icon={faPeopleLine}
@@ -364,7 +383,7 @@ export default function Listing() {
               Description
             </p>
             <p className="text-primary text-capitalize fw-regular">
-              {fakeSuccessfullyCreatedData.description}
+              {listing.description}
             </p>
             <p className="text-primary text-capitalize fw-semibold mb-1">
               Owner Details

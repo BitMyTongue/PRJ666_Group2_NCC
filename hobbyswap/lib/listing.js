@@ -4,9 +4,8 @@ const listingSchema = new mongoose.Schema({
   userId: {
       type: String,
       required: true,
-      unique: true,
   },
-  title:{
+  itemName:{
     type: String,
     required: true,
   },
@@ -16,27 +15,40 @@ const listingSchema = new mongoose.Schema({
   },
   category: {
     type: String,
-    required: true,
-  },
-  brand: {
-    type: String,
+    enum: ["POKEMON CARD", "BLIND BOX", "YUGIOH CARD", "FIGURINE"],
     required: true,
   },
   condition: {
     type: String,
+    enum: ["USED", "NEW"],
     required: true,
   },
   images: {
     type: [String],
     required: true,
   },
-  status: {
+  meetUp: {
     type: Boolean,
+    required: true,
+    default: false,
+  },
+  status: {
+    // Changed type of status from Boolean to String
+    type: String,
+    enum: ["ACTIVE", "COMPLETE", "PENDING"],
     required: true,
   },
   location: {
     type: String,
-    required: true,
+  },
+  requestItems: {
+    // Requested items stored as a string array ( [Charizard, Pikachu... ] )
+    type: [String],
+    default: [],
+  },
+  requestMoney: {
+    type: Number,
+    default: 0,
   },
   datePosted: {
     type: Date,
