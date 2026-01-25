@@ -61,7 +61,7 @@ const Navbar = () => {
           <li className="nav-item ms-md-5">
             {user ? (
               <div className="d-flex gap-4 align-items-center">
-                <CurrentUserDropdown user={user} />
+                <CurrentUserDropdown user={user} handleLogout={handleLogout} />
                 <FontAwesomeIcon icon={faEnvelope} color="white" size="2x" />
               </div>
             ) : (
@@ -118,7 +118,9 @@ const Navbar = () => {
                     </div>
 
                     <div className="d-flex flex-column justify-content-start align-items-start">
-                      <Button variant="secondary mx-2 mt-1 mb-3">Create Listing</Button>
+                        <Link href="/listings/create" className="text-white btn btn-success mx-2 mt-1 mb-3">
+                        Create Listing
+                        </Link>
                       <Link as="button" className="btn btn-primary" href="#">
                         View Your Store Page
                       </Link>

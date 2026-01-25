@@ -31,17 +31,15 @@ const CustomMenu = forwardRef(function CustomMenu(
     </div>
   );
 });
-
-// TODO: Add other links when possible (store, user listings, trade history, bookmarks, etc)
-export default function CurrentUserDropdown({ userId, userName, userImg }) {
+export default function CurrentUserDropdown({ user, handleLogout }) {
   return (
     <Dropdown>
-      <Dropdown.Toggle as={CustomToggle} id="store-options">
-        <UserIcon user={userName} img={userImg} size={40} />
+      <Dropdown.Toggle as={CustomToggle} id="current-user-dropdown">
+        <UserIcon user={user.username} img={user.avatar} size={40} />
       </Dropdown.Toggle>
 
       <Dropdown.Menu as={CustomMenu}>
-        <Dropdown.Item as="button" className="btn btn-primary" href="#">
+       <Dropdown.Item as="button" className="btn btn-primary" href="#">
           View Your Store Page
         </Dropdown.Item>
         <Dropdown.Item as="button" className="btn btn-primary" href="#">
@@ -54,13 +52,16 @@ export default function CurrentUserDropdown({ userId, userName, userImg }) {
           View Your Bookmarks
         </Dropdown.Item>
         <Dropdown.Item
-          as="button"
-          className="btn btn-primary"
-          href={`/users/` + userId}
+          className="btn btn-primary w-100 mb-2"
+          href={`/users/${user._id}`}
         >
           View Your Profile
         </Dropdown.Item>
-        <Dropdown.Item as="button" className="btn btn-primary mt-3" href="#">
+        <Dropdown.Item
+          as="button"
+          className="btn btn-danger w-100 mt-2"
+          onClick={handleLogout}
+        >
           <strong>Log Out</strong>
         </Dropdown.Item>
       </Dropdown.Menu>

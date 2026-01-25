@@ -14,18 +14,34 @@ import Link from "next/link";
 export default function User() {
   const [user, setUser] = useState(null);
   const router = useRouter();
-  const isOwnerOfProfile = true; //TODO: Implement logic to check if the logged-in user is the owner of the profile
+  const [viewer, setViewer] = useState(null); 
 
+  
   useEffect(() => {
     if (!router.isReady) return;
-
+    
+    // Fetch the profile being viewed
     fetch(`/api/users/${router.query.id}`)
+    .then((res) => res.json())
+    .then((data) => setUser(data));
+    
+    // Fetch the logged-in user (viewer)
+    const token = localStorage.getItem("token");
+    if (token) {
+      fetch("/api/auth/protect", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
       .then((res) => res.json())
-      .then((data) => setUser(data));
+      .then((data) => setViewer(data.user))
+      .catch(() => setViewer(null));
+    }
   }, [router.isReady]);
-
+  
   if (!user) return <p>Loading...</p>;
-
+  const isOwnerOfProfile = viewer?._id === user._id;//TODO: Implement logic to check if the logged-in user is the owner of the profile
+  
   return (
     <>
       {/* Active Tab Section */}
@@ -188,10 +204,10 @@ export default function User() {
                   <div className="row mb-2">
                     <p className="fs-6 text-gray mb-0 col-4 align-self-center">
                       Password
-                    </p>
-                    <p className="text-primary mb-0 col-4 align-self-center">
+                    </p>                    
+                    {/* <p className="text-primary mb-0 col-4 align-self-center">
                       {user?.password ? user.password : "N/A"}
-                    </p>
+                    </p>                     */}
                     <button className="btn btn-light text-gray rounded-pill p-3 fw-semibold col-4">
                       Change Password
                     </button>
