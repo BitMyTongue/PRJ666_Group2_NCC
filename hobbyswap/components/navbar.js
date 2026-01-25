@@ -3,31 +3,33 @@ import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch, faBars, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { faEnvelope } from "@fortawesome/free-regular-svg-icons";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import CurrentUserDropdown from "./dropdowns/current-user-options";
 import UserIcon from "./user-icon";
 import { Button } from "react-bootstrap";
+import { UserContext } from "@/contexts/UserContext";
 
-const Navbar = ({ user = true }) => {
+const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, setUser } = useContext(UserContext);
 
-  const toggleMenu = () => {
-    setIsOpen(!isOpen);
+  const toggleMenu = () => setIsOpen(!isOpen);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setUser(null);
+    window.location.href = "/login";
   };
 
-  // TODO: Add other links when possible (store, user listings, trade history, bookmarks, user, etc)
   return (
-    <nav
-      className="bg-primary mx-auto p-3 px-5 z-2
-    "
-    >
+    <nav className="bg-primary mx-auto p-3 px-5 z-2">
       <div className="d-flex justify-content-between align-items-center">
         <Link href="/" className="navbar-brand d-flex">
           <Image src="/images/logo.png" width={255} height={54} alt="Logo" />
         </Link>
-        <form
-          className="d-none d-xl-flex  h-50 position-relative"
-          role="search"
+        <form 
+        className="d-none d-xl-flex  h-50 position-relative" 
+        role="search"
         >
           <input
             className="form-control me-2 rounded-pill search-bar py-1 border-0"
@@ -41,17 +43,17 @@ const Navbar = ({ user = true }) => {
         </form>
         <ul className="d-none d-xl-flex   list-unstyled mb-0">
           <li className="nav-item mx-4">
-            <Link
-              href="/about"
-              className="nav-link text-white text-uppercase fs-5"
+            <Link 
+            href="/about" 
+            className="nav-link text-white text-uppercase fs-5"
             >
               About us
             </Link>
           </li>
           <li className="nav-item mx-4">
-            <Link
-              href="/listings"
-              className="nav-link text-white text-uppercase fs-5"
+            <Link 
+            href="/listings" 
+            className="nav-link text-white text-uppercase fs-5"
             >
               Listings
             </Link>
@@ -59,13 +61,8 @@ const Navbar = ({ user = true }) => {
           <li className="nav-item ms-md-5">
             {user ? (
               <div className="d-flex gap-4 align-items-center">
-                <CurrentUserDropdown />
-                <FontAwesomeIcon
-                  icon={faEnvelope}
-                  onClick={() => {}}
-                  color="white"
-                  size="2x"
-                />
+                <CurrentUserDropdown user={user} />
+                <FontAwesomeIcon icon={faEnvelope} color="white" size="2x" />
               </div>
             ) : (
               <Link
@@ -101,18 +98,12 @@ const Navbar = ({ user = true }) => {
           </form>
           <ul className="list-unstyled mb-0">
             <li className="nav-item my-2">
-              <Link
-                href="/about"
-                className="nav-link text-white text-uppercase"
-              >
+              <Link href="/about" className="nav-link text-white text-uppercase">
                 About us
               </Link>
             </li>
             <li className="nav-item my-2">
-              <Link
-                href="/listings"
-                className="nav-link text-white text-uppercase"
-              >
+              <Link href="/listings" className="nav-link text-white text-uppercase">
                 Listings
               </Link>
             </li>
@@ -122,19 +113,12 @@ const Navbar = ({ user = true }) => {
                   <hr className="border-white" />
                   <div>
                     <div className="d-flex mb-4 justify-content-between align-items-start">
-                      <UserIcon user="" img="/images/gundam.png" size={40} />
-                      <FontAwesomeIcon
-                        icon={faEnvelope}
-                        onClick={() => {}}
-                        color="white"
-                        size="2x"
-                      />
+                      <UserIcon user={user.name} img="/images/gundam.png" size={40} />
+                      <FontAwesomeIcon icon={faEnvelope} color="white" size="2x" />
                     </div>
-                    <div className="d-flex flex-column justify-content-start  align-items-start">
-                      <Button variant="secondary mx-2 mt-1 mb-3">
-                        Create Listing
-                      </Button>
 
+                    <div className="d-flex flex-column justify-content-start align-items-start">
+                      <Button variant="secondary mx-2 mt-1 mb-3">Create Listing</Button>
                       <Link as="button" className="btn btn-primary" href="#">
                         View Your Store Page
                       </Link>
@@ -147,27 +131,25 @@ const Navbar = ({ user = true }) => {
                       <Link as="button" className="btn btn-primary" href="#">
                         View Your Bookmarks
                       </Link>
-                      <Link
-                        as="button"
-                        className="btn btn-primary"
-                        href={`/users/` + user}
-                      >
+                      <Link 
+                        className="btn btn-primary" 
+                        href={`/users/${user._id}`}
+                        >
                         View Your Profile
                       </Link>
-                      <Link
-                        as="button"
-                        className="btn btn-primary mt-3"
-                        href="#"
+                      <button
+                        className="btn btn-danger mt-3"
+                        onClick={handleLogout}
                       >
                         <strong>Log Out</strong>
-                      </Link>
+                      </button>
                     </div>
                   </div>
                 </>
               ) : (
                 <Link
-                  href="/"
-                  className="nav-link text-uppercase fw-bold text-white "
+                  href="/login"
+                  className="nav-link text-uppercase fw-bold text-white"
                 >
                   Login
                 </Link>

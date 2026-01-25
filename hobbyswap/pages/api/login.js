@@ -1,5 +1,9 @@
 import { UserModel, mongooseConnect } from "@/lib/dbUtils";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+
+const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey"; // ideally store in env
+const JWT_EXPIRES_IN = "7d"; // 7 days
 
 export default async function handler(req, res) {
   const { method } = req;
@@ -42,9 +46,16 @@ export default async function handler(req, res) {
     const userObj = user.toObject();
     delete userObj.password;
 
+    const token = jwt.sign(
+  { id: user._id, email: user.email }, // payload
+  JWT_SECRET,
+  { expiresIn: JWT_EXPIRES_IN }
+);
+
     return res.status(200).json({
       message: "Login successful",
       user: userObj,
+      token
     });
   } catch (err) {
     console.error("LOGIN ERROR:", err);
