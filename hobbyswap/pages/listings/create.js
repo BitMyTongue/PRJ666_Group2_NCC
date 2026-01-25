@@ -8,7 +8,7 @@ import {
   MarkerF,
   useJsApiLoader,
 } from "@react-google-maps/api";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -65,18 +65,105 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
   const router = useRouter();
   const searchParams = useSearchParams();
   const status = searchParams.get("status");
+  const [error, setError] = useState("");
+
+  // for displaying confirmation
+  const listingId = searchParams.get("id");
+  const [createdListing, setCreatedListing] = useState(null);
+  const [createdListingError, setCreatedListingError] = useState("")
+
+  useEffect(() => {
+    const load = async () => {
+      if (status !== "true" || !listingId) return;
+
+      try {
+        setCreatedListingError("");
+        const res = await fetch(`/api/listings/${listingId}`);
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data?.error || "Failed to load listing");
+
+        setCreatedListing(data.listing);
+      } catch (e) {
+        setCreatedListingError(e.message);
+      }
+    };
+
+    load();
+  }, [status, listingId]);
+
+  // Snap to the top of the form if error to better display the alert
+  const errorRef = useRef(null);
+  useEffect(() => {
+    if (error && errorRef.current) {
+      errorRef.current.scrollIntoView();
+    }
+  }, [error]);
+
+  const [itemName, setItemName] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("");
+  const [condition, setCondition] = useState("");
+
+  const [requestItemInput, setRequestItemInput] = useState("");
+  const [requestItems, setRequestItems] = useState([]);
+
+  const [requestMoney, setRequestMoney] = useState("");
+
+  const [meetUp, setMeetUp] = useState(false);
+  const [meetUpLocation, setMeetUpLocation] = useState("");   // store selectedLocation.name
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
 
-    if (!selectedFile.length) {
-      setErrorMsg("Please select at least one image.");
+    // Logged in user from localStorage
+    const user = JSON.parse(localStorage.getItem("user"));
+    const userId = user?._id;
+
+    // --------- Validation --------- //
+    if(!userId) {
+      setError("You must be logged in to create a listing.");
+      return;
+    }
+    if (!itemName || !itemName.trim()) {
+      setError("Item name is required.");
+      return;
+    }
+    if (!description || !description.trim()) {
+      setError("Description is required.");
+      return;
+    }
+    if (!category) {
+      setError("Category is required.");
+      return;
+    }
+    if (!condition) {
+      setError("Condition is required.");
+      return;
+    }
+    if (meetUp && (!meetUpLocation || meetUpLocation.trim() === "")) {
+      setError("If meet up option is offered, you must provide a meet up location.");
+      return;
+    }
+    // Must request item(s) and/or money
+    const itemArr = Array.isArray(requestItems) ? requestItems : [];
+    const moneyNum = Number(requestMoney) || 0;
+    if (!(itemArr.length > 0) && !(moneyNum > 0)) {
+      setError("You must request item(s) and/or money.");
       return;
     }
 
+    if (!selectedFile.length) {
+      setError("Please select at least one image.");
+      return;
+    }
+
+    let uploadedImageUrls = [];
+
+    // Upload Images
     const formData = new FormData();
     selectedFile.forEach((file) => formData.append("files", file));
-
     try {
       const response = await fetch("/api/listings/upload", {
         method: "POST",
@@ -87,13 +174,38 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
 
       if (result.success) {
         setImageUrl(result.imageUrl); // Assuming backend returns an array
-        router.push("/listings/create?status=true");
+        uploadedImageUrls = result.imageUrl;
       } else {
-        setErrorMsg(result.message || "Upload failed");
+        setError(result.message || "Upload failed");
+        return;
       }
     } catch (err) {
       console.error(err);
-      setErrorMsg("Error uploading files");
+      setError("Error uploading files");
+      return;
+    }
+    
+    try {
+      const res = await fetch("/api/listings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ 
+          userId, itemName, description, category, condition, images: uploadedImageUrls, meetUp, location: meetUp ? meetUpLocation : "", requestItems: itemArr, requestMoney: moneyNum,})
+        });
+
+      const data = await res.json();
+
+      // Fail
+      if (!res.ok) {
+        throw new Error(data?.error || "Create listing failed");
+      }
+
+      // Success
+      router.push(`/listings/create?status=true&id=${data.listing._id}`);
+    } catch (err) {
+      setError(err.message);
     }
   };
 
@@ -101,10 +213,11 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
     id: "google-map-script",
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY,
   });
-  //TODO: CHANGE TO RETRIEVE DYNAMICALLY
-  const meetUpLocation = pickUpLocations.find(
-    (loc) => loc.name === fakeSuccessfullyCreatedData.location,
-  );
+
+  // //TODO: CHANGE TO RETRIEVE DYNAMICALLY
+  // const selectedMeetUpLocation = pickUpLocations.find(
+  //   (loc) => loc.name === fakeSuccessfullyCreatedData.location,
+  // );
   const getCityProvince = (address) => {
     if (!address) return "";
     const parts = address.split(",");
@@ -127,7 +240,6 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
   }, []);
 
   //TODO: Upload images
-  const [errorMsg, setErrorMsg] = useState(null);
   const [selectedFile, setSelectedFile] = useState([]);
   const [imageUrl, setImageUrl] = useState([]);
 
@@ -144,7 +256,22 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
     e.target.value = "";
   };
 
+  const handleAddRequestItem = () => {
+    const trimmedItem = requestItemInput.trim();
+    if (!trimmedItem) return;       // clicking Add button with no input 
+
+    setRequestItems((prev) => [...prev, trimmedItem]);    // spread existing Requested Items array, add trimmed to the end
+    setRequestItemInput("");    // Reset field
+  }
+
   if (status === "true") {
+    // createdListing is null on first render
+    if (!createdListing) return <h1>Loading the created listing...</h1>;
+    
+    const selectedMeetUpLocation = pickUpLocations.find(
+      (loc) => loc.name === createdListing.location,
+    );
+
     return (
       <>
         <div className="container-sm border border-gray rounded-4 shadow mt-7 mb-3 px-5 py-4">
@@ -156,8 +283,8 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
           <div className="d-flex flex-column flex-md-row justify-content-center align-item-center">
             <div className="col-12 col-md-3 text-center text-md-start">
               <Image
-                src={fakeSuccessfullyCreatedData.imageUrl[0]}
-                alt={`${fakeSuccessfullyCreatedData.itemName} img`}
+                src={createdListing.images[0]}
+                alt={`${createdListing.itemName} img`}
                 className="w-75 align-self-center rounded-3"
                 fluid
               />
@@ -165,7 +292,7 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
             <div className="col-12 col-md-5 mt-4 mt-md-0 pe-md-5">
               <div className="d-flex flex-column gap-3 border-bottom border-gray">
                 <p className="text-primary text-uppercase fw-semibold fs-3">
-                  {fakeSuccessfullyCreatedData.itemName}
+                  {createdListing.itemName}
                 </p>
                 <div className="d-grid">
                   <div className="row">
@@ -176,7 +303,7 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
                     </div>
                     <div className="col-6">
                       <p className="text-primary text-capitalize fw-light">
-                        {fakeSuccessfullyCreatedData.category}
+                        {createdListing.category}
                       </p>
                     </div>
                   </div>
@@ -188,7 +315,7 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
                     </div>
                     <div className="col-6">
                       <p className="text-primary text-uppercase fw-light">
-                        {fakeSuccessfullyCreatedData.condition}
+                        {createdListing.condition}
                       </p>
                     </div>
                   </div>
@@ -226,18 +353,18 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
                   </div>
                 </div>
               </div>
-              {fakeSuccessfullyCreatedData.meetUp && (
+              {createdListing.meetUp && (
                 <div className="d-flex justify-content-start align-items-center gap-2 mt-3 mb-2">
                   <FontAwesomeIcon
                     icon={faPeopleLine}
                     className="text-primary opacity-75"
                   />
                   <p className="text-primary fw-light mb-0 custom-sm-text opacity-75">
-                    {meetUpLocation ? (
+                    {selectedMeetUpLocation ? (
                       <>
                         Free Meet up at{" "}
-                        <span className="fw-bold">{meetUpLocation.name}</span> (
-                        {getCityProvince(meetUpLocation.address)})
+                        <span className="fw-bold">{selectedMeetUpLocation.name}</span> (
+                        {getCityProvince(selectedMeetUpLocation.address)})
                       </>
                     ) : (
                       "Free Meet up location not found"
@@ -259,12 +386,12 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
             <div className="col-12 col-md-4 mt-4 my-md-0 mb-5">
               <p className="fw-semibold fs-5 text-primary">Meet up location</p>
 
-              {isLoaded && meetUpLocation && (
+              {isLoaded && selectedMeetUpLocation && (
                 <GoogleMap
                   mapContainerStyle={smallMapStyle}
                   center={{
-                    lat: meetUpLocation.latitude,
-                    lng: meetUpLocation.longitude,
+                    lat: selectedMeetUpLocation.latitude,
+                    lng: selectedMeetUpLocation.longitude,
                   }}
                   zoom={13}
                   onLoad={onLoad}
@@ -272,10 +399,10 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
                 >
                   <MarkerF
                     position={{
-                      lat: meetUpLocation.latitude,
-                      lng: meetUpLocation.longitude,
+                      lat: selectedMeetUpLocation.latitude,
+                      lng: selectedMeetUpLocation.longitude,
                     }}
-                    onClick={() => setSelectedLocation(meetUpLocation)}
+                    onClick={() => setSelectedLocation(selectedMeetUpLocation)}
                   />
 
                   {selectedLocation && (
@@ -297,7 +424,7 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
                 </GoogleMap>
               )}
 
-              {!meetUpLocation && (
+              {!selectedMeetUpLocation && (
                 <p className="text-danger">Meet up location not found</p>
               )}
             </div>
@@ -311,7 +438,7 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
             <Link
               href={{
                 pathname: "/listings/[id]",
-                query: { id: fakeSuccessfullyCreatedData.id },
+                query: { id: createdListing._id },
               }}
               className="link-light link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover fw-semibold text-white"
             >
@@ -332,6 +459,11 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
 
         {/* SINGLE FORM WRAP */}
         <form onSubmit={handleSubmit}>
+          {error && (
+            <div ref={errorRef} className="alert alert-danger">
+              {error}
+            </div>
+          )}
           {/* Listing basic info */}
           <div className="row mb-3 d-flex justify-content-center gap-md-3 mt-5">
             <div className="col-md-4 col-12 text-center text-md-start">
@@ -379,7 +511,6 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
                   />
                 </label>
               </div>
-              {errorMsg && <p className="text-danger fst-italic">{errorMsg}</p>}
             </div>
             <div className="col-md-7 col-12">
               <div className="form-group mb-3">
@@ -387,6 +518,8 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
                   type="text"
                   className="form-control bg-light text-gray p-3 fs-regular rounded-3"
                   placeholder="Item Name*"
+                  value={itemName}
+                  onChange={(e) => setItemName(e.target.value)}
                 />
               </div>
               <div className="form-group mb-3">
@@ -394,10 +527,12 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
                   id="condition"
                   className="form-control bg-light text-gray p-3 fs-regular rounded-3"
                   required
+                  value={condition}
+                  onChange={(e) => setCondition(e.target.value)}
                 >
                   <option value="">Condition*</option>
-                  <option value="">New</option>
-                  <option value="">Used</option>
+                  <option value="NEW">New</option>
+                  <option value="USED">Used</option>
                 </select>
               </div>
               <div className="form-group mb-5">
@@ -405,12 +540,14 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
                   id="Category"
                   className="form-control bg-light text-gray p-3 fs-regular rounded-3"
                   required
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
                 >
                   <option value="">Category</option>
-                  <option value="">Pokemon Card</option>
-                  <option value="">Blind Box</option>
-                  <option value="">Yu-gi-oh Card</option>
-                  <option value="">Figure</option>
+                  <option value="POKEMON CARD">Pokemon Card</option>
+                  <option value="BLIND BOX">Blind Box</option>
+                  <option value="YUGIOH CARD">Yu-gi-oh Card</option>
+                  <option value="FIGURINE">Figurine</option>
                 </select>
               </div>
               <div className="form-group mb-3">
@@ -418,6 +555,8 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
                   className="form-control bg-light text-gray p-3 fs-regular rounded-3"
                   placeholder="Description"
                   rows="5"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
                 />
               </div>
             </div>
@@ -432,14 +571,35 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
                   type="text"
                   className="form-control bg-light text-gray p-3 fs-regular rounded-3"
                   placeholder="Item Name*"
+                  value={requestItemInput}
+                  onChange={(e) => setRequestItemInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleAddRequestItem();  
+                    }
+                  }}
                 />
               </div>
-              <Image
-                src="/images/upload-icon.png"
-                alt="upload icon"
-                width={55}
-                height={55}
-              />
+              <button
+                type="button"
+                onClick={handleAddRequestItem}
+                className="btn p-0 border-0 bg-transparent"
+                aria-label="Add requested item"
+              >
+                <Image
+                  src="/images/upload-icon.png"
+                  alt="add item"
+                  width={55}
+                  height={55}
+                />
+              </button>
+            </div>
+            {/* TEMP: showing the requested items */}
+            <div className="mb-3">
+                {requestItems.map((item, index) => (
+                  <div key={index}>{item}</div>
+                ))}
             </div>
             <div className="form-group my-3">
               <textarea
@@ -455,9 +615,11 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
             <p className="text-primary mt-4 mb-4 fw-bold fs-5">Request Money</p>
             <div className="form-group col-md-6 col-lg-5 col-12">
               <input
-                type="text"
+                type="number"
                 className="form-control bg-light text-gray p-3 fs-regular rounded-3"
-                placeholder="$0"
+                placeholder="0"
+                value={requestMoney}
+                onChange={(e) => setRequestMoney(e.target.value)}
               />
             </div>
           </div>
@@ -470,6 +632,17 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
                 className="form-check-input border-primary rounded-0"
                 type="checkbox"
                 id="meetUpOption"
+                checked={meetUp}
+                onChange={(e) => {
+                  const checked = e.target.checked;
+                  setMeetUp(checked);
+
+                  // if they turn it off, clear selection
+                  if (!checked) {
+                    setMeetUpLocation("");
+                    setSelectedLocation(null);
+                  }
+                }}
               />
               <label
                 className="form-check-label text-primary fw-semibold"
@@ -481,6 +654,7 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
             <p className="text-primary mt-4 mb-3 fw-semibold">
               Meet up location
             </p>
+            
             {isLoaded && (
               <GoogleMap
                 mapContainerStyle={containerStyle}
@@ -492,14 +666,15 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
                 {pickUpLocations.map((location) => (
                   <MarkerF
                     key={`${location.address}-${location.name}`}
-                    onClick={() =>
-                      location === selectedLocation
-                        ? setSelectedLocation(null)
-                        : setSelectedLocation(location)
-                    }
-                    position={{
-                      lat: location.latitude,
-                      lng: location.longitude,
+                    position={{ lat: location.latitude, lng: location.longitude }}
+                    onClick={() => {
+                      if (location === selectedLocation) {
+                        setSelectedLocation(null);
+                        setMeetUpLocation("");
+                      } else {
+                        setSelectedLocation(location);
+                        setMeetUpLocation(location.name);
+                      }
                     }}
                   />
                 ))}
@@ -526,7 +701,6 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
           <button
             type="submit"
             className="btn btn-primary fw-semibold rounded-pill px-4 py-2 mt-3 mb-5"
-            onClick={handleSubmit}
           >
             Post Listing
           </button>
