@@ -1,6 +1,7 @@
 import { forwardRef } from "react";
 import { Button, Dropdown } from "react-bootstrap";
 import UserIcon from "../user-icon";
+import Link from "next/link";
 
 const CustomToggle = forwardRef(function CustomToggle(
   { children, onClick },
@@ -26,7 +27,7 @@ const CustomMenu = forwardRef(function CustomMenu(
 ) {
   return (
     <div ref={ref} style={style} className={className}>
-      <Button variant="primary mx-2 mt-1 mb-3">Create Listing</Button>
+      <Link className="btn btn-primary text-white mx-2 mt-1 mb-3" href="/listings/create">Create Listing</Link>
       <ul className="list-unstyled">{children}</ul>
     </div>
   );

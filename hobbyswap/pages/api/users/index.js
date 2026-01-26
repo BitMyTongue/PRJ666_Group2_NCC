@@ -32,7 +32,7 @@ export default async function handler(req, res) {
       });
       const userObj = user.toObject();
       delete userObj.password;
-        res.status(201).json({ message: "User Created", user: newUser });
+        res.status(201).json({ message: "User Created", user: user });
     break;
     default:
     res.setHeader("Allow", ["GET", "POST"]);
