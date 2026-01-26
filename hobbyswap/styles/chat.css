@@ -4,11 +4,12 @@
   margin: 5%;
   padding: 2%;
   height: 100%;
-  min-height: 500px;
+  min-height: 600px;
+  max-height: 6dvh;
   position: relative;
   display: flex;
   gap: 10;
-  overflow-y: hidden;
+  overflow-y: clip;
   border-radius: 18px;
 
   .str-chat {
@@ -16,7 +17,9 @@
   }
 
   .str-chat__main-panel-inner {
-    min-height: 350px;
+    min-height: 400px;
+    max-height: 400px;
+    overflow-y: scroll;
   }
 
   .str-chat__channel-list {
@@ -24,8 +27,12 @@
     z-index: 1;
     height: 100%;
     width: 0;
+    min-height: 520px;
+    max-height: 520px;
+    overflow-y: scroll;
     flex-shrink: 0;
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
+    top: 0;
 
     &--open {
       width: 30%;
@@ -33,6 +40,13 @@
       position: absolute;
     }
     transition: width 0.3s ease-out;
+  }
+
+  .str-chat__message-input {
+    position: sticky;
+    bottom: 0;
+    box-shadow: 0 1 8px rgba(0, 0, 0, 0.15);
+    border-radius: 20px;
   }
 
   .str-chat__channel {
@@ -67,8 +81,9 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    border: none;
     background: transparent;
+    position: sticky;
+    top: 0;
 
     &:hover {
       svg path {
