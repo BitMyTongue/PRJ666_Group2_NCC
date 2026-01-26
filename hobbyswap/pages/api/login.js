@@ -1,4 +1,6 @@
 import { UserModel, mongooseConnect } from "@/lib/dbUtils";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
 
 export default async function handler(req, res) {
   const { email, password } = req.body;
@@ -36,17 +38,27 @@ export default async function handler(req, res) {
     const { password: _, ...userWithoutPassword } = user.toObject();
     res.status(200).json({ user: userWithoutPassword });
 
-    // Bicrypt implementation example:
-    // const isMatch = await bcrypt.compare(password, user.password);
-    // if (!isMatch) {
-    //   return res.status(401).json({ error: "Invalid email or password" });
-    // }
+    // Using bcrypt for password comparison
+    const bcryptMatch = await bcrypt.compare(password, user.password);
+    if (!bcryptMatch) {
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
 
-    // Confirm userdata received.
+    //Implementation of JWT
+    const token = jwt.sign(
+      {
+        userId: user._id,
+        email: user.email,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d"
+      }
+    );
 
-    // In production, implement session management or JWT here
+    // Exclude password from response
+    const { password: __, ...userData } = user.toObject();
 
-
+    return res.status(200).json({ token, user: userData });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
