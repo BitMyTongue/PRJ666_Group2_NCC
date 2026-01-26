@@ -35,7 +35,7 @@ userSchema.pre("save", async function () {
 });
 
 export const UserModel =
-  mongoose.models.users || mongoose.model("users", userSchema);
+  mongoose.models.User || mongoose.model("User", userSchema);
 
 export async function mongooseConnect() {
   if (mongoose.connections[0].readyState) {
