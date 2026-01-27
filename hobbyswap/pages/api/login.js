@@ -1,6 +1,6 @@
 import { UserModel, mongooseConnect } from "@/lib/dbUtils";
 import jwt from "jsonwebtoken";
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 require("dotenv").config();
 
 export default async function handler(req, res) {
