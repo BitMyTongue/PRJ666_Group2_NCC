@@ -8,6 +8,7 @@ const { UserModel, mongooseConnect } = require("../../lib/dbUtils");
 const app = express();
 app.use(express.json());
 
+// Demo data (replace with DB query if you want)
 const listings = [];
 
 let refreshTokens = [];
@@ -15,6 +16,7 @@ let refreshTokens = [];
 app.post("/login", async (req, res) => {
   const { email, username, password } = req.body;
 
+  // allow either email or username in request
   const identifier = email || username;
 
   if (!identifier || !password) {
@@ -99,6 +101,7 @@ function authenticateToken(req, res, next) {
   const token = authHeader && authHeader.split(" ")[1];
   if (!token) return res.sendStatus(401);
 
+  // ✅ Verify with JWT_SECRET (not JWT_SECRET)
   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
     if (err) return res.sendStatus(403);
     req.user = user; 
