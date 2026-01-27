@@ -189,6 +189,8 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
         },
         body: JSON.stringify({ 
           userId, itemName, description, category, condition, images: uploadedImageUrls, meetUp, location: meetUp ? meetUpLocation : "", requestItems: itemArr, requestMoney: moneyNum,})
+
+          //Focuse on images: uploadedImageUrls
         });
 
       const data = await res.json();
@@ -236,13 +238,13 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
   const [imageUrl, setImageUrl] = useState([]);
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files[0]; //Image File
     if (!file) return;
 
-    const previewUrl = URL.createObjectURL(file);
+    const previewUrl = URL.createObjectURL(file); //Url saved
 
     setSelectedFile((prev) => [...prev, file]);
-    setImageUrl((prev) => [...prev, previewUrl]);
+    setImageUrl((prev) => [...prev, previewUrl]); // Array of Images
 
     // reset input so user can upload the SAME file again if they want
     e.target.value = "";
