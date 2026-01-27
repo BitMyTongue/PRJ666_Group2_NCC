@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 require("dotenv").config();
 
+
 export default async function handler(req, res) {
   const { email, password } = req.body;
   const { method } = req;
@@ -55,7 +56,6 @@ export default async function handler(req, res) {
       { expiresIn: "7d"
       }
     );
-    res.json({ token });
 
     // Exclude password from response
     const { password: __, ...userData } = user.toObject();
