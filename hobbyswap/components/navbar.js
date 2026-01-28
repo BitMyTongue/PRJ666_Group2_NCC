@@ -7,10 +7,8 @@ import { useState } from "react";
 import CurrentUserDropdown from "./dropdowns/current-user-options";
 import UserIcon from "./user-icon";
 import { Button } from "react-bootstrap";
-import { useRouter } from "next/router";
 
 const Navbar = ({ user = true }) => {
-  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleMenu = () => {
@@ -63,11 +61,8 @@ const Navbar = ({ user = true }) => {
               <div className="d-flex gap-4 align-items-center">
                 <CurrentUserDropdown />
                 <FontAwesomeIcon
-                  role="button"
                   icon={faEnvelope}
-                  onClick={() => {
-                    router.push("/message");
-                  }}
+                  onClick={() => {}}
                   color="white"
                   size="2x"
                 />
@@ -129,11 +124,8 @@ const Navbar = ({ user = true }) => {
                     <div className="d-flex mb-4 justify-content-between align-items-start">
                       <UserIcon user="" img="/images/gundam.png" size={40} />
                       <FontAwesomeIcon
-                        role="button"
                         icon={faEnvelope}
-                        onClick={() => {
-                          router.push("/message");
-                        }}
+                        onClick={() => {}}
                         color="white"
                         size="2x"
                       />
