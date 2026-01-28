@@ -1,53 +1,64 @@
 import { UserModel, mongooseConnect } from "@/lib/dbUtils";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+
+const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey"; // ideally store in env
+const JWT_EXPIRES_IN = "7d"; // 7 days
 
 export default async function handler(req, res) {
-  const { email, password } = req.body;
   const { method } = req;
 
   if (method !== "POST") {
     res.setHeader("Allow", ["POST"]);
-    res.status(405).end(`Method ${method} Not Allowed`);
-    return;
+    return res.status(405).end(`Method ${method} Not Allowed`);
   }
 
+  const { email, password } = req.body;
+
   if (!email || !password) {
-    return res.status(400).json({ error: "Email and password are required" });
+    return res.status(400).json({
+      error: "Email or username and password are required",
+    });
   }
 
   try {
     await mongooseConnect();
 
-    // Find user by email or username
+    // login with email OR username
     const user = await UserModel.findOne({
       $or: [{ email }, { username: email }],
-    }).exec();
+    });
 
     if (!user) {
-      return res.status(401).json({ error: "Invalid email or password" });
+      return res.status(401).json({
+        error: "Invalid email/username or password",
+      });
     }
 
-    // Compare passwords (in production, use bcrypt)
-    // For now, doing basic comparison
-    if (user.password !== password) {
-      return res.status(401).json({ error: "Invalid email or password" });
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res.status(401).json({
+        error: "Invalid email/username or password",
+      });
     }
 
-    // Return user data (exclude password)
-    const { password: _, ...userWithoutPassword } = user.toObject();
-    res.status(200).json({ user: userWithoutPassword });
+    const userObj = user.toObject();
+    delete userObj.password;
 
-    // Bicrypt implementation example:
-    // const isMatch = await bcrypt.compare(password, user.password);
-    // if (!isMatch) {
-    //   return res.status(401).json({ error: "Invalid email or password" });
-    // }
+    const token = jwt.sign(
+  { id: user._id, email: user.email }, // payload
+  JWT_SECRET,
+  { expiresIn: JWT_EXPIRES_IN }
+);
 
-    // Confirm userdata received.
-
-    // In production, implement session management or JWT here
-
-
+    return res.status(200).json({
+      message: "Login successful",
+      user: userObj,
+      token
+    });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("LOGIN ERROR:", err);
+    return res.status(500).json({ error: err.message });
   }
 }
