@@ -19,15 +19,15 @@ const listingSchema = new mongoose.Schema({
     required: true,
   },
   brand: {
-    type: String, //optional
+    type: String,
     required: true,
   },
   condition: {
-    type: String,   //not needed
+    type: String,
     required: true,
   },
   images: {
-    type: [String], //URL
+    type: [String],
     required: true,
   },
   status: {
