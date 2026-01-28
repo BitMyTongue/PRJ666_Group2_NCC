@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   faUserCheck,
   faBox,
@@ -11,36 +11,24 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import UserIcon from "@/components/user-icon";
 import Link from "next/link";
+import { UserContext } from "@/contexts/UserContext";
 export default function User() {
-  const [user, setUser] = useState(null);
+const { user: viewer } = useContext(UserContext); 
+  const [profile, setProfile] = useState(null); 
   const router = useRouter();
-  const [viewer, setViewer] = useState(null); 
 
   
   useEffect(() => {
     if (!router.isReady) return;
     
-    // Fetch the profile being viewed
+  // Fetch the profile being viewed
     fetch(`/api/users/${router.query.id}`)
-    .then((res) => res.json())
-    .then((data) => setUser(data));
-    
-    // Fetch the logged-in user (viewer)
-    const token = localStorage.getItem("token");
-    if (token) {
-      fetch("/api/auth/protect", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
       .then((res) => res.json())
-      .then((data) => setViewer(data.user))
-      .catch(() => setViewer(null));
-    }
-  }, [router.isReady]);
+      .then((data) => setProfile(data));
+  }, [router.isReady, router.query.id]);
   
-  if (!user) return <p>Loading...</p>;
-  const isOwnerOfProfile = viewer?._id === user._id;//TODO: Implement logic to check if the logged-in user is the owner of the profile
+  if (!profile) return <p>Loading...</p>;
+  const isOwnerOfProfile = viewer?._id === profile._id;
   
   return (
     <>
@@ -88,7 +76,7 @@ export default function User() {
         <div className="row justify-content-center align-items-stretch gap-5">
           <div className="col-12 col-md-4 border border-gray rounded rounded-4 shadow py-8 d-flex flex-column justify-content-center align-items-center gap-3">
             <UserIcon img="/images/default-avatar.png" size={120} />
-            <p className="fw-semibold fs-2 text-primary">{`${user?.firstName} ${user?.lastName}`}</p>
+            <p className="fw-semibold fs-2 text-primary">{`${profile?.firstName} ${profile?.lastName}`}</p>
             {isOwnerOfProfile && (
               <div className="w-100 text-center align-self-center">
                 <button className="btn btn-light text-primary border-primary border rounded-pill py-2 fw-semibold w-50 w-md-100">
@@ -113,7 +101,7 @@ export default function User() {
           <div className="col-11 col-md-6 border border-gray rounded rounded-4 shadow p-4 d-flex flex-column justify-content-center align-items-center ">
             <div className="row border-bottom border-gray pb-3 w-100 mb-3">
               <div className="d-flex  justify-content-start align-items-center gap-5 my-3">
-                <p className="fw-semibold fs-4 text-primary mb-0">{`${user?.firstName} ${user?.lastName}`}</p>
+                <p className="fw-semibold fs-4 text-primary mb-0">{`${profile?.firstName} ${profile?.lastName}`}</p>
                 <div className="d-flex justify-content-start align-items-center gap-2 my-0">
                   <FontAwesomeIcon
                     icon={faLocationPin}
@@ -146,18 +134,18 @@ export default function User() {
               <div className="container mb-3 mx-3">
                 <div className="row mb-2">
                   <p className="fs-6 text-gray mb-0 col-4">Email</p>
-                  <p className="text-primary mb-0 col-8">{user?.email}</p>
+                  <p className="text-primary mb-0 col-8">{profile?.email}</p>
                 </div>
                 <div className="row mb-2">
                   <p className="fs-6 text-gray mb-0 col-4">Address</p>
                   <p className="text-primary mb-0 col-8">
-                    {user?.address ? user.address : "N/A"}
+                    {profile?.address ? profile.address : "N/A"}
                   </p>
                 </div>
                 <div className="row mb-2">
                   <p className="fs-6 text-gray mb-0 col-4">Site</p>
                   <p className="text-primary mb-0 col-8">
-                    {user?.site ? user.site : "N/A"}
+                    {profile?.site ? profile.site : "N/A"}
                   </p>
                 </div>
               </div>
@@ -168,19 +156,19 @@ export default function User() {
                 <div className="row mb-2">
                   <p className="fs-6 text-gray mb-0 col-4">Name</p>
                   <p className="text-primary mb-0 col-8">
-                    {`${user?.firstName} ${user?.lastName}`}
+                    {`${profile?.firstName} ${profile?.lastName}`}
                   </p>
                 </div>
                 <div className="row mb-2">
                   <p className="fs-6 text-gray mb-0 col-4">Gender</p>
                   <p className="text-primary mb-0 col-8">
-                    {user?.gender ? user.gender : "N/A"}
+                    {profile?.gender ? profile.gender : "N/A"}
                   </p>
                 </div>
                 <div className="row mb-2">
                   <p className="fs-6 text-gray mb-0 col-4">Date of birth</p>
                   <p className="text-primary mb-0 col-8">
-                    {user?.dateOfBirth ? user.dateOfBirth : "N/A"}
+                    {profile?.dateOfBirth ? profile.dateOfBirth : "N/A"}
                   </p>
                 </div>
               </div>
@@ -191,8 +179,8 @@ export default function User() {
                 <div className="row mb-2">
                   <p className="fs-6 text-gray mb-0 col-4">Member Since</p>
                   <p className="text-primary mb-0 col-8">
-                    {user?.createdAt
-                      ? new Date(user.createdAt).toLocaleDateString("en-US", {
+                    {profile?.createdAt
+                      ? new Date(profile.createdAt).toLocaleDateString("en-US", {
                           month: "long",
                           day: "2-digit",
                           year: "numeric",
@@ -206,7 +194,7 @@ export default function User() {
                       Password
                     </p>                    
                     {/* <p className="text-primary mb-0 col-4 align-self-center">
-                      {user?.password ? user.password : "N/A"}
+                      {profile?.password ? profile.password : "N/A"}
                     </p>                     */}
                     <button className="btn btn-light text-gray rounded-pill p-3 fw-semibold col-4">
                       Change Password
