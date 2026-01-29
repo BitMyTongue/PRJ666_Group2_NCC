@@ -5,7 +5,7 @@ import { useContext, useEffect, useState } from "react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faBookmark, faUser} from "@fortawesome/free-regular-svg-icons"
 import { faLayerGroup, faShoppingBag  } from "@fortawesome/free-solid-svg-icons"
-import {  TradeCard } from "@/components/base-long-card"
+import {  StatusCard, TradeCard } from "@/components/base-long-card"
 import { Button } from "react-bootstrap"
 export default function UserListing(){
     const router=useRouter()
@@ -125,7 +125,7 @@ export default function UserListing(){
         {listings.map((listing)=>(
           <div className="my-4">
 
-        <TradeCard userName={user.username} userImg={user.avatar} offerItem={listing} requestMoney={listing.requestMoney}/>
+        <StatusCard statusType={6} userName={user.username} userImg={user.avatar} offerItem={listing} requestMoney={listing.requestMoney} url={`/users/${id}`}/>
           </div>
         ))}
       </div>
