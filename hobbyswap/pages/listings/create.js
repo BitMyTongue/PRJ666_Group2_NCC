@@ -109,7 +109,8 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
       .then((data) => setUser(data.user))
     }
     
-  })
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
