@@ -7,26 +7,30 @@ import { faBookmark, faUser} from "@fortawesome/free-regular-svg-icons"
 import { faLayerGroup, faShoppingBag  } from "@fortawesome/free-solid-svg-icons"
 import {  StatusCard, TradeCard } from "@/components/base-long-card"
 import { Button } from "react-bootstrap"
+import Pagination from "@/components/pagination"
 export default function UserListing(){
     const router=useRouter()
     const {id}=router.query
     const  {user}=useContext(UserContext)
     const [listings,setListings]=useState([])
+    const [loading, setLoading] = useState(true);
+    const [loadError, setLoadError] = useState("");
+    const resultsPerPage = 1;
+    const [currP, setCurrP] = useState(0);
+    const [pageListings,setPageListings]=useState([])
 
-  const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState("");
-
+  
   useEffect(() => {
     if (!router.isReady) return;    
-
+    
     const load = async () => {
       try {
         setLoading(true);
         setLoadError("");
-
+        
         const res = await fetch(`/api/listings`);
         const data = await res.json();
-
+        
         if (!res.ok) throw new Error(data?.error || "Failed to load listing");
         const userListing=data.listings.filter((listing)=>listing.userId===id)
         setListings(userListing);
@@ -37,11 +41,22 @@ export default function UserListing(){
         setLoading(false);
       }
     };
-
+    
     load();
   }, [router.isReady, id]);
-
-     
+  
+  useEffect(() => {
+    const effectAsync = async () => {
+      const copy = listings.slice(
+        currP * resultsPerPage,
+        currP * resultsPerPage + resultsPerPage,
+      );
+      setPageListings(copy);
+    };
+    effectAsync();
+  }, [currP,listings]);
+  
+  
  return (
     <>
      {/* Active Tab Section */}
@@ -114,29 +129,28 @@ export default function UserListing(){
           <p className="text-primary fw-semibold ms-auto">Sort By | <span className="fw-light ms-3">{"Most Relevant"}</span></p>
         </div>
 
-        {/* Pagination */}  
-        <div className="d-flex justify-content-between my-5">
-          <p className="text-primary fw-semibold">Showing {"10"} of {"15"} results</p>
-          <p className="text-primary fw-semibold ms-auto">Pagination component</p>
-        </div>
       </div>
       {/* Card Section */}
       <div className="container my-5 mx-auto">
-        {listings.map((listing)=>(
+              <Pagination
+        dataLength={listings.length}
+        currPage={currP}
+        setCurrPage={setCurrP}
+        resultsPerPage={resultsPerPage}
+      />
+        {pageListings.map((listing)=>(
           <div className="my-4">
 
         <StatusCard statusType={6} userName={user.username} userImg={user.avatar} offerItem={listing} requestMoney={listing.requestMoney} url={`/users/${id}`}/>
           </div>
         ))}
+         <Pagination
+        dataLength={listings.length}
+        currPage={currP}
+        setCurrPage={setCurrP}
+        resultsPerPage={resultsPerPage}
+      />
       </div>
-       <div className="container my-5 mx-auto">
-
-       {/* Pagination */}  
-        <div className="d-flex justify-content-between my-5">
-          <p className="text-primary fw-semibold">Showing {"10"} of {"15"} results</p>
-          <p className="text-primary fw-semibold ms-auto">Pagination component</p>
-        </div>
-       </div>
        </>:
        <div className="container mx-auto my-8 text-center">
        <p className="text-muted text-capitalize fs-4 fst-italic">No Listings Added yet</p>
