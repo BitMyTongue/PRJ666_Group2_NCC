@@ -132,7 +132,7 @@ const Navbar = () => {
                       <Link as="button" className="btn btn-primary" href="#">
                         View Your Store Page
                       </Link>
-                      <Link as="button" className="btn btn-primary" href="#">
+                      <Link className="btn btn-primary" href={`/users/${user._id}/listings`}>
                         View Your Listings
                       </Link>
                       <Link as="button" className="btn btn-primary" href="#">
