@@ -45,6 +45,24 @@ const currentUser = {
   rating: 5,
 };
 
+const imageWrapperStyle = {
+  width: "100%",
+  maxWidth: "520px",
+  aspectRatio: "4 / 5",
+  background: "#ffffff",
+  borderRadius: "20px",
+  overflow: "hidden",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+};
+
+const imageStyle = {
+  width: "100%",
+  height: "100%",
+  objectFit: "contain",
+};
+
 const smallMapStyle = {
   width: "100%",
   height: "250px",
@@ -206,17 +224,18 @@ export default function Listing() {
         {/* Product general details */}
         <div className="row d-flex flex-column flex-md-row mt-5 gap-3">
           <div className="col-12 col-md-7 border border-gray rounded-5 shadow d-flex flex-column">
-            <div className="text-center mb-2 px-8 py-5">
+          <div className="px-4 pt-4 d-flex justify-content-center">
+            <div style={imageWrapperStyle}>
               <Image
                 src={selectedImage}
                 alt="Selected"
-                fluid
-                className=" rounded-4
-                 shadow"
+                style={imageStyle}
+                className="rounded-4 shadow"
               />
             </div>
+          </div>
             {/* Carousel */}
-            <div className="row">
+            <div className="row mt-3">
               <Carousel
                 responsive={responsive}
                 arrows
@@ -228,7 +247,7 @@ export default function Listing() {
                 {listing.images.map((img, index) => (
                   <div
                     key={index}
-                    className={`text-center rounded-3 ${
+                    className={`text-center rounded-3 p-2 ${
                       selectedImage === img
                         ? "border border-primary border-3"
                         : ""

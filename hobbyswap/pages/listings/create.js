@@ -127,16 +127,16 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
       setError("Item name is required.");
       return;
     }
-    if (!description || !description.trim()) {
-      setError("Description is required.");
+    if (!condition) {
+      setError("Condition is required.");
       return;
     }
     if (!category) {
       setError("Category is required.");
       return;
     }
-    if (!condition) {
-      setError("Condition is required.");
+    if (!description || !description.trim()) {
+      setError("Description is required.");
       return;
     }
     if (meetUp && (!meetUpLocation || meetUpLocation.trim() === "")) {
@@ -519,7 +519,6 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
                 <select
                   id="condition"
                   className="form-control bg-light text-gray p-3 fs-regular rounded-3"
-                  required
                   value={condition}
                   onChange={(e) => setCondition(e.target.value)}
                 >
@@ -532,7 +531,6 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
                 <select
                   id="Category"
                   className="form-control bg-light text-gray p-3 fs-regular rounded-3"
-                  required
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
                 >
@@ -558,7 +556,7 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
           {/* Request Items */}
           <div className="row mb-3">
             <p className="text-primary mt-4 mb-4 fw-bold fs-5">Request Items</p>
-            <div className="d-flex col-12 gap-4 mb-5">
+            <div className="d-flex col-12 gap-4">
               <div className="form-group col-md-5 col-9">
                 <input
                   type="text"
@@ -577,29 +575,24 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
               <button
                 type="button"
                 onClick={handleAddRequestItem}
-                className="btn p-0 border-0 bg-transparent"
+                className="btn btn-primary fw-semibold rounded-pill px-4 py-2 mb-5"
                 aria-label="Add requested item"
-              >
-                <Image
-                  src="/images/upload-icon.png"
-                  alt="add item"
-                  width={55}
-                  height={55}
-                />
+              >Add Requested Item
               </button>
             </div>
-            {/* TEMP: showing the requested items */}
-            <div className="mb-3">
-                {requestItems.map((item, index) => (
-                  <div key={index}>{item}</div>
-                ))}
-            </div>
-            <div className="form-group my-3">
-              <textarea
-                className="form-control shadow text-gray p-3 fs-regular rounded-3"
-                placeholder="Description"
-                rows="7"
-              />
+            {requestItems.length > 0 && (
+              <p className="text-muted fw-semibold mt-2 mb-2">Requested Items</p>
+            )}
+            {/* Showing the requested items */}
+            <div className="col-md-5 col-9">
+              {requestItems.map((item, index) => (
+                <div
+                  key={index}
+                  className="form-control bg-light text-gray p-3 fs-regular rounded-3 mb-3"
+                >
+                  {item}
+                </div>
+              ))}
             </div>
           </div>
 
