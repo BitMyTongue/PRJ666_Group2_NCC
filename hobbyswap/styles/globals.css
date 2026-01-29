@@ -35,8 +35,108 @@ a {
   text-decoration: none;
 }
 
+/* ===== Quick Browse (Pokemon Cards) ===== */
+.quick-browse {
+  background: var(--background);
+  color: var(--foreground);
+  padding: 3rem 0;
+}
+
+.quick-browse__title {
+  text-align: center;
+  font-weight: 800;
+  letter-spacing: 0.25em;
+  font-size: 0.95rem;
+  margin: 0 0 2.5rem 0;
+}
+
+/* ===== Item Card ===== */
+.item-card {
+  width: 260px; /* ensures 3 fit nicely */
+}
+
+.item-card__imgFrame {
+  height: 320px;
+  border-radius: 18px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+
+.item-card__img {
+  width: auto;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.15));
+}
+
+.item-card__header {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.item-card__name {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.item-card__bookmark {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.item-card__bookmark:hover {
+  background: #f3f4f6;
+}
+
+.item-card__desc {
+  margin: 6px 0 0 0;
+  font-size: 0.72rem;
+  line-height: 1.25rem;
+  color: #6b7280;
+}
+
+.item-card__btnRow {
+  margin-top: 12px;
+  display: flex;
+  justify-content: center;
+}
+
+.item-card__btn {
+  width: 140px;
+  padding: 10px 0;
+  border-radius: 999px;
+  border: none;
+  background: #e5e7eb;
+  color: #111827;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.item-card__btn:hover {
+  background: #d1d5db;
+}
+
+
 @media (prefers-color-scheme: dark) {
   html {
     color-scheme: dark;
   }
 }
+

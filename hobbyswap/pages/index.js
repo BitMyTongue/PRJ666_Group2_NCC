@@ -9,6 +9,18 @@ import {
   faRotate,
 } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
+import ItemCard from "../components/item-card";
+
+const pokemonCards = [
+  { id: 1, name: "Raichu Card", img: "/images/pokemon/raichu.png" },
+  { id: 2, name: "Arceus V Card", img: "/images/pokemon/arceus.png" },
+  { id: 3, name: "Charizard Card", img: "/images/pokemon/charizard.png" },
+  { id: 4, name: "Pikachu Card", img: "/images/pokemon/pikachu.png" },
+  { id: 5, name: "Mewtwo Card", img: "/images/pokemon/mewtwo.png" },
+  { id: 6, name: "Gengar Card", img: "/images/pokemon/gengar.png" },
+];
+
+
 
 export default function Home() {
   return (
@@ -65,7 +77,29 @@ export default function Home() {
         </div>
       </div>
       {/* Quick Browse section */}
-      <div>Hello</div>
+      <section className="quick-browse">
+        <div className="container-md px-4">
+          <h2 className="quick-browse text-center text-sm font-extrabold tracking-[0.25em] text-slate-900">POKEMON CARDS</h2>
+
+          <div className="row justify-content-center g-5 p-6">
+            {pokemonCards.slice(0, 6).map((card) => (
+              <div
+                key={card.id}
+                className="col-12 col-sm-6 col-md-4 d-flex justify-content-center"
+              >
+                <ItemCard
+                  img={card.img}
+                  name={card.name}
+                  desc="Lorem ipsum dolor sit amet abc consectetur, dolor sit."
+                  saved={false}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+
       {/* Join Community Section */}
       <div className="bg-light text-primary py-5 my-5 text-center d-flex justify-content-center align-items-center flex-column position-relative">
         <Image
