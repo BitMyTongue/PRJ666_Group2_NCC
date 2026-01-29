@@ -5,22 +5,19 @@ import { useContext, useEffect, useState } from "react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faBookmark, faUser} from "@fortawesome/free-regular-svg-icons"
 import { faLayerGroup, faShoppingBag  } from "@fortawesome/free-solid-svg-icons"
-import LongItemCard from "@/components/long-item-card"
-import { StatusCard, TradeCard } from "@/components/base-long-card"
+import {  TradeCard } from "@/components/base-long-card"
 import { Button } from "react-bootstrap"
 export default function UserListing(){
-    //const [user,setUser]=useState(null)
     const router=useRouter()
     const {id}=router.query
     const  {user}=useContext(UserContext)
     const [listings,setListings]=useState([])
 
-  const [owner,setOwner]=useState(null)
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
 
   useEffect(() => {
-    if (!router.isReady) return;     // undefined on first render
+    if (!router.isReady) return;    
 
     const load = async () => {
       try {
@@ -54,7 +51,7 @@ export default function UserListing(){
             <div className="col-md-2 mx-auto d-flex flex-column justify-content-center align-items-center my-3">
               <FontAwesomeIcon icon={faUser} size="3x" className="fw-bolder text-primary mb-1"/>
               <Link
-                href="#"
+                href={`/users/${id}`}
                 className={
                   false
                     ? "text-primary fw-semibold text-shadow custom-shadow-secondary"
@@ -107,6 +104,8 @@ export default function UserListing(){
           </div>
         </div>
       </div>
+      {
+        listings.length>0?<>
             {/* Filter Section */}
       <div className="container my-5 mx-auto">
         <div className="d-flex gap-3">
@@ -124,7 +123,10 @@ export default function UserListing(){
       {/* Card Section */}
       <div className="container my-5 mx-auto">
         {listings.map((listing)=>(
+          <div className="my-4">
+
         <TradeCard userName={user.username} userImg={user.avatar} offerItem={listing} requestMoney={listing.requestMoney}/>
+          </div>
         ))}
       </div>
        <div className="container my-5 mx-auto">
@@ -135,6 +137,11 @@ export default function UserListing(){
           <p className="text-primary fw-semibold ms-auto">Pagination component</p>
         </div>
        </div>
+       </>:
+       <div className="container mx-auto my-8 text-center">
+       <p className="text-muted text-capitalize fs-4 fst-italic">No Listings Added yet</p>
+       </div>
+     }
     </>
   );
 }

@@ -1,14 +1,8 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useRouter } from "next/router";
 import { useContext, useEffect, useState } from "react";
-import {
-  faUserCheck,
-  faBox,
-  faCheckCircle,
-  faDollar,
-  faLocationPin,
-  faStar,
-} from "@fortawesome/free-solid-svg-icons";
+import { faBookmark, faUser} from "@fortawesome/free-regular-svg-icons"
+import { faLayerGroup, faLocationPin, faShoppingBag, faStar  } from "@fortawesome/free-solid-svg-icons"
 import UserIcon from "@/components/user-icon";
 import Link from "next/link";
 import { UserContext } from "@/contexts/UserContext";
@@ -32,41 +26,62 @@ const { user: viewer } = useContext(UserContext);
   
   return (
     <>
-      {/* Active Tab Section */}
-      <div className="bg-light py-1">
-        <div className="container my-5">
+          {/* Active Tab Section */}
+      <div className="bg-light">
+        <div className="container py-5">
           <div className="row">
-            <div className="col-md-2 mx-auto d-flex flex-column justify-content-center align-items-center">
-              <FontAwesomeIcon
-                icon={faBox}
-                size="3x"
-                className="text-primary mb-3"
-              />
-              <p className="text-primary fw-semibold">Fast Shipping</p>
+            <div className="col-md-2 mx-auto d-flex flex-column justify-content-center align-items-center my-3">
+              <FontAwesomeIcon icon={faUser} size="3x" className="fw-bolder text-primary mb-1"/>
+              <Link
+                href="#"
+                className={
+                  router.asPath.includes("/")
+                    ? "text-primary fw-semibold text-shadow custom-shadow-secondary"
+                    : "text-primary fw-semibold link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
+                }
+              >
+                My Profile
+              </Link>
+            </div>
+            <div className="col-md-2 mx-auto d-flex flex-column justify-content-center align-items-center my-3">
+                <FontAwesomeIcon icon={faLayerGroup} size="3x" className="fw-bolder text-primary mb-1"/>
+
+              <Link
+                href={`/users/${profile._id}/listings`}
+                className={
+                  router.asPath.includes("listings")
+                    ? "text-primary fw-semibold text-shadow custom-shadow-secondary"
+                    : "text-primary fw-semibold link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
+                }
+              >
+                My Listings
+              </Link>
             </div>
             <div className="col-md-2 mx-auto d-flex flex-column justify-content-center align-items-center">
-              <FontAwesomeIcon
-                icon={faUserCheck}
-                size="3x"
-                className="text-primary mb-3"
-              />
-              <p className="text-primary fw-semibold">Safe Community</p>
+               <FontAwesomeIcon icon={faShoppingBag} size="3x" className="fw-bolder text-primary mb-1"/>
+              <Link
+                href="#"
+                className={
+                      router.asPath.includes("history")
+                    ? "text-primary fw-semibold text-shadow custom-shadow-secondary"
+                    : "text-primary fw-semibold link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
+                }
+              >
+                My History
+              </Link>
             </div>
             <div className="col-md-2 mx-auto d-flex flex-column justify-content-center align-items-center">
-              <FontAwesomeIcon
-                icon={faDollar}
-                size="3x"
-                className="text-primary mb-3"
-              />
-              <p className="text-primary fw-semibold">Secure Payment</p>
-            </div>
-            <div className="col-md-2 mx-auto d-flex flex-column justify-content-center align-items-center">
-              <FontAwesomeIcon
-                icon={faCheckCircle}
-                size="3x"
-                className="text-primary mb-3"
-              />
-              <p className="text-primary fw-semibold">100% Satisfaction</p>
+              <FontAwesomeIcon icon={faBookmark} size="3x" className="fw-bolder text-primary mb-1"/>
+              <Link
+                href="#"
+                className={
+                     router.asPath.includes("bookmarks")
+                    ? "text-primary fw-semibold text-shadow custom-shadow-secondary"
+                    : "text-primary fw-semibold link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
+                }
+              >
+                My Bookmarks
+              </Link>
             </div>
           </div>
         </div>
