@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const listingSchema = new mongoose.Schema({
   userId: {
       type: String,
+      ref:"User",
       required: true,
       unique: true,
   },

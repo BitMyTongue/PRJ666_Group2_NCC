@@ -81,6 +81,36 @@ export default function Listing() {
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [map, setMap] = useState(null);
 
+  const [listing, setListing] = useState(null);
+  const [owner,setOwner]=useState(null)
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+
+  useEffect(() => {
+    if (!router.isReady || !id) return;     // undefined on first render
+
+    const load = async () => {
+      try {
+        setLoading(true);
+        setLoadError("");
+
+        const res = await fetch(`/api/listings/${id}`);
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data?.error || "Failed to load listing");
+
+        setListing(data.listing);
+        setOwner(data.listing.userId)
+      } catch (e) {
+        setLoadError(e.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    load();
+  }, [router.isReady, id]);
+
   const onLoad = useCallback(function callback(map) {
     const bounds = new window.google.maps.LatLngBounds(center);
     setMap(map);
@@ -283,21 +313,21 @@ export default function Listing() {
                     <div className="d-flex gap-3">
                       <div>
                         <UserIcon
-                          user={currentUser.userName}
-                          img={currentUser.avatar}
+                          user={owner.username}
+                          img={owner.avatar}
                           size={45}
                         />
                       </div>
                       <div>
                         <p className="mb-1 fst-italic text-capitalize text-primary fw-light custom-sm-text">
-                          {currentUser.userName}
+                          {owner.username}
                         </p>
                         <div className="d-flex">
                           {Array.from({ length: 5 }, (_, i) => (
                             <FontAwesomeIcon
                               key={i}
                               icon={
-                                i < currentUser.rating ? solidStar : emptyStar
+                                i < owner.rating ? solidStar : emptyStar
                               }
                               className="text-secondary"
                             />
@@ -375,15 +405,15 @@ export default function Listing() {
                 <div className="col-7 d-flex gap-3 align-items-center">
                   {" "}
                   <UserIcon
-                    user={currentUser.userName}
-                    img={currentUser.avatar}
+                    user={owner.username}
+                    img={owner.avatar}
                     size={30}
                   />
                   <Link
-                    href="#"
+                    href={`/users/${owner._id}`}
                     className="align-self-center  mb-0 text-primary fw-semibold"
                   >
-                    {currentUser.userName}
+                    {owner.username}
                   </Link>
                 </div>
               </div>

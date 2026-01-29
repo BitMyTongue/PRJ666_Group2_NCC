@@ -43,31 +43,112 @@ const center = {
   lat: 43.6548,
   lng: -79.3884,
 };
-//TODO: WILL BE UPDATE TO PULL FROM THE DATA PAGE
-const currentUser = {
-  userName: "test1",
-  avatar: "/images/default-avatar.png",
-  rating: 5,
-};
-const fakeSuccessfullyCreatedData = {
-  id: 1,
-  itemName: "Charizard Card",
-  category: "Pokemon Card",
-  condition: "New",
-  description:
-    "Lorem ipsum dolor sit amet consectetur. A commodo arcu dictum volutpat donec magna magna lacus eu. Ornare aliquam tristique feugiat amet lobortis. Erat dolor gravida augue tristique dolor. Metus donec viverra pulvinar enim est sagittis. ",
-  imageUrl: ["/images/charizard-card.png"],
-  meetUp: true,
-  location: "Wheels &Wings Hobbies",
-};
 
 export default function CreateListing() { // http://localhost:3000/listings/create
   const router = useRouter();
   const searchParams = useSearchParams();
   const status = searchParams.get("status");
+  const [error, setError] = useState("");
 
+  // for displaying confirmation
+  const listingId = searchParams.get("id");
+  const [createdListing, setCreatedListing] = useState(null);
+  const [createdListingError, setCreatedListingError] = useState("")
+
+  useEffect(() => {
+    const load = async () => {
+      if (status !== "true" || !listingId) return;
+
+      try {
+        setCreatedListingError("");
+        const res = await fetch(`/api/listings/${listingId}`);
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data?.error || "Failed to load listing");
+
+        setCreatedListing(data.listing);
+      } catch (e) {
+        setCreatedListingError(e.message);
+      }
+    };
+
+    load();
+  }, [status, listingId]);
+
+  // Snap to the top of the form if error to better display the alert
+  const errorRef = useRef(null);
+  useEffect(() => {
+    if (error && errorRef.current) {
+      errorRef.current.scrollIntoView();
+    }
+  }, [error]);
+
+  const [itemName, setItemName] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("");
+  const [condition, setCondition] = useState("");
+
+  const [requestItemInput, setRequestItemInput] = useState("");
+  const [requestItems, setRequestItems] = useState([]);
+
+  const [requestMoney, setRequestMoney] = useState("");
+
+  const [meetUp, setMeetUp] = useState(false);
+  const [meetUpLocation, setMeetUpLocation] = useState("");   // store selectedLocation.name
+  const [user,setUser]=useState(null)
+
+  useEffect(()=>{
+    const token = localStorage.getItem("token");
+    if (token) {
+      fetch("/api/auth/protect", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((res) => res.json())
+      .then((data) => setUser(data.user))
+    }
+    
+  })
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+
+    // Logged in user from localStorage
+    const userId = user?._id;
+
+    // --------- Validation --------- //
+    if(!userId) {
+      setError("You must be logged in to create a listing.");
+      return;
+    }
+    if (!itemName || !itemName.trim()) {
+      setError("Item name is required.");
+      return;
+    }
+    if (!description || !description.trim()) {
+      setError("Description is required.");
+      return;
+    }
+    if (!category) {
+      setError("Category is required.");
+      return;
+    }
+    if (!condition) {
+      setError("Condition is required.");
+      return;
+    }
+    if (meetUp && (!meetUpLocation || meetUpLocation.trim() === "")) {
+      setError("If meet up option is offered, you must provide a meet up location.");
+      return;
+    }
+    // Must request item(s) and/or money
+    const itemArr = Array.isArray(requestItems) ? requestItems : [];
+    const moneyNum = Number(requestMoney) || 0;
+    if (!(itemArr.length > 0) && !(moneyNum > 0)) {
+      setError("You must request item(s) and/or money.");
+      return;
+    }
 
     if (!selectedFile.length) {
       setErrorMsg("Please select at least one image.");
@@ -101,10 +182,7 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
     id: "google-map-script",
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY,
   });
-  //TODO: CHANGE TO RETRIEVE DYNAMICALLY
-  const meetUpLocation = pickUpLocations.find(
-    (loc) => loc.name === fakeSuccessfullyCreatedData.location,
-  );
+
   const getCityProvince = (address) => {
     if (!address) return "";
     const parts = address.split(",");
@@ -202,19 +280,19 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
                       <div className="d-flex gap-3">
                         <div>
                           <UserIcon
-                            user={currentUser.userName}
-                            img={currentUser.avatar}
+                            user={user.username}
+                            img={user.avatar}
                             size={45}
                           />
                         </div>
                         <div>
-                          <p className="mb-1">{currentUser.userName}</p>
+                          <p className="mb-1">{user.username}</p>
                           <div className="d-flex">
                             {Array.from({ length: 5 }, (_, i) => (
                               <FontAwesomeIcon
                                 key={i}
                                 icon={
-                                  i < currentUser.rating ? solidStar : emptyStar
+                                  i < user.rating ? solidStar : emptyStar
                                 }
                                 className="text-secondary"
                               />

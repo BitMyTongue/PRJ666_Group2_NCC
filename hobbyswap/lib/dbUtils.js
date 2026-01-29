@@ -1,38 +1,41 @@
 import mongoose from "mongoose";
-const Schema = mongoose.Schema;
-const userSchema = new mongoose.Schema({
-    
-  firstName: {
-      type: String,
+import bcrypt from "bcrypt";
+
+const userSchema = new mongoose.Schema(
+  {
+    firstName: { 
+      type: String, 
       required: true,
+    },
+    lastName:{ 
+      type: String, 
+      required: true,
+    },
+    username:{ 
+      type: String, 
+      required: true, 
+      unique: true, 
+    },
+    email: {
+      type: String, 
+      required: true, 
+      unique: true, 
+    },
+    password: {
+     type: String, 
+     required: true, 
+    },
   },
-  lastName:{
-    type: String,
-    required: true,
-  },
-  username:{
-    type: String,
-    required: true,
-    unique: true,
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  password: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
+  { timestamps: true }
+);
+
+userSchema.pre("save", async function () {
+  if (!this.isModified("password")) return;
+  this.password = await bcrypt.hash(this.password, 10);
 });
 
-mongoose.models = {};
-export const UserModel = mongoose.model("users", userSchema);
+export const UserModel =
+  mongoose.models.User || mongoose.model("User", userSchema);
 
 export async function mongooseConnect() {
   if (mongoose.connections[0].readyState) {

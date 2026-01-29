@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { Image } from "react-bootstrap";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useRouter } from "next/router";
+import { UserContext } from "@/contexts/UserContext";
 
 export default function Login() {
   const [formData, setFormData] = useState({
@@ -11,6 +12,7 @@ export default function Login() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const {setUser}=useContext(UserContext)
 
   const handleChange = (e) => {
     const {id, value} = e.target;
@@ -44,7 +46,9 @@ export default function Login() {
       }
 
       // Store user data and redirect to home
-      localStorage.setItem("user", JSON.stringify(data.user)); // localStorage to keep user logged in -> To implement JWT (potentially)
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user)); 
+      setUser(data.user)
       router.push("/");
     } catch (err) {
       setError("An error occurred. Please try again.");
