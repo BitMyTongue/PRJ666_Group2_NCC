@@ -43,7 +43,7 @@ export default function CurrentUserDropdown({ user, handleLogout }) {
        <Dropdown.Item as="button" className="btn btn-primary" href="#">
           View Your Store Page
         </Dropdown.Item>
-        <Dropdown.Item as="button" className="btn btn-primary" href="#">
+        <Dropdown.Item className="btn btn-primary" href={`/users/${user._id}/listings`}>
           View Your Listings
         </Dropdown.Item>
         <Dropdown.Item as="button" className="btn btn-primary" href="#">

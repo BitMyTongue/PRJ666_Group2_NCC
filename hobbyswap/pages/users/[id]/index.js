@@ -83,9 +83,9 @@ const { user: viewer } = useContext(UserContext);
                   Edit Profile
                 </button>
                 <div className="d-flex flex-column align-items-center gap-2 w-50 w-md-100 text-center mt-3 mx-auto">
-                  <button className="btn btn-primary rounded-pill py-2 fw-semibold w-100 border border-primary border-3">
+                  <Link href={`${router.asPath}/listings`}className="btn btn-primary rounded-pill py-2 fw-semibold w-100 border border-primary border-3">
                     View Your Marketplace
-                  </button>
+                  </Link>
                   <button className="btn btn-light text-primary border-primary rounded-pill py-2 fw-semibold w-100">
                     <Link
                       className="link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover fw-semibold"
