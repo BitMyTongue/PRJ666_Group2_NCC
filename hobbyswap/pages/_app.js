@@ -4,11 +4,14 @@ import "@/styles/main.css";
 import "@/styles/custom.css";
 import "stream-chat-react/dist/css/v2/index.css";
 import "@/styles/chat.css";
+import { UserProvider } from "@/contexts/UserContext";
 
 export default function App({ Component, pageProps }) {
   return (
-    <Layout>
+    <UserProvider>
+      <Layout>
       <Component {...pageProps} />
-    </Layout>
+      </Layout>
+    </UserProvider>
   );
 }

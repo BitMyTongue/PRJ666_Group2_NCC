@@ -43,23 +43,6 @@ const center = {
   lat: 43.6548,
   lng: -79.3884,
 };
-//TODO: WILL BE UPDATE TO PULL FROM THE DATA PAGE
-const currentUser = {
-  userName: "test1",
-  avatar: "/images/default-avatar.png",
-  rating: 5,
-};
-const fakeSuccessfullyCreatedData = {
-  id: 1,
-  itemName: "Charizard Card",
-  category: "Pokemon Card",
-  condition: "New",
-  description:
-    "Lorem ipsum dolor sit amet consectetur. A commodo arcu dictum volutpat donec magna magna lacus eu. Ornare aliquam tristique feugiat amet lobortis. Erat dolor gravida augue tristique dolor. Metus donec viverra pulvinar enim est sagittis. ",
-  imageUrl: ["/images/charizard-card.png"],
-  meetUp: true,
-  location: "Wheels &Wings Hobbies",
-};
 
 export default function CreateListing() { // http://localhost:3000/listings/create
   const router = useRouter();
@@ -112,13 +95,27 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
 
   const [meetUp, setMeetUp] = useState(false);
   const [meetUpLocation, setMeetUpLocation] = useState("");   // store selectedLocation.name
+  const [user,setUser]=useState(null)
+
+  useEffect(()=>{
+    const token = localStorage.getItem("token");
+    if (token) {
+      fetch("/api/auth/protect", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((res) => res.json())
+      .then((data) => setUser(data.user))
+    }
+    
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
     // Logged in user from localStorage
-    const user = JSON.parse(localStorage.getItem("user"));
     const userId = user?._id;
 
     // --------- Validation --------- //
@@ -130,16 +127,16 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
       setError("Item name is required.");
       return;
     }
-    if (!description || !description.trim()) {
-      setError("Description is required.");
+    if (!condition) {
+      setError("Condition is required.");
       return;
     }
     if (!category) {
       setError("Category is required.");
       return;
     }
-    if (!condition) {
-      setError("Condition is required.");
+    if (!description || !description.trim()) {
+      setError("Description is required.");
       return;
     }
     if (meetUp && (!meetUpLocation || meetUpLocation.trim() === "")) {
@@ -164,6 +161,7 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
     // Upload Images
     const formData = new FormData();
     selectedFile.forEach((file) => formData.append("files", file));
+    formData.append("userId", userId); // Added for file Creation (TO BE: corrected.)
     try {
       const response = await fetch("/api/listings/upload", {
         method: "POST",
@@ -214,10 +212,6 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY,
   });
 
-  // //TODO: CHANGE TO RETRIEVE DYNAMICALLY
-  // const selectedMeetUpLocation = pickUpLocations.find(
-  //   (loc) => loc.name === fakeSuccessfullyCreatedData.location,
-  // );
   const getCityProvince = (address) => {
     if (!address) return "";
     const parts = address.split(",");
@@ -329,19 +323,19 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
                       <div className="d-flex gap-3">
                         <div>
                           <UserIcon
-                            user={currentUser.userName}
-                            img={currentUser.avatar}
+                            user={user.username}
+                            img={user.avatar}
                             size={45}
                           />
                         </div>
                         <div>
-                          <p className="mb-1">{currentUser.userName}</p>
+                          <p className="mb-1">{user.username}</p>
                           <div className="d-flex">
                             {Array.from({ length: 5 }, (_, i) => (
                               <FontAwesomeIcon
                                 key={i}
                                 icon={
-                                  i < currentUser.rating ? solidStar : emptyStar
+                                  i < user.rating ? solidStar : emptyStar
                                 }
                                 className="text-secondary"
                               />
@@ -526,7 +520,6 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
                 <select
                   id="condition"
                   className="form-control bg-light text-gray p-3 fs-regular rounded-3"
-                  required
                   value={condition}
                   onChange={(e) => setCondition(e.target.value)}
                 >
@@ -539,7 +532,6 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
                 <select
                   id="Category"
                   className="form-control bg-light text-gray p-3 fs-regular rounded-3"
-                  required
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
                 >
@@ -565,7 +557,7 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
           {/* Request Items */}
           <div className="row mb-3">
             <p className="text-primary mt-4 mb-4 fw-bold fs-5">Request Items</p>
-            <div className="d-flex col-12 gap-4 mb-5">
+            <div className="d-flex col-12 gap-4">
               <div className="form-group col-md-5 col-9">
                 <input
                   type="text"
@@ -584,29 +576,24 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
               <button
                 type="button"
                 onClick={handleAddRequestItem}
-                className="btn p-0 border-0 bg-transparent"
+                className="btn btn-primary fw-semibold rounded-pill px-4 py-2 mb-5"
                 aria-label="Add requested item"
-              >
-                <Image
-                  src="/images/upload-icon.png"
-                  alt="add item"
-                  width={55}
-                  height={55}
-                />
+              >Add Requested Item
               </button>
             </div>
-            {/* TEMP: showing the requested items */}
-            <div className="mb-3">
-                {requestItems.map((item, index) => (
-                  <div key={index}>{item}</div>
-                ))}
-            </div>
-            <div className="form-group my-3">
-              <textarea
-                className="form-control shadow text-gray p-3 fs-regular rounded-3"
-                placeholder="Description"
-                rows="7"
-              />
+            {requestItems.length > 0 && (
+              <p className="text-muted fw-semibold mt-2 mb-2">Requested Items</p>
+            )}
+            {/* Showing the requested items */}
+            <div className="col-md-5 col-9">
+              {requestItems.map((item, index) => (
+                <div
+                  key={index}
+                  className="form-control bg-light text-gray p-3 fs-regular rounded-3 mb-3"
+                >
+                  {item}
+                </div>
+              ))}
             </div>
           </div>
 

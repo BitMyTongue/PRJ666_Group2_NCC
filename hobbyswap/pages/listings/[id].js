@@ -20,6 +20,7 @@ import {
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 import { pickUpLocations } from "@/lib/data/pickupLocations";
+import { Modal, Button } from "react-bootstrap";
 
 const responsive = {
   desktop: {
@@ -45,6 +46,24 @@ const currentUser = {
   rating: 5,
 };
 
+const imageWrapperStyle = {
+  width: "100%",
+  maxWidth: "520px",
+  aspectRatio: "4 / 5",
+  background: "#ffffff",
+  borderRadius: "20px",
+  overflow: "hidden",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+};
+
+const imageStyle = {
+  width: "100%",
+  height: "100%",
+  objectFit: "contain",
+};
+
 const smallMapStyle = {
   width: "100%",
   height: "250px",
@@ -64,8 +83,12 @@ export default function Listing() {
   const [map, setMap] = useState(null);
 
   const [listing, setListing] = useState(null);
+  const [owner,setOwner]=useState(null)
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
+
+  const [showRequests, setShowRequests] = useState(false);
+
 
   useEffect(() => {
     if (!router.isReady || !id) return;     // undefined on first render
@@ -81,6 +104,7 @@ export default function Listing() {
         if (!res.ok) throw new Error(data?.error || "Failed to load listing");
 
         setListing(data.listing);
+        setOwner(data.listing.userId)
       } catch (e) {
         setLoadError(e.message);
       } finally {
@@ -204,17 +228,18 @@ export default function Listing() {
         {/* Product general details */}
         <div className="row d-flex flex-column flex-md-row mt-5 gap-3">
           <div className="col-12 col-md-7 border border-gray rounded-5 shadow d-flex flex-column">
-            <div className="text-center mb-2 px-8 py-5">
+          <div className="px-4 pt-4 d-flex justify-content-center">
+            <div style={imageWrapperStyle}>
               <Image
                 src={selectedImage}
                 alt="Selected"
-                fluid
-                className=" rounded-4
-                 shadow"
+                style={imageStyle}
+                className="rounded-4 shadow"
               />
             </div>
+          </div>
             {/* Carousel */}
-            <div className="row">
+            <div className="row mt-3">
               <Carousel
                 responsive={responsive}
                 arrows
@@ -226,7 +251,7 @@ export default function Listing() {
                 {listing.images.map((img, index) => (
                   <div
                     key={index}
-                    className={`text-center rounded-3 ${
+                    className={`text-center rounded-3 p-2 ${
                       selectedImage === img
                         ? "border border-primary border-3"
                         : ""
@@ -247,7 +272,7 @@ export default function Listing() {
             {/* End Carousel */}
           </div>
           <div className=" py-6 col-12 col-md-4 rounded-5 border border-gray shadow d-flex flex-column justify-content-center align-items-center mx-auto">
-            <p className="fw-semibold fs-2 text-primary text-uppercase mb-4">
+            <p className="fw-semibold fs-2 text-primary text-uppercase mb-4 text-center">
               {listing.itemName}
             </p>
             <div className="col-8 d-flex flex-column gap-3">
@@ -255,7 +280,14 @@ export default function Listing() {
                 <p className="rounded-pill bg-success text-center py-2 text-white fw-semibold col-4 mb-0">
                   Trade
                 </p>
-                <Link href="#" className="fw-semibold mb-0 align-self-center">
+                <Link
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setShowRequests(true);
+                  }}
+                  className="fw-semibold mb-0 align-self-center"
+                >
                   View Requests
                 </Link>
               </div>
@@ -302,21 +334,21 @@ export default function Listing() {
                     <div className="d-flex gap-3">
                       <div>
                         <UserIcon
-                          user={currentUser.userName}
-                          img={currentUser.avatar}
+                          user={owner.username}
+                          img={owner.avatar}
                           size={45}
                         />
                       </div>
                       <div>
                         <p className="mb-1 fst-italic text-capitalize text-primary fw-light custom-sm-text">
-                          {currentUser.userName}
+                          {owner.username}
                         </p>
                         <div className="d-flex">
                           {Array.from({ length: 5 }, (_, i) => (
                             <FontAwesomeIcon
                               key={i}
                               icon={
-                                i < currentUser.rating ? solidStar : emptyStar
+                                i < owner.rating ? solidStar : emptyStar
                               }
                               className="text-secondary"
                             />
@@ -394,15 +426,15 @@ export default function Listing() {
                 <div className="col-7 d-flex gap-3 align-items-center">
                   {" "}
                   <UserIcon
-                    user={currentUser.userName}
-                    img={currentUser.avatar}
+                    user={owner.username}
+                    img={owner.avatar}
                     size={30}
                   />
                   <Link
-                    href="#"
+                    href={`/users/${owner._id}`}
                     className="align-self-center  mb-0 text-primary fw-semibold"
                   >
-                    {currentUser.userName}
+                    {owner.username}
                   </Link>
                 </div>
               </div>
@@ -462,6 +494,32 @@ export default function Listing() {
         {/*  Review Section*/}
         <div className="">Review Section Implement later</div>
       </div>
+
+      <Modal show={showRequests} onHide={() => setShowRequests(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Requested Trade Items</Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body>
+          {listing.requestItems?.length > 0 ? (
+            <ul className="list-group">
+              {listing.requestItems.map((item, i) => (
+                <li key={i} className="list-group-item">
+                  {item}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>The seller has no requested items.</p>
+          )}
+        </Modal.Body>
+
+        <Modal.Footer>
+          <Button onClick={() => setShowRequests(false)}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </>
   );
 }
