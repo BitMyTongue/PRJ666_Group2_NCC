@@ -160,6 +160,7 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
     // Upload Images
     const formData = new FormData();
     selectedFile.forEach((file) => formData.append("files", file));
+    formData.append("userId", userId); // Added for file Creation (TO BE: corrected.)
     try {
       const response = await fetch("/api/listings/upload", {
         method: "POST",
@@ -188,7 +189,7 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
           "Content-Type": "application/json"
         },
         body: JSON.stringify({ 
-          userId, itemName, description, category, condition, images: uploadedImageUrls, meetUp, location: meetUp ? meetUpLocation : "", requestItems: itemArr, requestMoney: moneyNum,})
+          userId, itemName, description, category, condition, images: uploadedImageUrls, meetUp, location: meetUp ? meetUpLocation : "", requestItems: itemArr, requestMoney: moneyNum, userId: userId})
 
           //Focuse on images: uploadedImageUrls
         });

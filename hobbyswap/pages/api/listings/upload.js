@@ -24,18 +24,20 @@ const S3 = new S3Client({
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
-    return res.status(405).json({ message: "Method not allowed" });
+    return res.status(405).json({ message: "Method not allowed", "data": req.body });
   }
 
   const form = formidable({ multiples: true });
 
   try {
-    const { files } = await new Promise((resolve, reject) => {
+    const { fields, files } = await new Promise((resolve, reject) => {
       form.parse(req, (err, fields, files) => {
         if (err) reject(err);
         else resolve({ fields, files });
       });
     });
+
+    const userId = Array.isArray(fields.userId) ? fields.userId[0] : fields.userId;
 
     const imageFiles = files.files; // match frontend "files"
     if (!imageFiles) {
@@ -53,7 +55,8 @@ export default async function handler(req, res) {
     for (const file of uploadedFiles) {
 
       const fileBuffer = await fs.readFile(file.filepath);
-      const key = `listings/${uuid()}-${file.originalFilename}`;
+      const key = `listings/${userId}/images/${uuid()}-${file.originalFilename}`;
+      // const key = `listings/${uuid()}-${file.originalFilename}`;
 
       await S3.send(
         new PutObjectCommand({
