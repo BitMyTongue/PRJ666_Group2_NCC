@@ -8,7 +8,7 @@ import {
   MarkerF,
   useJsApiLoader,
 } from "@react-google-maps/api";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -96,6 +96,19 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
   const [meetUp, setMeetUp] = useState(false);
   const [meetUpLocation, setMeetUpLocation] = useState("");   // store selectedLocation.name
   const [user,setUser]=useState(null)
+
+  const handleAddRequestItem = () => {
+  if (!requestItemName.trim()) return;
+
+  setRequestedItems((prev) => [
+    ...prev,
+    { name: requestItemName.trim(), quantity: Number(requestItemQty) || 1 },
+  ]);
+
+  setRequestItemName("");
+  setRequestItemQty(1);
+};
+
 
   useEffect(()=>{
     const token = localStorage.getItem("token");

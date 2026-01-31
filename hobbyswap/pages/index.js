@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Image } from "react-bootstrap";
+import { Image, Button } from "react-bootstrap";
 FontAwesomeIcon;
 import {
   faUserCircle,
@@ -20,6 +20,32 @@ const pokemonCards = [
   { id: 6, name: "Gengar Card", img: "/images/pokemon/gengar.png" },
 ];
 
+const blindBoxs = [
+  { id: 1, name: "Smiski Speaker", img: "/images/blindbox/smiski-speaker.png" },
+  { id: 2, name: "Smiski Angel", img: "/images/blindbox/smiski-angel.png" },
+  { id: 3, name: "Smiski Devil", img: "/images/blindbox/smiski-devil.png" },
+  { id: 4, name: "Smiski Thief", img: "/images/blindbox/smiski-thief.png" },
+  { id: 5, name: "Smiski Musician", img: "/images/blindbox/smiski-musician.png" },
+  { id: 6, name: "Smiski Sleeper", img: "/images/blindbox/smiski-sleeper.png" },
+]
+
+const yugiohCards = [
+  { id: 1, name: "Blue-Eyes White Dragon", img: "/images/yugioh/blue-eyes.png" },
+  { id: 2, name: "Dark Magician", img: "/images/yugioh/dark-magician.png" },
+  { id: 3, name: "Red-Eyes Black Dragon", img: "/images/yugioh/red-eyes.png" },
+  { id: 4, name: "Exodia the Forbidden One", img: "/images/yugioh/exodia.png" },
+  { id: 5, name: "Summoned Skull", img: "/images/yugioh/summoned-skull.png" },
+  { id: 6, name: "Slifer the Sky Dragon", img: "/images/yugioh/slifer.png" },
+];
+
+const figurines = [
+  { id: 1, name: "Gundam RX-78-2", img: "/images/gundam/gundam-rx78.png" },
+  { id: 2, name: "Gundam Wing Zero", img: "/images/gundam/gundam-wing-zero.png" },
+  { id: 3, name: "Gundam Exia", img: "/images/gundam/gundam-exia.png" },
+  { id: 4, name: "Gundam Barbatos", img: "/images/gundam/gundam-barbatos.png" },
+  { id: 5, name: "Gundam Unicorn", img: "/images/gundam/gundam-unicorn.png" },
+  { id: 6, name: "Gundam Strike Freedom", img: "/images/gundam/gundam-strike-freedom.png" },
+];
 
 
 export default function Home() {
@@ -79,8 +105,14 @@ export default function Home() {
       {/* Quick Browse section */}
       <section className="quick-browse">
         <div className="container-md px-4">
-          <h2 className="quick-browse text-center text-sm font-extrabold tracking-[0.25em] text-slate-900">POKEMON CARDS</h2>
-
+          <h2 className="quick-browse text-center text-sm font-extrabold tracking-[0.25em] text-slate-900 mt-5">POKEMON CARDS</h2>
+          <hr
+            className="my-4 w-100 border-0"
+            style={{ height: "2px", backgroundColor: "#c2d1e4ff" }}
+            aria-hidden="true"
+          />
+          <Button>All Filters</Button>
+          <Button className="mx-4">Sort By</Button>
           <div className="row justify-content-center g-5 p-6">
             {pokemonCards.slice(0, 6).map((card) => (
               <div
@@ -96,6 +128,11 @@ export default function Home() {
               </div>
             ))}
           </div>
+          <hr
+            className="my-4 w-100 border-0"
+            style={{ height: "2px", backgroundColor: "#c2d1e4ff" }}
+            aria-hidden="true"
+          />
         </div>
       </section>
 
