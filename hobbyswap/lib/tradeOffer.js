@@ -46,7 +46,12 @@ const tradeOfferSchema = new mongoose.Schema({
     type: Number,   
     default: 0,
   },
+  meetUp: {
+    type: Boolean,
+    default: false,
+  },
 
+  
   // DATES
   createdAt: {
     type: Date,

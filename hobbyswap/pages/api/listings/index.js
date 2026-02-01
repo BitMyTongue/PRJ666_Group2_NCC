@@ -31,6 +31,10 @@ export default async function handler(req, res) {
                 // listing must request item(s) and/or money
                 const itemArr = Array.isArray(requestItems) ? requestItems: [];
                 const moneyNum = Number(requestMoney) || 0;
+                
+                if (moneyNum < 0) {
+                    return res.status(400).json({ error: "Proposed money cannot be negative." });
+                }
 
                 if (!(itemArr.length > 0) && !(moneyNum > 0))
                     return res.status(400).json({ error: "You must request item(s) and/or money."});
