@@ -25,7 +25,7 @@ const listingSchema = new mongoose.Schema({
     required: true,
   },
   images: {
-    type: [String],
+    type: [String], //URL
     required: true,
   },
   meetUp: {

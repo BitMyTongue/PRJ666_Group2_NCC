@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.978.0",
     "@fortawesome/fontawesome-svg-core": "^7.1.0",
     "@fortawesome/free-regular-svg-icons": "^7.1.0",
     "@fortawesome/free-solid-svg-icons": "^7.1.0",
@@ -29,7 +30,8 @@
     "react-dom": "19.2.3",
     "react-multi-carousel": "^2.8.5",
     "stream-chat": "^9.29.0",
-    "stream-chat-react": "^13.13.4"
+    "stream-chat-react": "^13.13.4",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
     "eslint": "^9",
