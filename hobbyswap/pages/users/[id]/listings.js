@@ -1,21 +1,25 @@
 import { UserContext } from "@/contexts/UserContext"
 import Link from "next/link"
 import { useRouter } from "next/router"
-import { useContext, useEffect, useState } from "react"
+import { useContext, useEffect, useMemo, useState } from "react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faBookmark, faUser} from "@fortawesome/free-regular-svg-icons"
 import { faLayerGroup, faShoppingBag  } from "@fortawesome/free-solid-svg-icons"
 import {  StatusCard, TradeCard } from "@/components/base-long-card"
-import { Button } from "react-bootstrap"
+import { Button, Dropdown } from "react-bootstrap"
 import Pagination from "@/components/pagination"
+
+import { CATEGORY, STATUS_MAP } from "@/lib/data/listingSortFilter"
+
+
 export default function UserListing(){
     const router=useRouter()
-    const {id}=router.query
+    const {id,status='all status', type="all types", category='all categories'}=router.query
     const  {user}=useContext(UserContext)
     const [listings,setListings]=useState([])
     const [loading, setLoading] = useState(true);
     const [loadError, setLoadError] = useState("");
-    const resultsPerPage = 1;
+    const resultsPerPage = 5;
     const [currP, setCurrP] = useState(0);
     const [pageListings,setPageListings]=useState([])
 
@@ -44,18 +48,57 @@ export default function UserListing(){
     
     load();
   }, [router.isReady, id]);
-  
+
+  const matchesType = (listing, type) => {
+  const hasMoney = !!listing.requestMoney
+  const hasItem = !!listing.itemRequest
+
+  switch (type) {
+    case "sell":
+      return hasMoney && !hasItem
+    case "trade":
+      return hasItem && !hasMoney
+    case "both":
+      return hasMoney && hasItem
+    case "all types":
+    default:
+      return true
+  }
+}
+
+
+
+// Filter STATUS && TYPE
+const filteredListings = useMemo(() => {
+  console.log(listings)
+  return listings.filter((l) => {
+    const statusMatch =
+      status === "all status" || l.status === STATUS_MAP[status]
+
+    const typeMatch = matchesType(l,type)
+
+const categoryMatch = category === "all categories" || l.category === category
+
+    return statusMatch && typeMatch &&categoryMatch
+  })
+}, [listings, status, type,category])
+
+  // Pagination (AFTER filtering)
   useEffect(() => {
-    const effectAsync = async () => {
-      const copy = listings.slice(
-        currP * resultsPerPage,
-        currP * resultsPerPage + resultsPerPage,
-      );
-      setPageListings(copy);
-    };
-    effectAsync();
-  }, [currP,listings]);
-  
+    const copy = filteredListings.slice(
+      currP * resultsPerPage,
+      currP * resultsPerPage + resultsPerPage
+    )
+    setPageListings(copy)
+  }, [currP, filteredListings])
+
+  const handleOnClickFilter = (key,value) => {
+    router.push({
+      pathname: router.pathname,
+      query: { ...router.query, [key]: value },
+    })
+    setCurrP(0)
+  }
   
  return (
     <>
@@ -124,32 +167,122 @@ export default function UserListing(){
             {/* Filter Section */}
       <div className="container my-5 mx-auto">
         <div className="d-flex gap-3">
-          <Button className="btn-light text-muted px-5 rounded-pill">All Filters &#9662; &#9662;</Button>
-          <Button className="btn-light text-muted px-5 rounded-pill">&#9734; All Types  &#9662;</Button>
+          {/* Status */}
+            <Dropdown>
+              <Dropdown.Toggle
+                variant="light"
+                className="text-muted px-5 rounded-pill text-capitalize"
+              >
+                {status.replace("-", " ")}
+              </Dropdown.Toggle>
+
+              <Dropdown.Menu>
+                <Dropdown.Item onClick={() => handleOnClickFilter('status',"all status")}>
+                  All Status
+                </Dropdown.Item>
+                <Dropdown.Item onClick={() => handleOnClickFilter('status',"completed")}>
+                  Completed
+                </Dropdown.Item>
+                <Dropdown.Item onClick={() => handleOnClickFilter('status',"canceled")}>
+                  Canceled
+                </Dropdown.Item>
+                <Dropdown.Item onClick={() => handleOnClickFilter('status',"declined")}>
+                  Declined
+                </Dropdown.Item>
+                <Dropdown.Item onClick={() => handleOnClickFilter('status',"in progress")}>
+                  In Progress
+                </Dropdown.Item>
+                <Dropdown.Item onClick={() => handleOnClickFilter('status',"await proposal")}>
+                  Await Proposal
+                </Dropdown.Item>
+                <Dropdown.Item onClick={() => handleOnClickFilter('status',"await approval")}>
+                  Await Approval
+                </Dropdown.Item>
+                <Dropdown.Item onClick={() => handleOnClickFilter('status',"response needed")}>
+                  Response Needed
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+          {/* Type*/}
+            <Dropdown>
+              <Dropdown.Toggle
+                variant="light"
+                className="text-muted px-5 rounded-pill text-capitalize"
+              >
+                &#9734; &nbsp;{type.replace("-", " ")}
+              </Dropdown.Toggle>
+
+              <Dropdown.Menu>
+                <Dropdown.Item onClick={() => handleOnClickFilter('type',"all types")}>
+                  All Types
+                </Dropdown.Item>
+                <Dropdown.Item onClick={() => handleOnClickFilter('type',"trade")}>
+                  Trade
+                </Dropdown.Item>
+                <Dropdown.Item onClick={() => handleOnClickFilter('type',"sell")}>
+                  For Sale
+                </Dropdown.Item>
+                <Dropdown.Item onClick={() => handleOnClickFilter('type',"both")}>
+                  Both Types
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+          {/* Category*/}
+            <Dropdown>
+              <Dropdown.Toggle
+                variant="light"
+                className="text-muted px-5 rounded-pill text-capitalize"
+              >
+                {category.replace("-", " ")}
+              </Dropdown.Toggle>
+
+              <Dropdown.Menu>
+                <Dropdown.Item className="text-capitalize" onClick={() => handleOnClickFilter('category',"all categories")}>
+                  All Categories
+                </Dropdown.Item>
+                <Dropdown.Item className="text-capitalize" onClick={() => handleOnClickFilter('category',"POKEMON CARD")}>
+                  Pokemon Card
+                </Dropdown.Item>
+                <Dropdown.Item className="text-capitalize" onClick={() => handleOnClickFilter('category',"BLIND BOX")}>
+                  Blind Box
+                </Dropdown.Item>
+                <Dropdown.Item className="text-capitalize" onClick={() => handleOnClickFilter('category',"YUGIOH CARD")}>
+                  Yugioh Card
+                </Dropdown.Item>
+                <Dropdown.Item className="text-capitalize" onClick={() => handleOnClickFilter('category',"FIGURINE")}>
+                  Figurine
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+
           <p className="text-primary fw-semibold ms-auto">Sort By | <span className="fw-light ms-3">{"Most Relevant"}</span></p>
         </div>
 
       </div>
       {/* Card Section */}
       <div className="container my-5 mx-auto">
+        {filteredListings.length!==0?
               <Pagination
         dataLength={listings.length}
         currPage={currP}
         setCurrPage={setCurrP}
         resultsPerPage={resultsPerPage}
-      />
+      />:<div className="container mx-auto my-8 text-center">
+       <p className="text-muted text-capitalize fs-4 fst-italic">No Result Found</p>
+       </div>}
         {pageListings.map((listing)=>(
           <div className="my-4">
 
         <StatusCard statusType={6} userName={user.username} userImg={user.avatar} offerItem={listing} requestMoney={listing.requestMoney} url={`/users/${id}`}/>
           </div>
         ))}
-         <Pagination
+        {filteredListings.length!==0&&
+              <Pagination
         dataLength={listings.length}
         currPage={currP}
         setCurrPage={setCurrP}
         resultsPerPage={resultsPerPage}
-      />
+      />}
       </div>
        </>:
        <div className="container mx-auto my-8 text-center">
