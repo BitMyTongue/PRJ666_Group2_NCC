@@ -335,7 +335,7 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
                               <FontAwesomeIcon
                                 key={i}
                                 icon={
-                                  i < user.rating ? solidStar : emptyStar
+                                  i < user?.rating ? solidStar : emptyStar
                                 }
                                 className="text-secondary"
                               />
