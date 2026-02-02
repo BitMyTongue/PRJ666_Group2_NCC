@@ -158,7 +158,7 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
 
     const formData = new FormData();
     selectedFile.forEach((file) => formData.append("files", file));
-
+    formData.append("userId", userId); // Added for file Creation (TO BE: corrected.)
     try {
       const response = await fetch("/api/listings/upload", {
         method: "POST",
