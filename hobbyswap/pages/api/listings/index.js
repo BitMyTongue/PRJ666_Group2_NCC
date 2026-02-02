@@ -16,6 +16,25 @@ export default async function handler(req, res) {
                 await newListing.save();
                 res.status(201).json({ message: "Listing Created", listing: newListing });
                 break;
+            
+            const existingListing = await ListingModel.findOne({ title });
+            if (existingListing) {
+                return res.status(409).json({ error: "Listing with this title already exists" });
+            }
+
+            const listing = await ListingModel.create({
+                title,
+                description,
+                category,
+                brand,
+                condition,
+                images,
+                status,
+                location,
+                userId
+            });
+            res.status(201).json({ message: "Listing Created", listing: listing });
+            break;  
             default:
                 res.setHeader("Allow", ["GET", "POST"]);
                 res.status(405).end(`Method ${method} Not Allowed`);
