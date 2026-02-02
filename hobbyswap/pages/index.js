@@ -11,41 +11,43 @@ import {
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import ItemCard from "../components/item-card";
+import img1 from '../public/images/fake-card.png';
+import img2 from '../public/images/charizard-card.png';
 
 const pokemonCards = [
-  { id: 1, name: "Raichu Card", img: "/images/pokemon/raichu.png" },
-  { id: 2, name: "Arceus V Card", img: "/images/pokemon/arceus.png" },
-  { id: 3, name: "Charizard Card", img: "/images/pokemon/charizard.png" },
-  { id: 4, name: "Pikachu Card", img: "/images/pokemon/pikachu.png" },
-  { id: 5, name: "Mewtwo Card", img: "/images/pokemon/mewtwo.png" },
-  { id: 6, name: "Gengar Card", img: "/images/pokemon/gengar.png" },
+  { id: 1, name: "Raichu Card", img: img1 },
+  { id: 2, name: "Arceus V Card", img: img1 },
+  { id: 3, name: "Charizard Card", img: img1 },
+  { id: 4, name: "Pikachu Card", img: img2 },
+  { id: 5, name: "Mewtwo Card", img: img2 },
+  { id: 6, name: "Gengar Card", img: img2 },
 ];
 
 const blindBoxs = [
-  { id: 1, name: "Smiski Speaker", img: "/images/blindbox/smiski-speaker.png" },
-  { id: 2, name: "Smiski Angel", img: "/images/blindbox/smiski-angel.png" },
-  { id: 3, name: "Smiski Devil", img: "/images/blindbox/smiski-devil.png" },
-  { id: 4, name: "Smiski Thief", img: "/images/blindbox/smiski-thief.png" },
-  { id: 5, name: "Smiski Musician", img: "/images/blindbox/smiski-musician.png" },
-  { id: 6, name: "Smiski Sleeper", img: "/images/blindbox/smiski-sleeper.png" },
+  { id: 1, name: "Smiski Speaker", img: img1 },
+  { id: 2, name: "Smiski Angel", img: img1 },
+  { id: 3, name: "Smiski Devil", img: img1 },
+  { id: 4, name: "Smiski Thief", img: img2 },
+  { id: 5, name: "Smiski Musician", img: img2 },
+  { id: 6, name: "Smiski Sleeper", img: img1 },
 ]
 
 const yugiohCards = [
-  { id: 1, name: "Blue-Eyes White Dragon", img: "/images/yugioh/blue-eyes.png" },
-  { id: 2, name: "Dark Magician", img: "/images/yugioh/dark-magician.png" },
-  { id: 3, name: "Red-Eyes Black Dragon", img: "/images/yugioh/red-eyes.png" },
-  { id: 4, name: "Exodia the Forbidden One", img: "/images/yugioh/exodia.png" },
-  { id: 5, name: "Summoned Skull", img: "/images/yugioh/summoned-skull.png" },
-  { id: 6, name: "Slifer the Sky Dragon", img: "/images/yugioh/slifer.png" },
+  { id: 1, name: "Blue-Eyes White Dragon",img: img1 },
+  { id: 2, name: "Dark Magician", img: img1 },
+  { id: 3, name: "Red-Eyes Black Dragon", img: img1},
+  { id: 4, name: "Exodia the Forbidden One", img: img1 },
+  { id: 5, name: "Summoned Skull", img: img1 },
+  { id: 6, name: "Slifer the Sky Dragon", img: img1 },
 ];
 
 const figurines = [
-  { id: 1, name: "Gundam RX-78-2", img: "/images/gundam/gundam-rx78.png" },
-  { id: 2, name: "Gundam Wing Zero", img: "/images/gundam/gundam-wing-zero.png" },
-  { id: 3, name: "Gundam Exia", img: "/images/gundam/gundam-exia.png" },
-  { id: 4, name: "Gundam Barbatos", img: "/images/gundam/gundam-barbatos.png" },
-  { id: 5, name: "Gundam Unicorn", img: "/images/gundam/gundam-unicorn.png" },
-  { id: 6, name: "Gundam Strike Freedom", img: "/images/gundam/gundam-strike-freedom.png" },
+  { id: 1, name: "Gundam RX-78-2", img: img1 },
+  { id: 2, name: "Gundam Wing Zero", img: img1 },
+  { id: 3, name: "Gundam Exia", img: img1 },
+  { id: 4, name: "Gundam Barbatos", img: img1 },
+  { id: 5, name: "Gundam Unicorn", img: img1 },
+  { id: 6, name: "Gundam Strike Freedom", img: img2 },
 ];
 
 
