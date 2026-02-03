@@ -101,8 +101,7 @@ const SubtractSVG = function SubtractSVG({
 /// children is ONLY used to layout buttons
 const BaseLongCard = function BaseLongCard({
   children,
-  userName,
-  userImg,
+  user,
   offerItem,
   requestItem,
   status = "",
@@ -130,6 +129,7 @@ const BaseLongCard = function BaseLongCard({
           height: "400px",
           boxShadow: "1px 1px 5px gray",
           marginBlock: "10px",
+          textOverflow: "ellipsis",
         }}
       >
         <div
@@ -150,10 +150,13 @@ const BaseLongCard = function BaseLongCard({
 
               alignItems: "center",
             }}
+            onClick={() => {
+              router.push("/users/" + user._id);
+            }}
           >
             <strong>FROM:</strong>
-            <UserIcon user={userName} img={userImg} size={40} />
-            <div>{userName}</div>
+            <UserIcon user={user.username} img={user.avatar} size={40} />
+            <div>{user.username}</div>
           </div>
           {rating > -1 && <Rating rating={rating} />}
           {status && (
@@ -191,15 +194,15 @@ const BaseLongCard = function BaseLongCard({
               >
                 <Image
                   className="object-fit-contain"
-                  alt={offerItem.title}
-                  src={offerItem.img}
+                  alt={offerItem.itemName}
+                  src={offerItem.images[0]}
                   width={69}
                   height={96}
                 />
                 <div>
-                  <p className="h4">{offerItem.title}</p>
+                  <p className="h4">{offerItem.itemName}</p>
                   <p style={{ height: "50px", overflowY: "auto" }}>
-                    {offerItem.desc}
+                    {offerItem.description}
                   </p>
                 </div>
               </div>
@@ -217,11 +220,11 @@ const BaseLongCard = function BaseLongCard({
                 {requestItem?.user ? (
                   <div style={{ display: "flex", gap: 10 }}>
                     <UserIcon
-                      user={requestItem.user.userName}
-                      img={requestItem.user.userImg}
+                      user={requestItem.user.username}
+                      img={requestItem.user.avatar}
                       size={20}
                     />
-                    <span>{requestItem.user.userName}</span>
+                    <span>{requestItem.user.username}</span>
                   </div>
                 ) : (
                   <strong>REQUESTING</strong>
@@ -236,8 +239,8 @@ const BaseLongCard = function BaseLongCard({
                 {!hasMultiple && requestItem && (
                   <Image
                     className="object-fit-contain"
-                    alt={requestItem.title}
-                    src={requestItem.img}
+                    alt={requestItem.itemName}
+                    src={requestItem.images[0]}
                     width={69}
                     height={96}
                   />
@@ -255,20 +258,22 @@ const BaseLongCard = function BaseLongCard({
                       {hasMultiple
                         ? "Multiple Items"
                         : requestItem === undefined
-                        ? "Unspecified"
-                        : !requestItem && requestMoney
-                        ? `$${requestMoney.toFixed(2)}`
-                        : requestItem?.title}
+                          ? "Unspecified"
+                          : !requestItem && requestMoney
+                            ? `$${requestMoney.toFixed(2)}`
+                            : requestItem?.itemName}
                     </p>
                     <p style={{ height: "50px", overflowY: "auto" }}>
-                      {!hasMultiple && requestItem?.desc}
+                      {!hasMultiple && requestItem?.description}
                     </p>
                   </div>
                   {(requestItem || requestItem === undefined) &&
                     requestMoney > 0.0 && (
                       <div>
                         <span>OR</span>
-                        <p className="h4">${requestMoney.toFixed(2)}</p>
+                        <p className="fs-4 text-primary fw-semibold">
+                          ${requestMoney.toFixed(2)}
+                        </p>
                       </div>
                     )}
                 </div>
@@ -277,7 +282,10 @@ const BaseLongCard = function BaseLongCard({
           </div>
           <div className="card-max" style={{ width: "100%" }}>
             <div style={{ width: "45%", paddingBlock: 20, paddingInline: 40 }}>
-              <p className="h4" style={{ marginBottom: 20 }}>
+              <p
+                className="fs-4 text-capitalize fw-semibold text-success"
+                style={{ marginBottom: 20 }}
+              >
                 OFFERING
               </p>
               <div
@@ -295,9 +303,14 @@ const BaseLongCard = function BaseLongCard({
                   height={196}
                 />
                 <div>
-                  <p className="h4">{offerItem.title}</p>
-                  <p style={{ height: "100px", overflowY: "auto" }}>
-                    {offerItem.desc}
+                  <p className="fw-semibold fs-4 text-primary text-capitalize">
+                    {offerItem.itemName}
+                  </p>
+                  <p
+                    className="text-primary"
+                    style={{ height: "100px", overflowY: "auto" }}
+                  >
+                    {offerItem.description}
                   </p>
                 </div>
               </div>
@@ -334,14 +347,14 @@ const BaseLongCard = function BaseLongCard({
                 {requestItem?.user ? (
                   <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
                     <UserIcon
-                      user={requestItem.user.userName}
-                      img={requestItem.user.userImg}
+                      user={requestItem.user.username}
+                      img={requestItem.user.avatar}
                       size={20}
                     />
-                    <span>{requestItem.user.userName}</span>
+                    <span>{requestItem.user.username}</span>
                   </div>
                 ) : (
-                  <p className="h4" style={{ marginBottom: 20 }}>
+                  <p className="fs-4 text-capitalize fw-semibold text-primary opacity-75 mb-3">
                     REQUESTING
                   </p>
                 )}
@@ -355,8 +368,8 @@ const BaseLongCard = function BaseLongCard({
                   {!hasMultiple && requestItem && (
                     <Image
                       className="object-fit-contain"
-                      alt={requestItem.title}
-                      src={requestItem.img}
+                      alt={requestItem.itemName}
+                      src={requestItem.images[0]}
                       width={149}
                       height={196}
                     />
@@ -366,19 +379,21 @@ const BaseLongCard = function BaseLongCard({
                       {hasMultiple
                         ? "Multiple Items"
                         : requestItem === undefined
-                        ? "Unspecified"
-                        : !requestItem && requestMoney
-                        ? `$${requestMoney.toFixed(2)}`
-                        : requestItem?.title}
+                          ? "Unspecified"
+                          : !requestItem && requestMoney
+                            ? `$${requestMoney.toFixed(2)}`
+                            : requestItem?.itemName}
                     </p>
                     <p style={{ height: "100px", overflowY: "auto" }}>
-                      {!hasMultiple && requestItem?.desc}
+                      {!hasMultiple && requestItem?.description}
                     </p>
                     {(requestItem || requestItem === undefined) &&
                       requestMoney > 0.0 && (
                         <>
                           <hr />
-                          <p className="h4">${requestMoney.toFixed(2)}</p>
+                          <p className="fs-4 text-primary fw-semibold">
+                            ${requestMoney.toFixed(2)}
+                          </p>
                         </>
                       )}
                   </div>
@@ -416,8 +431,9 @@ const BaseLongCard = function BaseLongCard({
               )}
               {cancelCallback && (
                 <Button
-                  className="w-100"
-                  variant="info"
+                  className="w-100 text-white rounded-pill"
+                  variant=""
+                  style={{ backgroundColor: "#A9A8A8" }}
                   onClick={() => {
                     cancelCallback();
                   }}
@@ -434,8 +450,8 @@ const BaseLongCard = function BaseLongCard({
 };
 
 const TradeCard = function TradeCard({
-  userName,
-  userImg,
+  user,
+  img,
   offerItem,
   requestItem,
   isBookmarked = false,
@@ -446,9 +462,8 @@ const TradeCard = function TradeCard({
   // TODO: Button implementation
   return (
     <BaseLongCard
-      userName={userName}
-      s
-      userImg={userImg}
+      user={user}
+      img={img}
       offerItem={offerItem}
       requestItem={requestItem}
       isBookmarked={isBookmarked}
@@ -467,16 +482,16 @@ const TradeCard = function TradeCard({
 
 const OfferButton = function OfferButton({ variant, onClick }) {
   return (
-    <Button variant={variant} onClick={onClick}>
-      View Offer
+    <Button variant={variant} href={link}>
+      View Listing
     </Button>
   );
 };
 
 const EditOfferButton = function EditOfferButton({ onClick }) {
   return (
-    <Button variant={"secondary"} onClick={onClick}>
-      Edit Offer
+    <Button variant={variant} href={link}>
+      Edit Listing
     </Button>
   );
 };
@@ -514,8 +529,7 @@ const DeclineButton = function DeclineButton({ onClick }) {
 };
 
 const StatusCard = function StatusCard({
-  userName,
-  userImg,
+  user,
   offerItem,
   requestItem,
   statusType,
@@ -554,8 +568,14 @@ const StatusCard = function StatusCard({
     ),
     EDIT_OFFER: (
       <>
-        <OfferButton variant={"primary"} />
-        <EditOfferButton onClick={handleEditOffer} />
+        <OfferButton
+          variant="primary rounded-pill"
+          link={`/listings/${offerItem._id}`}
+        />
+        <EditOfferButton
+          variant="light text-primary border border-primary border-2 rounded-pill"
+          link={`#`}
+        />
       </>
     ),
   };
@@ -615,10 +635,9 @@ const StatusCard = function StatusCard({
   const currType = StatusLayout.find((obj) => statusType === obj.id);
   return (
     <BaseLongCard
-      userName={userName}
+      user={user}
       status={currType.msg}
       color={currType.color}
-      userImg={userImg}
       offerItem={offerItem}
       requestItem={requestItem}
       hasMultiple={hasMultiple}
