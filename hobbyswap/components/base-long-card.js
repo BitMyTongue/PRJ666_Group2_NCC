@@ -6,21 +6,6 @@ import UserIcon from "./user-icon";
 import { useState } from "react";
 import { useRouter } from "next/router";
 
-// Item Example (for now)
-const item = {
-  user: null,
-  img: "/images/fake-card.png",
-  title: "Raichu Card",
-  desc: "This is a description",
-};
-
-const itemOffer = {
-  user: { userId: "", userName: "", userImg: "" },
-  img: "/images/fake-card.png",
-  title: "Raichu Card",
-  desc: "This is a description",
-};
-
 const StatusType = {
   DECLINED: 1,
   IN_PROGRESS: 2,
@@ -127,7 +112,7 @@ const BaseLongCard = function BaseLongCard({
         style={{
           backgroundColor: color ?? "#334C76",
           borderRadius: 18,
-          width: "90%",
+          width: "100%",
           minWidth: "550px",
           height: "400px",
           boxShadow: "1px 1px 5px gray",
@@ -256,7 +241,7 @@ const BaseLongCard = function BaseLongCard({
                   }}
                 >
                   <div>
-                    <p className="h4">
+                    <p className="fs-4 text-primary fw-semibold">
                       {hasMultiple
                         ? "Multiple Items"
                         : requestItem === undefined
@@ -273,7 +258,7 @@ const BaseLongCard = function BaseLongCard({
                     requestMoney > 0.0 && (
                       <div>
                         <span>OR</span>
-                        <p className="h4">${requestMoney.toFixed(2)}</p>
+                        <p className="fs-4 text-primary fw-semibold">${requestMoney.toFixed(2)}</p>
                       </div>
                     )}
                 </div>
@@ -282,7 +267,7 @@ const BaseLongCard = function BaseLongCard({
           </div>
           <div className="card-max" style={{ width: "100%" }}>
             <div style={{ width: "45%", paddingBlock: 20, paddingInline: 40 }}>
-              <p className="h4" style={{ marginBottom: 20 }}>
+              <p className="fs-4 text-capitalize fw-semibold text-success" style={{ marginBottom: 20 }}>
                 OFFERING
               </p>
               <div
@@ -294,15 +279,15 @@ const BaseLongCard = function BaseLongCard({
               >
                 <Image
                   className="object-fit-contain"
-                  alt={offerItem.title}
-                  src={offerItem.img}
+                  alt={offerItem.itemName}
+                  src={offerItem.images[0]}
                   width={149}
                   height={196}
                 />
                 <div>
-                  <p className="h4">{offerItem.title}</p>
-                  <p style={{ height: "100px", overflowY: "auto" }}>
-                    {offerItem.desc}
+                  <p className="fw-semibold fs-4 text-primary text-capitalize">{offerItem.itemName}</p>
+                  <p className="text-primary" style={{ height: "100px", overflowY: "auto" }}>
+                    {offerItem.description}
                   </p>
                 </div>
               </div>
@@ -346,7 +331,7 @@ const BaseLongCard = function BaseLongCard({
                     <span>{requestItem.user.userName}</span>
                   </div>
                 ) : (
-                  <p className="h4" style={{ marginBottom: 20 }}>
+                  <p className="fs-4 text-capitalize fw-semibold text-primary opacity-75 mb-3" >
                     REQUESTING
                   </p>
                 )}
@@ -383,7 +368,7 @@ const BaseLongCard = function BaseLongCard({
                       requestMoney > 0.0 && (
                         <>
                           <hr />
-                          <p className="h4">${requestMoney.toFixed(2)}</p>
+                          <p className="fs-4 text-primary fw-semibold">${requestMoney.toFixed(2)}</p>
                         </>
                       )}
                   </div>
@@ -421,8 +406,9 @@ const BaseLongCard = function BaseLongCard({
               )}
               {cancelCallback && (
                 <Button
-                  className="w-100"
-                  variant="info"
+                  className="w-100 text-white rounded-pill"
+                  variant=""
+                  style={{backgroundColor:"#A9A8A8"}}
                   onClick={() => {
                     cancelCallback();
                   }}
@@ -447,6 +433,7 @@ const TradeCard = function TradeCard({
   hasMultiple = false,
   requestMoney = 0.0,
   rating = 0,
+  url,
 }) {
   // TODO: Button implementation
   return (
@@ -461,7 +448,7 @@ const TradeCard = function TradeCard({
       requestMoney={requestMoney}
       rating={rating}
     >
-      <Button variant="primary">View</Button>
+ <Button variant="primary">View</Button>
       {requestItem !== null && <Button variant="secondary">Trade Now</Button>}
       {requestMoney && <Button variant="secondary">Buy Now</Button>}
     </BaseLongCard>
@@ -470,18 +457,18 @@ const TradeCard = function TradeCard({
 
 /// buttons below are meant for StatusCard, mostly for organizing
 
-const OfferButton = function OfferButton({ variant, onClick }) {
+const OfferButton = function OfferButton({ variant, link }) {
   return (
-    <Button variant={variant} onClick={onClick}>
-      View Offer
+    <Button variant={variant} href={link}>
+      View Listing
     </Button>
   );
 };
 
-const EditOfferButton = function EditOfferButton({ onClick }) {
+const EditOfferButton = function EditOfferButton({ variant, link }) {
   return (
-    <Button variant={"secondary"} onClick={onClick}>
-      Edit Offer
+    <Button variant={variant} href={link}>
+      Edit Listing
     </Button>
   );
 };
@@ -559,8 +546,8 @@ const StatusCard = function StatusCard({
     ),
     EDIT_OFFER: (
       <>
-        <OfferButton variant={"primary"} />
-        <EditOfferButton onClick={handleEditOffer} />
+      <OfferButton variant="primary rounded-pill" link={`/listings/${offerItem._id}`}/>
+      <EditOfferButton variant="light text-primary border border-primary border-2 rounded-pill" link={`/listings/edit/${offerItem._id}`}/>      
       </>
     ),
   };

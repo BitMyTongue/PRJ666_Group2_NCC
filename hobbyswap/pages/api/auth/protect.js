@@ -5,6 +5,7 @@ import { UserModel, mongooseConnect } from "@/lib/dbUtils";
 const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey";
 
 export default async function handler(req, res) {
+  res.setHeader("Cache-Control", "no-store"); 
   const token = req.headers.authorization?.split(" ")[1];
   if (!token) return res.status(401).json({ error: "Not authenticated" });
 

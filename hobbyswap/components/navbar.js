@@ -4,21 +4,21 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch, faBars, faTimes } from "@fortawesome/free-solid-svg-icons";
 import { faEnvelope } from "@fortawesome/free-regular-svg-icons";
 import { useState, useContext } from "react";
+import { useRouter } from "next/router";
 import CurrentUserDropdown from "./dropdowns/current-user-options";
 import UserIcon from "./user-icon";
-import { Button } from "react-bootstrap";
 import { UserContext } from "@/contexts/UserContext";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { user, setUser } = useContext(UserContext);
+  const { user, logout } = useContext(UserContext);
+  const router = useRouter();
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    setUser(null);
-    window.location.href = "/login";
+    logout()
+    router.push("/login");
   };
 
   return (
@@ -27,10 +27,8 @@ const Navbar = () => {
         <Link href="/" className="navbar-brand d-flex">
           <Image src="/images/logo.png" width={255} height={54} alt="Logo" />
         </Link>
-        <form 
-        className="d-none d-xl-flex  h-50 position-relative" 
-        role="search"
-        >
+
+        <form className="d-none d-xl-flex h-50 position-relative" role="search">
           <input
             className="form-control me-2 rounded-pill search-bar py-1 border-0"
             type="search"
@@ -41,28 +39,31 @@ const Navbar = () => {
             className="position-absolute top-50 end-0 translate-middle-y me-3 text-primary"
           />
         </form>
-        <ul className="d-none d-xl-flex   list-unstyled mb-0">
+
+        <ul className="d-none d-xl-flex list-unstyled mb-0">
           <li className="nav-item mx-4">
-            <Link 
-            href="/about" 
-            className="nav-link text-white text-uppercase fs-5"
-            >
+            <Link href="/about" className="nav-link text-white text-uppercase fs-5">
               About us
             </Link>
           </li>
+          
           <li className="nav-item mx-4">
-            <Link 
-            href="/listings" 
-            className="nav-link text-white text-uppercase fs-5"
-            >
+            <Link href="/listings" className="nav-link text-white text-uppercase fs-5">
               Listings
             </Link>
           </li>
+
           <li className="nav-item ms-md-5">
             {user ? (
               <div className="d-flex gap-4 align-items-center">
                 <CurrentUserDropdown user={user} handleLogout={handleLogout} />
-                <FontAwesomeIcon icon={faEnvelope} color="white" size="2x" />
+                <FontAwesomeIcon
+                  role="button"
+                  icon={faEnvelope}
+                  color="white"
+                  size="2x"
+                  onClick={() => router.push("/message")}
+                />
               </div>
             ) : (
               <Link
@@ -83,6 +84,7 @@ const Navbar = () => {
           <FontAwesomeIcon icon={isOpen ? faTimes : faBars} size="lg" />
         </button>
       </div>
+
       {isOpen && (
         <div className="d-xl-none mt-3">
           <form className="d-flex h-25 position-relative mb-3" role="search">
@@ -102,11 +104,13 @@ const Navbar = () => {
                 About us
               </Link>
             </li>
+            
             <li className="nav-item my-2">
               <Link href="/listings" className="nav-link text-white text-uppercase">
                 Listings
               </Link>
             </li>
+
             <li className="nav-item my-2">
               {user ? (
                 <>
@@ -114,7 +118,13 @@ const Navbar = () => {
                   <div>
                     <div className="d-flex mb-4 justify-content-between align-items-start">
                       <UserIcon user={user.name} img="/images/gundam.png" size={40} />
-                      <FontAwesomeIcon icon={faEnvelope} color="white" size="2x" />
+                      <FontAwesomeIcon
+                        role="button"
+                        icon={faEnvelope}
+                        color="white"
+                        size="2x"
+                        onClick={() => router.push("/message")}
+                      />
                     </div>
 
                     <div className="d-flex flex-column justify-content-start align-items-start">
@@ -124,7 +134,7 @@ const Navbar = () => {
                       <Link as="button" className="btn btn-primary" href="#">
                         View Your Store Page
                       </Link>
-                      <Link as="button" className="btn btn-primary" href="#">
+                      <Link className="btn btn-primary" href={`/users/${user._id}/listings`}>
                         View Your Listings
                       </Link>
                       <Link as="button" className="btn btn-primary" href="#">
@@ -149,10 +159,7 @@ const Navbar = () => {
                   </div>
                 </>
               ) : (
-                <Link
-                  href="/login"
-                  className="nav-link text-uppercase fw-bold text-white"
-                >
+                <Link href="/login" className="nav-link text-uppercase fw-bold text-white">
                   Login
                 </Link>
               )}
@@ -163,4 +170,5 @@ const Navbar = () => {
     </nav>
   );
 };
+
 export default Navbar;
