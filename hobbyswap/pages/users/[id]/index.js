@@ -47,7 +47,7 @@ const { user: viewer } = useContext(UserContext);
                 <FontAwesomeIcon icon={faLayerGroup} size="3x" className="fw-bolder text-primary mb-1"/>
 
               <Link
-                href={`/users/${profile._id}/listings`}
+                href={`/users/${profile._id}/listings`} // From 'My profile Tab to My Listings' listings.js
                 className={
                   router.asPath.includes("listings")
                     ? "text-primary fw-semibold text-shadow custom-shadow-secondary"

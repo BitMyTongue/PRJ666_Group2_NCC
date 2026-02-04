@@ -32,7 +32,7 @@ export default function UserListing(){
         const data = await res.json();
         
         if (!res.ok) throw new Error(data?.error || "Failed to load listing");
-        const userListing=data.listings.filter((listing)=>listing.userId===id)
+        const userListing=data.listings.filter((listing)=>listing.userId===id) //current user's listing
         setListings(userListing);
         console.log(userListing)
       } catch (e) {
@@ -46,6 +46,7 @@ export default function UserListing(){
   }, [router.isReady, id]);
   
   useEffect(() => {
+    // Current Syncronous logic overwriten to asyncronously retrieve the start and ending pages
     const effectAsync = async () => {
       const copy = listings.slice(
         currP * resultsPerPage,
@@ -80,7 +81,7 @@ export default function UserListing(){
                 <FontAwesomeIcon icon={faLayerGroup} size="3x" className="fw-bolder text-primary mb-1"/>
 
               <Link
-                href="#"
+                href="#" //Now in {`/users/${profile._id}/listings`}
                 className={
                   router.asPath.includes("listings")
                     ? "text-primary fw-semibold text-shadow custom-shadow-secondary"
@@ -139,9 +140,11 @@ export default function UserListing(){
         resultsPerPage={resultsPerPage}
       />
         {pageListings.map((listing)=>(
-          <div className="my-4">
+          //Added key={listing.id} -> Debug
+          <div className="my-4" key={listing.id}> 
 
-        <StatusCard statusType={6} userName={user.username} userImg={user.avatar} offerItem={listing} requestMoney={listing.requestMoney} url={`/users/${id}`}/>
+        <StatusCard statusType={6} userName={user?.username} userImg={user?.avatar} offerItem={listing} requestMoney={listing.requestMoney} url={`/users/${id}`}/>
+        {console.log(listing.images[0])}
           </div>
         ))}
          <Pagination

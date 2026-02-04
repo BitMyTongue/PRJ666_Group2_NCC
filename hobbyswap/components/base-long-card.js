@@ -460,7 +460,7 @@ const TradeCard = function TradeCard({
 const OfferButton = function OfferButton({ variant, link }) {
   return (
     <Button variant={variant} href={link}>
-      View Offer
+      View Listing
     </Button>
   );
 };
@@ -468,7 +468,7 @@ const OfferButton = function OfferButton({ variant, link }) {
 const EditOfferButton = function EditOfferButton({ variant, link }) {
   return (
     <Button variant={variant} href={link}>
-      Edit Offer
+      Edit Listing
     </Button>
   );
 };
@@ -547,7 +547,7 @@ const StatusCard = function StatusCard({
     EDIT_OFFER: (
       <>
       <OfferButton variant="primary rounded-pill" link={`/listings/${offerItem._id}`}/>
-      <EditOfferButton variant="light text-primary border border-primary border-2 rounded-pill" link={`#`}/>      
+      <EditOfferButton variant="light text-primary border border-primary border-2 rounded-pill" link={`/listings/edit/${offerItem._id}`}/>      
       </>
     ),
   };
