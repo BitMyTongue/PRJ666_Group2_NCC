@@ -19,10 +19,11 @@ const tradeOfferSchema = new mongoose.Schema({
 
   offerStatus: {
     type: String,
-    // PENDING: offer created, owner hasn't responded
-    // ACCEPTED: owner accepted this offer, listing is put on PENDING, trade is put on ONGOING
-    // DECLINED: owner declined this offer
-    enum: ["PENDING", "ACCEPTED", "DECLINED"],
+    // PENDING: offer created, listing.owner hasn't responded
+    // ACCEPTED: listing.owner accepted this offer, listing is put on IN TRADE, trade is put on ONGOING
+    // DECLINED: listing.owner declined this offer
+    // RETRACTED: REQUESTER has retracted this offer
+    enum: ["PENDING", "ACCEPTED", "DECLINED", "RETRACTED"],
     required: true,
     default: "PENDING",
   },
@@ -35,7 +36,7 @@ const tradeOfferSchema = new mongoose.Schema({
     // CANCELED: trade did not go through, listing.status is put on ACTIVE
     enum: ["NONE", "ONGOING", "COMPLETED", "CANCELED"],
     required: true,
-    default: "NONE",    // tradeStatus only changes 
+    default: "NONE",    // tradeStatus only changes to ONGOING when listing.owner ACCEPTS an OFFER
   },
 
   proposedItems: {

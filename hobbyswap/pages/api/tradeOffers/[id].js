@@ -8,7 +8,7 @@ import { ListingModel } from "@/lib/listing";
  * 
  * R1. Listing owner MUST be the one to ACCEPT or DECLINE an offer
  * R2. Listing owner cannot accept more than 1 offer at a time. (Listing status must be ACTIVE) 
- * R3. If offer is ACCEPTED, trade is ONGOING, listing is PENDING.
+ * R3. If offer is ACCEPTED, trade is ONGOING, listing is IN TRADE.
  * R4. If listing is NOT ACTIVE, an offer cannot be made (A trade is already ONGOING or COMPLETE)
  * R5. Only the Owner or Requester can CANCEL or COMPLETE a TRADE.
  * R6. If ONGOING TRADE is canceled, listing.status is set to ACTIVE (people can offer on the listing again) 
@@ -47,6 +47,16 @@ export default async function handler(req, res) {
       const listing = await ListingModel.findById(tradeOffer.listingId);
       if (!listing) return res.status(404).json({ error: "Listing not found" });
 
+      // REQUESTER: RETRACT
+      if (action === "RETRACT") {
+        // Retract OFFER (only requester, only before accepted)
+        if (tradeOffer.offerStatus !== "PENDING") {
+          return res.status(400).json({ error: "Offer cannot be retracted" });
+        }
+
+        tradeOffer.offerStatus = "RETRACTED";
+      }
+
       // OWNER: ACCEPT
       if (action === "ACCEPT") {
         // R1
@@ -60,7 +70,7 @@ export default async function handler(req, res) {
         }
 
         // R3
-        listing.status = "PENDING";
+        listing.status = "IN TRADE";
         await listing.save();
         tradeOffer.offerStatus = "ACCEPTED";
         tradeOffer.tradeStatus = "ONGOING";
