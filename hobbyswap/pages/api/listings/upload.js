@@ -5,10 +5,6 @@ import path from "path";
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { v4 as uuid } from "uuid";
 
-//AWS Integration
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
-import { v4 as uuid } from "uuid";
-
 export const config = {
   api: {
     bodyParser: false,
