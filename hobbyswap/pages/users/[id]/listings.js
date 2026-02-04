@@ -5,11 +5,9 @@ import { useContext, useEffect, useMemo, useState } from "react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { faBookmark, faUser} from "@fortawesome/free-regular-svg-icons"
 import { faLayerGroup, faShoppingBag  } from "@fortawesome/free-solid-svg-icons"
-import {  StatusCard, TradeCard } from "@/components/base-long-card"
+import {  StatusCard, StatusType, TradeCard } from "@/components/base-long-card"
 import { Button, Dropdown } from "react-bootstrap"
 import Pagination from "@/components/pagination"
-
-import { CATEGORY, STATUS_MAP } from "@/lib/data/listingSortFilter"
 
 
 export default function UserListing(){
@@ -65,8 +63,6 @@ export default function UserListing(){
       return true
   }
 }
-
-
 
 // Filter STATUS && TYPE
 const filteredListings = useMemo(() => {
@@ -270,12 +266,17 @@ const categoryMatch = category === "all categories" || l.category === category
       />:<div className="container mx-auto my-8 text-center">
        <p className="text-muted text-capitalize fs-4 fst-italic">No Result Found</p>
        </div>}
-        {pageListings.map((listing)=>(
-          <div className="my-4">
-
-        <StatusCard statusType={6} userName={user.username} userImg={user.avatar} offerItem={listing} requestMoney={listing.requestMoney} url={`/users/${id}`}/>
-          </div>
-        ))}
+        {pageListings.map((listing, idx) => (
+              <div key={idx} className="my-4">
+                <StatusCard
+                  statusType={StatusType.AWAIT_PROPOSAL}
+                  user={user}
+                  offerItem={listing}
+                  requestMoney={listing.requestMoney}
+                  url={`/users/${id}`}
+                />
+              </div>
+            ))}
         {filteredListings.length!==0&&
               <Pagination
         dataLength={listings.length}
