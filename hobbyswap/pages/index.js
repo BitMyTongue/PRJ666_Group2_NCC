@@ -9,6 +9,28 @@ import {
   faRotate,
 } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
+import ItemCard from "../components/item-card";
+import img1 from '../public/images/fake-card.png';
+import img2 from '../public/images/charizard-card.png';
+
+const pokemonCards = [
+  { id: 1, name: "Raichu Card", img: img1 },
+  { id: 2, name: "Arceus V Card", img: img1 },
+  { id: 3, name: "Charizard Card", img: img1 },
+  { id: 4, name: "Pikachu Card", img: img2 },
+  { id: 5, name: "Mewtwo Card", img: img2 },
+  { id: 6, name: "Gengar Card", img: img2 },
+];
+
+const blindBoxs = [
+  { id: 1, name: "Smiski Speaker", img: img1 },
+  { id: 2, name: "Smiski Angel", img: img1 },
+  { id: 3, name: "Smiski Devil", img: img1 },
+  { id: 4, name: "Smiski Thief", img: img2 },
+  { id: 5, name: "Smiski Musician", img: img2 },
+  { id: 6, name: "Smiski Sleeper", img: img1 },
+]
+
 
 export default function Home() {
   return (
@@ -65,7 +87,54 @@ export default function Home() {
         </div>
       </div>
       {/* Quick Browse section */}
-      <div>Hello</div>
+      <section className="quick-browse">
+        <div className="container-md px-4">
+          <h2 className="quick-browse text-center text-sm font-extrabold tracking-[0.25em] text-slate-900 mt-5">
+            Pokemon Cards
+          </h2>
+
+          {/* Cards list (sorted + filtered) */}
+          <div className="row justify-content-center g-5 p-6">
+            {pokemonCards.slice(0, 3).map((item) => (
+              <div
+                key={item.id}
+                className="col-12 col-sm-6 col-md-4 d-flex justify-content-center"
+              >
+                <ItemCard
+                  img={item.img}
+                  name={item.name}
+                  desc="Lorem ipsum dolor sit amet abc consectetur, dolor sit."
+                  saved={false}
+                />
+              </div>
+            ))}
+          </div>
+        
+          {/* Blindbox Section */}
+          <h2 className="quick-browse text-center text-sm font-extrabold tracking-[0.25em] text-slate-900 mt-5">
+            Blind Boxs
+          </h2>
+
+          {/* Cards list (sorted + filtered) */}
+          <div className="row justify-content-center g-5 p-6">
+            {blindBoxs.slice(0, 3).map((item) => (
+              <div
+                key={item.id}
+                className="col-12 col-sm-6 col-md-4 d-flex justify-content-center"
+              >
+                <ItemCard
+                  img={item.img}
+                  name={item.name}
+                  desc="Lorem ipsum dolor sit amet abc consectetur, dolor sit."
+                  saved={false}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+
       {/* Join Community Section */}
       <div className="bg-light text-primary py-5 my-5 text-center d-flex justify-content-center align-items-center flex-column position-relative">
         <Image
