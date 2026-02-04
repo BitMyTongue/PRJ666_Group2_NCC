@@ -562,7 +562,7 @@ const StatusCard = function StatusCard({
         />
         <EditOfferButton
           variant="light text-primary border border-primary border-2 rounded-pill"
-          link={`#`}
+          link={`/listings/edit/${offerItem._id}`}
         />
       </>
     ),
