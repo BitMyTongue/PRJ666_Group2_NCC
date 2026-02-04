@@ -9,10 +9,9 @@ import {  StatusCard, StatusType, TradeCard } from "@/components/base-long-card"
 import { Button, Dropdown } from "react-bootstrap"
 import Pagination from "@/components/pagination"
 
-
 export default function UserListing(){
     const router=useRouter()
-    const {id,status='all status', type="all types", category='all categories'}=router.query
+    const {id,status='all status', type="all types", category='all categories',sort}=router.query
     const  {user}=useContext(UserContext)
     const [listings,setListings]=useState([])
     const [loading, setLoading] = useState(true);
@@ -64,20 +63,55 @@ export default function UserListing(){
   }
 }
 
-// Filter STATUS && TYPE
+// Filter and Sort
 const filteredListings = useMemo(() => {
-  console.log(listings)
-  return listings.filter((l) => {
+  // Filter
+  let result = listings.filter((l) => {
     const statusMatch =
-      status === "all status" || l.status === STATUS_MAP[status]
+      status === "all status" || l.status.toLowerCase() === status
 
-    const typeMatch = matchesType(l,type)
+    const typeMatch = matchesType(l, type)
 
-const categoryMatch = category === "all categories" || l.category === category
+    const categoryMatch =
+      category === "all categories" || l.category === category
 
-    return statusMatch && typeMatch &&categoryMatch
+    return statusMatch && typeMatch && categoryMatch
   })
-}, [listings, status, type,category])
+
+  // SORT
+  switch (sort) {
+    case "most recent":
+      return [...result].sort(
+        (a, b) =>
+          new Date(b.datePosted).getTime() -
+          new Date(a.datePosted).getTime()
+      )
+
+    case "most popular":
+      //TODO: Add popularity in the future for this sort
+      // return [...result].sort(
+      //   (a, b) => (b.popularity || 0) - (a.popularity || 0)
+      return result 
+    case "az":
+      return [...result].sort((a, b) =>
+        (a.itemName || "").localeCompare(b.itemName || "", undefined, {
+          sensitivity: "base",
+        })
+    )
+
+  case "za":
+    return [...result].sort((a, b) =>
+      (b.itemName || "").localeCompare(a.itemName || "", undefined, {
+        sensitivity: "base",
+      })
+    )
+
+    default:
+      return result
+  }
+}, [listings, status, type, category, sort])
+
+
 
   // Pagination (AFTER filtering)
   useEffect(() => {
@@ -95,7 +129,7 @@ const categoryMatch = category === "all categories" || l.category === category
     })
     setCurrP(0)
   }
-  
+  if(loading) return <p>Loading...</p>
  return (
     <>
      {/* Active Tab Section */}
@@ -176,26 +210,14 @@ const categoryMatch = category === "all categories" || l.category === category
                 <Dropdown.Item onClick={() => handleOnClickFilter('status',"all status")}>
                   All Status
                 </Dropdown.Item>
-                <Dropdown.Item onClick={() => handleOnClickFilter('status',"completed")}>
+                <Dropdown.Item onClick={() => handleOnClickFilter('status',"active")}>
+                  Active
+                </Dropdown.Item>
+                <Dropdown.Item onClick={() => handleOnClickFilter('status',"complete")}>
                   Completed
                 </Dropdown.Item>
-                <Dropdown.Item onClick={() => handleOnClickFilter('status',"canceled")}>
-                  Canceled
-                </Dropdown.Item>
-                <Dropdown.Item onClick={() => handleOnClickFilter('status',"declined")}>
-                  Declined
-                </Dropdown.Item>
-                <Dropdown.Item onClick={() => handleOnClickFilter('status',"in progress")}>
-                  In Progress
-                </Dropdown.Item>
-                <Dropdown.Item onClick={() => handleOnClickFilter('status',"await proposal")}>
-                  Await Proposal
-                </Dropdown.Item>
-                <Dropdown.Item onClick={() => handleOnClickFilter('status',"await approval")}>
-                  Await Approval
-                </Dropdown.Item>
-                <Dropdown.Item onClick={() => handleOnClickFilter('status',"response needed")}>
-                  Response Needed
+                <Dropdown.Item onClick={() => handleOnClickFilter('status',"in trade")}>
+                  In Trade
                 </Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
@@ -251,7 +273,49 @@ const categoryMatch = category === "all categories" || l.category === category
               </Dropdown.Menu>
             </Dropdown>
 
-          <p className="text-primary fw-semibold ms-auto">Sort By | <span className="fw-light ms-3">{"Most Relevant"}</span></p>
+          <p className="text-primary fw-semibold ms-auto">Sort By | 
+            <span className="fw-light ms-3">          
+              {/* Sort */}
+            <Dropdown className="d-inline">
+  <Dropdown.Toggle
+    className="text-primary text-capitalize bg-transparent border-0"
+  >
+    {sort === "az"
+      ? "A – Z"
+      : sort === "za"
+      ? "Z – A"
+      : sort === "popular"
+      ? "Most Popular"
+      : "Most Recent"}
+  </Dropdown.Toggle>
+
+  <Dropdown.Menu>
+    <Dropdown.Item onClick={() => handleOnClickFilter("sort", "most recent")}>
+      Most Recent
+    </Dropdown.Item>
+
+    <Dropdown.Item onClick={() => handleOnClickFilter("sort", "most popular")}>
+      Most Popular
+    </Dropdown.Item>
+
+    <Dropdown.Divider />
+
+    <Dropdown.Item onClick={() => handleOnClickFilter("sort", "az")}>
+      Item Name (A – Z)
+    </Dropdown.Item>
+
+    <Dropdown.Item onClick={() => handleOnClickFilter("sort", "za")}>
+      Item Name (Z – A)
+    </Dropdown.Item>
+
+    <Dropdown.Divider />
+
+    <Dropdown.Item onClick={() => handleOnClickFilter("sort", "clear")}>
+      No Sorting
+    </Dropdown.Item>
+  </Dropdown.Menu>
+</Dropdown>
+</span></p>
         </div>
 
       </div>
