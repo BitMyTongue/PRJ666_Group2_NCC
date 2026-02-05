@@ -179,13 +179,15 @@ const BaseLongCard = function BaseLongCard({
                   margin: 0,
                 }}
               >
-                <Image
-                  className="object-fit-contain"
-                  alt={offerItem.itemName}
-                  src={offerItem.images[0]}
-                  width={69}
-                  height={96}
-                />
+                {offerItem.images && (
+                  <Image
+                    className="object-fit-contain"
+                    alt={offerItem.itemName}
+                    src={offerItem.images[0]}
+                    width={69}
+                    height={96}
+                  />
+                )}
                 <div>
                   <p className="h4">{offerItem.itemName}</p>
                   <p style={{ height: "50px", overflowY: "auto" }}>
@@ -223,11 +225,11 @@ const BaseLongCard = function BaseLongCard({
                   gap: 20,
                 }}
               >
-                {!hasMultiple && requestItem && (
+                {!hasMultiple && requestItem && requestItem.images && (
                   <Image
                     className="object-fit-contain"
                     alt={requestItem.itemName}
-                    src={requestItem.images[0]}
+                    src={requestItem.images && requestItem.images[0]}
                     width={69}
                     height={96}
                   />
@@ -282,13 +284,15 @@ const BaseLongCard = function BaseLongCard({
                   margin: 0,
                 }}
               >
-                <Image
-                  className="object-fit-contain"
-                  alt={offerItem.itemName}
-                  src={offerItem.images[0]}
-                  width={149}
-                  height={196}
-                />
+                {offerItem.images && (
+                  <Image
+                    className="object-fit-contain"
+                    alt={offerItem.itemName}
+                    src={offerItem.images[0]}
+                    width={149}
+                    height={196}
+                  />
+                )}
                 <div>
                   <p className="fw-semibold fs-4 text-primary text-capitalize">
                     {offerItem.itemName}
@@ -352,11 +356,11 @@ const BaseLongCard = function BaseLongCard({
                     gap: 20,
                   }}
                 >
-                  {!hasMultiple && requestItem && (
+                  {!hasMultiple && requestItem && requestItem.images && (
                     <Image
                       className="object-fit-contain"
                       alt={requestItem.itemName}
-                      src={requestItem.images[0]}
+                      src={requestItem.images && requestItem.images[0]}
                       width={149}
                       height={196}
                     />
