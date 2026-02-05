@@ -18,9 +18,15 @@ export default function UserListing() {
   const resultsPerPage = 1;
   const [currP, setCurrP] = useState(0);
   const [pageListings, setPageListings] = useState([]);
+  let [isOwner, setIsOwner] = useState(false);
 
   useEffect(() => {
     if (!router.isReady) return;
+    console.log("User", user?._id);
+    console.log("id", id);
+
+    const checkOwner = user?._id === id;
+    setIsOwner(checkOwner);
 
     const load = async () => {
       try {
@@ -44,7 +50,8 @@ export default function UserListing() {
     };
 
     load();
-  }, [router.isReady, id]);
+  }, [router.isReady, id, user]);
+  console.log(isOwner);
 
   useEffect(() => {
     // Current Syncronous logic overwriten to asyncronously retrieve the start and ending pages
@@ -163,13 +170,22 @@ export default function UserListing() {
             />
             {pageListings.map((listing, idx) => (
               <div key={idx} className="my-4">
-                <StatusCard
-                  statusType={StatusType.AWAIT_PROPOSAL}
-                  user={user}
-                  offerItem={listing}
-                  requestMoney={listing.requestMoney}
-                  url={`/users/${id}`}
-                />
+                {isOwner ? (
+                  <StatusCard
+                    statusType={StatusType.AWAIT_PROPOSAL}
+                    user={user}
+                    offerItem={listing}
+                    requestMoney={listing.requestMoney}
+                    url={`/users/${id}`}
+                  />
+                ) : (
+                  <TradeCard
+                    user={user}
+                    offerItem={listing}
+                    requestMoney={listing.requestMoney}
+                    url={`/users/${id}`}
+                  />
+                )}
               </div>
             ))}
             <Pagination
