@@ -26,7 +26,7 @@ export default function ItemCard({ img, name, desc, saved,url }) {
         <p className="text-primary">{desc}</p>
       </div>
       <div className="d-flex gap-2">
-        <Button className="w-100" variant="light rounded-pil text-primary" href={url}>
+        <Button className="w-100" variant="light rounded-pill text-primary" href={url}>
           View Details
         </Button>
         <Button className="w-100" variant="primary rounded-pill">
