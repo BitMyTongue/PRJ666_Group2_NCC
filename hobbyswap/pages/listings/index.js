@@ -166,11 +166,11 @@ export default function DashboardHome() {
                 <button
                   type="button"
                   onClick={() => setActiveCategory(key)}
-                  className="bg-transparent border-0 p-0 d-flex flex-column align-items-center"
+                  className="bg-transparent border-0 p-0 d-flex flex-column align-items-center text-primary"
                   aria-pressed={activeCategory === key}
                 >
                   <Image src={c.icon} alt={`${c.label} Icon`} fluid />
-                  <p className={`fw-semibold mt-2 ${activeCategory === key ? "text-primary" : "text-secondary"}`}>
+                  <p className={`fw-semibold mt-2 ${activeCategory === key ? "custom-shadow-secondary" : ""}`}>
                     {c.label}
                   </p>
                 </button>
@@ -182,7 +182,7 @@ export default function DashboardHome() {
 
       <section className="quick-browse">
         <div className="container-md px-4">
-          <h2 className="text-center mt-5">{active.title}</h2>
+          <h2 className="text-center mt-5 text-primary fw-semibold">{active.title}</h2>
            <hr
             className="my-4 w-100 border-0"
             style={{ height: "2px", backgroundColor: "#c2d1e4ff" }}
@@ -245,10 +245,10 @@ export default function DashboardHome() {
 
           {!loading && !errorMsg && (
             <>
-              <div className="row justify-content-center g-5 p-6">
+              <div className="row justify-content-center g-5 p-6 pt-2">
                 {visibleItems.slice(0, 6).map((item) => (
                   <div key={item.id} className="col-12 col-sm-6 col-md-4 d-flex justify-content-center">
-                    <ItemCard img={item.img} name={item.name} desc={item.desc} saved={false} />
+                    <ItemCard img={item.img} name={item.name} desc={item.desc} saved={false} url={`/listings/${item.id}`}/>
                   </div>
                 ))}
               </div>
