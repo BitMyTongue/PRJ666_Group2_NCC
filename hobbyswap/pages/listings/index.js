@@ -183,7 +183,11 @@ export default function DashboardHome() {
       <section className="quick-browse">
         <div className="container-md px-4">
           <h2 className="text-center mt-5">{active.title}</h2>
-
+           <hr
+            className="my-4 w-100 border-0"
+            style={{ height: "2px", backgroundColor: "#c2d1e4ff" }}
+            aria-hidden="true"
+          />
           <div className="d-flex justify-content-between align-items-center mb-3">
             <div>
               <Button className="btn-light text-muted px-5 rounded-pill" onClick={() => setShowFilters((v) => !v)}>Search By Title &#9662;</Button>
@@ -254,6 +258,17 @@ export default function DashboardHome() {
               )}
             </>
           )}
+        <hr
+          className="my-4 w-100 border-0"
+          style={{ height: "2px", backgroundColor: "#c2d1e4ff" }}
+          aria-hidden="true"
+        />
+
+        <div className="d-flex justify-content-center mb-5">
+          <Button variant="primary" className="px-4 py-2 fw-semibold">
+            View More
+          </Button>
+        </div>
         </div>
       </section>
     </>
