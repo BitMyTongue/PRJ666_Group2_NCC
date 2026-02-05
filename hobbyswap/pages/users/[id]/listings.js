@@ -19,6 +19,7 @@ export default function UserListing() {
   const [currP, setCurrP] = useState(0);
   const [pageListings, setPageListings] = useState([]);
   let [isOwner, setIsOwner] = useState(false);
+  const [profile, setProfile] = useState(null);
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -32,6 +33,10 @@ export default function UserListing() {
       try {
         setLoading(true);
         setLoadError("");
+        const profileFetch = await fetch(`/api/users/${id}`);
+        const profileData = await profileFetch.json();
+        console.log(profileData);
+        setProfile(profileData);
 
         const res = await fetch(`/api/listings`);
         const data = await res.json();
@@ -85,7 +90,7 @@ export default function UserListing() {
                     : "text-primary fw-semibold link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
                 }
               >
-                My Profile
+                {isOwner && "My"} Profile
               </Link>
             </div>
             <div className="col-md-2 mx-auto d-flex flex-column justify-content-center align-items-center my-3">
@@ -103,43 +108,48 @@ export default function UserListing() {
                     : "text-primary fw-semibold link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
                 }
               >
-                My Listings
+                {isOwner && "My"} Listings
               </Link>
             </div>
-            <div className="col-md-2 mx-auto d-flex flex-column justify-content-center align-items-center">
-              <FontAwesomeIcon
-                icon={faShoppingBag}
-                size="3x"
-                className="fw-bolder text-primary mb-1"
-              />
-              <Link
-                href="#"
-                className={
-                  router.asPath.includes("history")
-                    ? "text-primary fw-semibold text-shadow custom-shadow-secondary"
-                    : "text-primary fw-semibold link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
-                }
-              >
-                My History
-              </Link>
-            </div>
-            <div className="col-md-2 mx-auto d-flex flex-column justify-content-center align-items-center">
-              <FontAwesomeIcon
-                icon={faBookmark}
-                size="3x"
-                className="fw-bolder text-primary mb-1"
-              />
-              <Link
-                href="#"
-                className={
-                  router.asPath.includes("bookmarks")
-                    ? "text-primary fw-semibold text-shadow custom-shadow-secondary"
-                    : "text-primary fw-semibold link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
-                }
-              >
-                My Bookmarks
-              </Link>
-            </div>
+            {isOwner && (
+              <>
+                <div className="col-md-2 mx-auto d-flex flex-column justify-content-center align-items-center">
+                  <FontAwesomeIcon
+                    icon={faShoppingBag}
+                    size="3x"
+                    className="fw-bolder text-primary mb-1"
+                  />
+                  <Link
+                    href="#"
+                    className={
+                      router.asPath.includes("history")
+                        ? "text-primary fw-semibold text-shadow custom-shadow-secondary"
+                        : "text-primary fw-semibold link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
+                    }
+                  >
+                    My History
+                  </Link>
+                </div>
+
+                <div className="col-md-2 mx-auto d-flex flex-column justify-content-center align-items-center">
+                  <FontAwesomeIcon
+                    icon={faBookmark}
+                    size="3x"
+                    className="fw-bolder text-primary mb-1"
+                  />
+                  <Link
+                    href="#"
+                    className={
+                      router.asPath.includes("bookmarks")
+                        ? "text-primary fw-semibold text-shadow custom-shadow-secondary"
+                        : "text-primary fw-semibold link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
+                    }
+                  >
+                    My Bookmarks
+                  </Link>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -173,17 +183,17 @@ export default function UserListing() {
                 {isOwner ? (
                   <StatusCard
                     statusType={StatusType.AWAIT_PROPOSAL}
-                    user={user}
+                    user={profile}
                     offerItem={listing}
                     requestMoney={listing.requestMoney}
                     url={`/users/${id}`}
                   />
                 ) : (
                   <TradeCard
-                    user={user}
+                    user={profile}
                     offerItem={listing}
                     requestMoney={listing.requestMoney}
-                    url={`/users/${id}`}
+                    url={`/listings/${listing._id}`}
                   />
                 )}
               </div>

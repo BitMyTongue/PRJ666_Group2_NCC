@@ -463,9 +463,9 @@ const TradeCard = function TradeCard({
       requestMoney={requestMoney}
       rating={rating}
     >
-      <Button variant="primary">View</Button>
-      {requestItem !== null && <Button variant="secondary">Trade Now</Button>}
-      {requestMoney && <Button variant="secondary">Buy Now</Button>}
+      <Button variant="primary rounded-pill" href={url}>View</Button>
+      {requestItem !== null && <Button variant="light rounded-pill text-primary">Trade Now</Button>}
+      {requestMoney && <Button variant="light rounded-pill text-primary">Buy Now</Button>}
     </BaseLongCard>
   );
 };
