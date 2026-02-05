@@ -1,7 +1,8 @@
+import { UserContext } from "@/contexts/UserContext";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Spinner } from "react-bootstrap";
-import { JWTUserToken } from "stream-chat";
+import { JWTUserToken, StreamChat } from "stream-chat";
 import {
   Channel,
   ChannelHeader,
@@ -27,41 +28,82 @@ const curr = "test";
 //   return { props: { token: token, user: curr, target:  } };
 // };
 
-export default function MessagePage(props) {
+export default function MessagePage() {
+  const { user } = useContext(UserContext);
+
   const router = useRouter();
-  //const { id } = router.query;
-  const client = useCreateChatClient({
-    apiKey: apiKey,
-    tokenOrProvider: process.env.NEXT_PUBLIC_TEST_TOKEN,
-    userData: { id: curr },
-  });
-  const [channel, setChannel] = useState(null);
-  const sort = { last_message_at: -1 };
-  const filters = {
-    type: "messaging",
-    members: { $in: [curr] },
-  };
-  const options = {
-    limit: 10,
-  };
-  //   useEffect(() => {
-  //     if (!client) return;
-  //     if (!id) return;
+  const { user: userQuery } = router.query;
+  const [loading, setLoading] = useState(true);
+  const [client, setClient] = useState(null);
+  const [options, setOptions] = useState(null);
 
-  //     const channel = client.channel("messaging", {
-  //       members: [id, props.user.username],
-  //     });
+  useEffect(() => {
+    const effectAsync = async () => {
+      const userToken = localStorage.getItem("token");
+      if (!userToken) {
+        setLoading(false);
+        return;
+      }
+      const tokenReq = await fetch("/api/auth/message-token", {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+          "Cache-Control": "no-cache",
+        },
+      });
+      if (tokenReq.ok && user) {
+        const { token: chatToken } = await tokenReq.json();
+        const client = StreamChat.getInstance(apiKey);
+        console.log(user);
+        client.connectUser(
+          {
+            id: user._id,
+            name: user.username,
+          },
+          chatToken,
+        );
+        setClient(client);
+        setLoading(false);
+        setOptions({
+          sort: { last_message_at: -1 },
+          filters: {
+            type: "messaging",
+            members: { $in: [user._id] },
+          },
+          options: {
+            limit: 10,
+          },
+        });
+      } else setLoading(false);
 
-  //     setChannel(channel);
-  //   }, [client]);
+      //   const client = useCreateChatClient({
+      //     apiKey: apiKey,
+      //     tokenOrProvider: process.env.NEXT_PUBLIC_TEST_TOKEN,
+      //     userData: { id: curr },
+      //   });
+    };
+
+    effectAsync();
+  }, [user]);
+  useEffect(() => {
+    if (!client) return;
+    if (!userQuery) return;
+
+    client.channel("messaging", {
+      members: [user._id, userQuery],
+    });
+  }, [client, userQuery]);
 
   return (
     <div id="root" className="sm-d-shadow">
-      {!client ? (
+      {loading ? (
         <Spinner />
-      ) : (
+      ) : client && options ? (
         <Chat client={client}>
-          <ChannelList filters={filters} sort={sort} options={options} />
+          <ChannelList
+            filters={options.filters}
+            sort={options.sort}
+            options={options.options}
+          />
           <Channel>
             <Window>
               <ChannelHeader />
@@ -71,6 +113,8 @@ export default function MessagePage(props) {
             <Thread />
           </Channel>
         </Chat>
+      ) : (
+        <div>Could not load chat interface.</div>
       )}
     </div>
   );
