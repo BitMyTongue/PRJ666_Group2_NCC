@@ -2,7 +2,7 @@ import Image from "next/image";
 import { Button } from "react-bootstrap";
 import BookmarkIcon from "./bookmark-icon";
 
-export default function ItemCard({ img, name, desc, saved }) {
+export default function ItemCard({ img, name, desc, saved,url }) {
   return (
     <div style={{ width: 280 }}>
       <Image
@@ -20,14 +20,19 @@ export default function ItemCard({ img, name, desc, saved }) {
             marginTop: 20,
           }}
         >
-          <p className="h3">{name}</p>
+          <p className="fw-semibold text-primary h3">{name}</p>
           <BookmarkIcon fill={saved} />
         </div>
-        <p>{desc}</p>
+        <p className="text-primary">{desc}</p>
       </div>
-      <Button className="w-100" variant="secondary">
-        Trade Now
-      </Button>
+      <div className="d-flex gap-2">
+        <Button className="w-100" variant="light rounded-pil text-primary" href={url}>
+          View Details
+        </Button>
+        <Button className="w-100" variant="primary rounded-pill">
+          Trade Now
+        </Button>
+      </div>
     </div>
   );
 }
