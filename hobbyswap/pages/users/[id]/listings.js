@@ -47,6 +47,7 @@ export default function UserListing() {
   }, [router.isReady, id]);
 
   useEffect(() => {
+    // Current Syncronous logic overwriten to asyncronously retrieve the start and ending pages
     const effectAsync = async () => {
       const copy = listings.slice(
         currP * resultsPerPage,
@@ -88,7 +89,7 @@ export default function UserListing() {
               />
 
               <Link
-                href="#"
+                href="#" //Now in {`/users/${profile._id}/listings`}
                 className={
                   router.asPath.includes("listings")
                     ? "text-primary fw-semibold text-shadow custom-shadow-secondary"
