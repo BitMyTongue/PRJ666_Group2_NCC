@@ -183,7 +183,7 @@ export default function UserListing() {
                 {isOwner ? (
                   <StatusCard
                     statusType={StatusType.AWAIT_PROPOSAL}
-                    user={user}
+                    user={profile}
                     offerItem={listing}
                     requestMoney={listing.requestMoney}
                     url={`/users/${id}`}
@@ -193,7 +193,7 @@ export default function UserListing() {
                     user={profile}
                     offerItem={listing}
                     requestMoney={listing.requestMoney}
-                    url={`/users/${id}`}
+                    url={`/listings/${listing._id}`}
                   />
                 )}
               </div>
