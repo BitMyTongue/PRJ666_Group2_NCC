@@ -10,8 +10,6 @@ HobbySwap is a web-based trading and marketplace platform designed for collector
 ---
 
 ## 👥 Team Roster & Roles
-**Group 2 - NCC - Seneca Polytechnic (PRJ666: Project Implementation)**
-
 | Name | Role |
 |------|------|
 | Aaron Ngo | Project Lead, Full-stack Developer |
@@ -43,6 +41,6 @@ HobbySwap is a web-based trading and marketplace platform designed for collector
 1. Clone the repository:
 ```bash
 git clone https://github.com/BitMyTongue/PRJ666_Group2_NCC.git
-cd PRJ666_Group2_NCC
+cd hobbyswap
 npm install
 npm run dev
