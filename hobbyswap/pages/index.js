@@ -32,15 +32,19 @@ const categoryMatches = (docCategory, aliases) => {
 };
 
 const getImageSrc = (images) => {
-  if (!Array.isArray(images) || images.length === 0) return "/images/default-product.png";
+  if (!Array.isArray(images) || images.length === 0)
+    return "/images/default-product.png";
   const first = images[0];
   if (typeof first === "string" && first.trim()) return first;
-  if (first && typeof first === "object" && typeof first.url === "string") return first.url;
+  if (first && typeof first === "object" && typeof first.url === "string")
+    return first.url;
   return "/images/default-product.png";
 };
 
 const sortNewest = (items) =>
-  [...items].sort((a, b) => new Date(b.datePosted || 0) - new Date(a.datePosted || 0));
+  [...items].sort(
+    (a, b) => new Date(b.datePosted || 0) - new Date(a.datePosted || 0),
+  );
 
 export default function Home() {
   const [listings, setListings] = useState([]);
@@ -58,13 +62,14 @@ export default function Home() {
         const res = await fetch("/api/listings", { cache: "no-store" });
         const data = await res.json();
 
-        if (!res.ok) throw new Error(data?.error?.message || "Failed to fetch listings");
+        if (!res.ok)
+          throw new Error(data?.error?.message || "Failed to fetch listings");
 
         const fetched = Array.isArray(data?.listings)
           ? data.listings
           : Array.isArray(data?.data?.listings)
-          ? data.data.listings
-          : [];
+            ? data.data.listings
+            : [];
 
         if (!ignore) setListings(fetched);
       } catch (err) {
@@ -114,7 +119,6 @@ export default function Home() {
 
     return sortNewest(filtered).slice(0, 3);
   }, [listings]);
-
 
   return (
     <>
@@ -175,13 +179,15 @@ export default function Home() {
         <div className="container-md px-4">
           {/* Loading / Error */}
           {loading && <p className="text-center mt-4">Loading listings...</p>}
-          {!loading && errorMsg && <p className="text-center text-danger mt-4">{errorMsg}</p>}
+          {!loading && errorMsg && (
+            <p className="text-center text-danger mt-4">{errorMsg}</p>
+          )}
 
           {/* Pokemon Section */}
-          <h2 className="quick-browse text-center text-sm font-extrabold tracking-[0.25em] text-slate-900 mt-5">
+          <h2 className="quick-browse text-center text-sm fw-semibold text-primary tracking-[0.25em] text-slate-900 mt-8">
             Pokemon Cards
           </h2>
-          <div className="row justify-content-center g-5 p-6">
+          <div className="row justify-content-center g-5 px-6 pt-0 pb-5">
             {!loading &&
               !errorMsg &&
               pokemonCards.map((item) => (
@@ -189,7 +195,13 @@ export default function Home() {
                   key={item.id}
                   className="col-12 col-sm-6 col-md-4 d-flex justify-content-center"
                 >
-                  <ItemCard img={item.img} name={item.name} desc={item.desc} saved={false} />
+                  <ItemCard
+                    img={item.img}
+                    name={item.name}
+                    desc={item.desc}
+                    saved={false}
+                    url={`/listings/${item.id}`}
+                  />
                 </div>
               ))}
           </div>
@@ -198,10 +210,10 @@ export default function Home() {
           )}
 
           {/* Blind Box Section */}
-          <h2 className="quick-browse text-center text-sm font-extrabold tracking-[0.25em] text-slate-900 mt-5">
+          <h2 className="quick-browse text-center text-sm fw-semibold text-primary tracking-[0.25em] text-slate-900 mt-5">
             Blind Boxes
           </h2>
-          <div className="row justify-content-center g-5 p-6">
+          <div className="row justify-content-center g-5 p-6 pt-0">
             {!loading &&
               !errorMsg &&
               blindBoxes.map((item) => (
@@ -209,12 +221,20 @@ export default function Home() {
                   key={item.id}
                   className="col-12 col-sm-6 col-md-4 d-flex justify-content-center"
                 >
-                  <ItemCard img={item.img} name={item.name} desc={item.desc} saved={false} />
+                  <ItemCard
+                    img={item.img}
+                    name={item.name}
+                    desc={item.desc}
+                    saved={false}
+                    url={`/listings/${item.id}`}
+                  />
                 </div>
               ))}
           </div>
           {!loading && !errorMsg && blindBoxes.length === 0 && (
-            <p className="text-center text-muted">No Blind Box listings found.</p>
+            <p className="text-center text-muted">
+              No Blind Box listings found.
+            </p>
           )}
         </div>
       </section>

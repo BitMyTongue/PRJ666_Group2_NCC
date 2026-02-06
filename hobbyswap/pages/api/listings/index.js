@@ -38,15 +38,23 @@ export default async function handler(req, res) {
 
         // if meet up checked, must provide a meet up location
         if (meetUp === true && (!location || String(location).trim() === "")) {
-          return res.status(400).json({
-            error:
-              "If meet up option is offered, you must provide a meet up location.",
-          });
+          return res
+            .status(400)
+            .json({
+              error:
+                "If meet up option is offered, you must provide a meet up location.",
+            });
         }
 
         // listing must request item(s) and/or money
         const itemArr = Array.isArray(requestItems) ? requestItems : [];
         const moneyNum = Number(requestMoney) || 0;
+
+        if (moneyNum < 0) {
+          return res
+            .status(400)
+            .json({ error: "Proposed money cannot be negative." });
+        }
 
         if (!(itemArr.length > 0) && !(moneyNum > 0))
           return res
