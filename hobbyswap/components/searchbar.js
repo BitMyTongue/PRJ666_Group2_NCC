@@ -67,16 +67,17 @@ export default function SearchBar({ ...props }) {
         <Dropdown className="p-0 m-0">
           <Dropdown.Toggle
             as="div"
-            className=""
+            className="form-control w-100 rounded-pill search-bar"
             variant="success"
             id="dropdown-basic"
             style={{ maxHeight: "37px" }}
           >
             <input
-              className="form-control me-2 rounded-pill search-bar w-100  border-0"
+              className="me-2 search-bar border-0"
               type="search"
               aria-label="Search"
               value={searchItem}
+              style={{ width: "85%" }}
               onChange={(e) => {
                 setSearchItem(e.target.value);
               }}
@@ -85,6 +86,9 @@ export default function SearchBar({ ...props }) {
               icon={faSearch}
               className="position-absolute end-0 translate-middle-y me-3 text-primary"
               style={{ top: 18 }}
+              onClick={() => {
+                handleSubmit();
+              }}
             />
           </Dropdown.Toggle>
 
