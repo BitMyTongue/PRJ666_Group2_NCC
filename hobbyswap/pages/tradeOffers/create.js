@@ -239,7 +239,7 @@ export default function CreateTradeOffer() {
                   fluid
                 />
             </div>
-            <div className="col-12 col-md-5 mt-4 mt-md-0 pe-md-5">
+            <div className={`col-12 ${createdOffer?.meetUp ? "col-md-5" : "col-md-8"} mt-4 mt-md-0 pe-md-5`}>
               <div className="d-flex flex-column gap-3 border-bottom border-gray pb-3">
                 <p className="text-primary text-uppercase fw-semibold fs-3 mb-0">
                   {listing?.itemName || "Listing"}
