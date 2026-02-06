@@ -34,6 +34,18 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: "You cannot make an offer on your own listing." });
         }
 
+        // requester cannot have more than 1 active offer on a given listing
+        // looks for an existing offer with the corresponding listing and requester id
+        // & status PENDING/ACCEPTED
+        const existingActive = await TradeOfferModel.findOne({
+          listingId: String(listingId),
+          requesterId: String(requesterId),
+          offerStatus: { $in: ["PENDING", "ACCEPTED"] },
+        }).exec();
+        if (existingActive) {
+          return res.status(409).json({ error: "You've already proposed an offer for this listing." });
+        }
+
         // validate proposed items + money
         const itemArr = Array.isArray(proposedItems) ? proposedItems : [];
         const moneyNum = Number(proposedMoney) || 0;

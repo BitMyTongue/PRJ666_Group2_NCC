@@ -69,9 +69,6 @@ const tradeOfferSchema = new mongoose.Schema({
   },
 });
 
-// one offer per person on any given listing
-tradeOfferSchema.index({ listingId: 1, requesterId: 1 }, { unique: true });
-
 mongoose.models = {};
 export const TradeOfferModel = mongoose.model("tradeOffers", tradeOfferSchema);
 
