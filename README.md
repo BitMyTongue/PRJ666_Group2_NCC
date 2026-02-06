@@ -1,5 +1,5 @@
 # 🎴 HobbySwap
-[![Figma](https://img.shields.io/badge/Figma-Design-red?logo=figma&logoColor=white)]([https://www.figma.com/file/YourFigmaLinkHere](https://www.figma.com/design/y6l0tXU9jIUZW3viCSpiSn/HobbySwap?node-id=0-1&t=3gDATtAKUWWjKcrZ-1))
+[![Figma](https://img.shields.io/badge/Figma-Design-red?logo=figma&logoColor=white)](https://www.figma.com/design/y6l0tXU9jIUZW3viCSpiSn/HobbySwap?node-id=0-1&t=3gDATtAKUWWjKcrZ-1)
 
 
 <img width="800" alt="hobbyswap" src="https://github.com/user-attachments/assets/0dc95b88-c119-41a5-bc79-1c60bb22ea1a" />
