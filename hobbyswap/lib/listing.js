@@ -34,9 +34,11 @@ const listingSchema = new mongoose.Schema({
     default: false,
   },
   status: {
-    // Changed type of status from Boolean to String
     type: String,
-    enum: ["ACTIVE", "COMPLETE", "PENDING"],
+    // ACTIVE: people can make offers on this listing
+    // COMPLETE: the listing is closed
+    // IN TRADE: an offer was accepted, you cannot make an offer on the listing
+    enum: ["ACTIVE", "COMPLETE", "IN TRADE"],
     required: true,
   },
   location: {
