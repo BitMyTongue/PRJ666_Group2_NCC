@@ -138,7 +138,7 @@ const BaseLongCard = function BaseLongCard({
               alignItems: "center",
             }}
             onClick={() => {
-              router.push("/users/" + user._id);
+              if (user?._id) router.push("/users/" + user._id);
             }}
           >
             <strong>FROM:</strong>

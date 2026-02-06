@@ -1,6 +1,6 @@
 .search-bar {
   background-color: #8895b4;
-  width: 387px;
+  width: 100%;
 }
 
 .gundam-model-position {
@@ -71,6 +71,10 @@
   }
   .card-min {
     display: none;
+  }
+
+  .search-bar {
+    width: 387px;
   }
 }
 
