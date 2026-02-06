@@ -176,6 +176,11 @@ export default function CreateTradeOffer() {
       setError(err.message);
     }
   };
+
+  const handleRemoveItem = (index) => {
+    setProposedItems((prev) => prev.filter((_, i) => i !== index)); // Removing past element
+  };
+
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY,
@@ -611,8 +616,13 @@ export default function CreateTradeOffer() {
                 type="number"
                 className="form-control bg-light text-gray p-3 fs-regular rounded-3"
                 placeholder="0"
+                min="0"
                 value={proposedMoney}
-                onChange={(e) => setProposedMoney(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value < 0) return;   // ignore negatives
+                  setProposedMoney(value);
+                }}
               />
             </div>
 
@@ -653,13 +663,32 @@ export default function CreateTradeOffer() {
             {proposedItems.length > 0 && (
               <p className="text-muted fw-semibold mt-2 mb-2">Proposed Items</p>
             )}
-            <div className="col-md-5 col-9">
+            <div className="col-md-5 col-9 d-flex flex-wrap gap-3">
               {proposedItems.map((item, index) => (
                 <div
                   key={index}
-                  className="form-control bg-light text-gray p-3 fs-regular rounded-3 mb-3"
+                  style={{ position: "relative", display: "inline-block" }}
+                  className="mb-3"
                 >
-                  {item}
+                  <button
+                    type="button"
+                    aria-label="Remove proposed item"
+                    className="btn btn-danger btn-sm position-absolute"
+                    style={{
+                      top: -8,
+                      right: -8,
+                      zIndex: 2,
+                      borderRadius: 20,
+                      padding: "0 6px",
+                    }}
+                    onClick={() => handleRemoveItem(index)}
+                  >
+                    ×
+                  </button>
+
+                  <div className="form-control bg-light text-gray p-3 fs-regular rounded-3">
+                    {item}
+                  </div>
                 </div>
               ))}
             </div>

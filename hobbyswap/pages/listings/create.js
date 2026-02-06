@@ -645,8 +645,13 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
                 type="number"
                 className="form-control bg-light text-gray p-3 fs-regular rounded-3"
                 placeholder="0"
+                min="0"
                 value={requestMoney}
-                onChange={(e) => setRequestMoney(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value < 0) return;   // ignore negatives
+                  setRequestMoney(value);
+                }}
               />
             </div>
           </div>
