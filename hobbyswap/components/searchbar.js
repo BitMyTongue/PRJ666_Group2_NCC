@@ -119,13 +119,21 @@ export default function SearchBar({ ...props }) {
             </Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
-        <Modal
-          show={showModal}
-          onHide={() => {
-            setShowModal(false);
+      </Form>
+      <Modal
+        show={showModal}
+        onHide={() => {
+          setShowModal(false);
+        }}
+        backdrop="static"
+        keyboard={true}
+      >
+        <Form
+          className="w-100"
+          onSubmit={() => {
+            handleSubmit();
+            router.reload();
           }}
-          backdrop="static"
-          keyboard={true}
         >
           <Modal.Header closeButton>
             <Modal.Title className="h1 text-uppercase color-primary">
@@ -202,17 +210,10 @@ export default function SearchBar({ ...props }) {
             </div>
           </Modal.Body>
           <Modal.Footer>
-            <Button
-              onClick={() => {
-                handleSubmit();
-                router.reload();
-              }}
-            >
-              Submit
-            </Button>
+            <Button type="submit">Submit</Button>
           </Modal.Footer>
-        </Modal>
-      </Form>
+        </Form>
+      </Modal>
     </div>
   );
 }
