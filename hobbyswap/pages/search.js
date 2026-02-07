@@ -50,8 +50,7 @@ export default function SearchPage() {
             (!since || sinceDate <= currDate) &&
             (!until || untilDate >= currDate) &&
             (!user ||
-              user ===
-                l.user?.username.toLowerCase().includes(user.toLowerCase())) &&
+              l.user?.username.toLowerCase().includes(user.toLowerCase())) &&
             l.status === "ACTIVE"
           );
         });
