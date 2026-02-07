@@ -3,6 +3,10 @@
   width: 100%;
 }
 
+.search-bar.dropdown-toggle::after {
+  border-top-color: transparent;
+}
+
 .gundam-model-position {
   filter: drop-shadow(20px 5px 4px rgba(0, 0, 0, 0.3));
   top: -20%;
