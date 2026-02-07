@@ -14,8 +14,8 @@ import { SearchContext } from "@/contexts/SearchContext";
 export default function SearchBar({ ...props }) {
   const router = useRouter();
 
-  const { history, addToHistory } = useContext(SearchContext);
-  const [searchItem, setSearchItem] = useState("");
+  const { history, addToHistory, searchItem, setSearchItem } =
+    useContext(SearchContext);
   const [searchUserName, setSearchUserName] = useState("");
   const [searchCondition, setSearchCondition] = useState("");
   const [searchCategory, setSearchCategory] = useState("");

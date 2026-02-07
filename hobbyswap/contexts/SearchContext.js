@@ -4,6 +4,7 @@ export const SearchContext = createContext();
 
 export const SearchProvider = ({ children }) => {
   const [history, setHistory] = useState([]);
+  const [searchItem, setSearchItem] = useState("");
 
   const addToHistory = (str) => {
     if (!history) return;
@@ -25,7 +26,9 @@ export const SearchProvider = ({ children }) => {
   }, [history]);
 
   return (
-    <SearchContext.Provider value={{ history, addToHistory }}>
+    <SearchContext.Provider
+      value={{ history, addToHistory, searchItem, setSearchItem }}
+    >
       {children}
     </SearchContext.Provider>
   );
