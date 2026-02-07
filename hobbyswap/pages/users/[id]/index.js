@@ -251,7 +251,7 @@ export default function User() {
                 </div>
                 {isOwnerOfProfile && (
                   <div className="row mb-2">
-                    <p className="fs-6 text-muted fw-semibold mb-0 col-4 align-self-center">
+                    <p className="fs-6 text-primary fw-semibold mb-0 col-4 align-self-center">
                       Password
                     </p>
                     {/* <p className="text-primary mb-0 col-4 align-self-center">
