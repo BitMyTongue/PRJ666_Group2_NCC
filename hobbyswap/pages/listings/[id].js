@@ -40,12 +40,6 @@ const responsive = {
   },
 };
 
-const currentUser = {
-  userName: "test1",
-  avatar: "/images/default-avatar.png",
-  rating: 5,
-};
-
 const imageWrapperStyle = {
   width: "100%",
   maxWidth: "520px",
@@ -362,9 +356,9 @@ export default function Listing() {
                   </button>
                 )}
                 {listing.requestMoney !== 0 && (
-                  <button className="btn btn-primary text-white fw-semibold rounded-pill py-2">
+                  <Button className="btn btn-primary text-white fw-semibold rounded-pill py-2" href={`/checkout/pay/${id}?step=payment info`}>
                     Pay Now
-                  </button>
+                  </Button>
                 )}
                 <button className="btn btn-white text-primary fw-semibold rounded-pill py-2 border border-primary border-2">
                   Message Owner
