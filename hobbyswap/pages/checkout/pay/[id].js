@@ -491,7 +491,7 @@ export default function CardPayment() {
           </div>
         </div>
         {/* Content */}
-        <div className="container-sm my-6">
+        <div className="container-sm my-6 mb-2">
           {/* Payment form */}
           <div className="row d-flex flex-column flex-md-row mt-5 gap-3">
             <div className="col-12 col-md-6 border border-gray rounded-5 shadow d-flex flex-column">
@@ -599,7 +599,7 @@ export default function CardPayment() {
           </div>
         </div>
 
-        <Button onClick={handleOnClickBack}>Back</Button>
+        <button className="btn btn-transparent text-primary fw-semibold mb-6 mx-5" onClick={handleOnClickBack}> &#60; Back</button>
       </>
     );
   }
