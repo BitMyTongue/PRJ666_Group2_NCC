@@ -78,6 +78,7 @@ export default function DashboardHome() {
   const [showFilters, setShowFilters] = useState(false);
   const [query, setQuery] = useState("");
   const [sortKey, setSortKey] = useState("popular");
+  const [showSearch, setShowSearch] = useState(false);
 
   const active = CATEGORY[activeCategory];
 
@@ -187,8 +188,8 @@ export default function DashboardHome() {
             setSortKey={setSortKey}
             query={query}
             setQuery={setQuery}
-            showFilters={showFilters}
-            setShowFilters={setShowFilters}
+            showSearch={showSearch}
+            setShowSearch={setShowSearch}
             isFilterVisible={false}
           />
 

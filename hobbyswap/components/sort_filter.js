@@ -7,6 +7,18 @@ const SORT_OPTIONS = [
   { key: "za", label: "Z - A" },
 ];
 
+const CATEGORY_OPTIONS = [
+  { key: "POKEMON CARD", label: "Pokemon Card" },
+  { key: "BLIND BOX", label: "Blind Box" },
+  { key: "YUGIOH CARD", label: "Yu-Gi-Oh Card" },
+  { key: "FIGURINE", label: "Figurine" },
+];
+
+const CONDITION_OPTIONS = [
+  { key: "NEW", label: "New" },
+  { key: "USED", label: "Used" },
+];
+
 export default function SortFilter({ 
   sortKey, 
   setSortKey, 
@@ -14,10 +26,22 @@ export default function SortFilter({
   setQuery, 
   showSearch, 
   setShowSearch,
-  isFilterVisible = false // The parameter you requested
+  isFilterVisible = false,
+  selectedCategory = null,
+  setSelectedCategory = () => {},
+  selectedCondition = null,
+  setSelectedCondition = () => {}
 }) {
   const [sortOpen, setSortOpen] = useState(false);
+  const [categoryOpen, setCategoryOpen] = useState(false);
+  const [conditionOpen, setConditionOpen] = useState(false);
   const sortLabel = SORT_OPTIONS.find((o) => o.key === sortKey)?.label ?? "Most Relevant";
+  const categoryLabel = selectedCategory 
+    ? CATEGORY_OPTIONS.find((o) => o.key === selectedCategory)?.label ?? "All Types"
+    : "All Types";
+  const conditionLabel = selectedCondition
+    ? CONDITION_OPTIONS.find((o) => o.key === selectedCondition)?.label ?? "All Filters"
+    : "All Filters";
 
   return (
     <div className="container my-5 mx-auto">
@@ -25,13 +49,65 @@ export default function SortFilter({
         <div className="d-flex align-items-center gap-3">
           {isFilterVisible ? (
             <>
-              {/* Complex Filter Buttons */}
-              <Button className="btn-light text-muted px-5 rounded-pill">
-                All Filters &#9662; &#9662;
-              </Button>
-              <Button className="btn-light text-muted px-5 rounded-pill">
-                &#9734; All Types &#9662;
-              </Button>
+              {/* Condition Filter Dropdown */}
+              <div className="position-relative">
+                <button
+                  type="button"
+                  className="btn btn-light text-muted px-5 rounded-pill"
+                  onClick={() => setConditionOpen(!conditionOpen)}
+                >
+                  {conditionLabel} &#9662;
+                </button>
+                {conditionOpen && (
+                  <div className="dropdown-menu show" style={{ position: "absolute", left: 0, top: "100%", zIndex: 10 }}>
+                    <button
+                      className={`dropdown-item ${selectedCondition === null ? "active" : ""}`}
+                      onClick={() => { setSelectedCondition(null); setConditionOpen(false); }}
+                    >
+                      All Filters
+                    </button>
+                    {CONDITION_OPTIONS.map((opt) => (
+                      <button
+                        key={opt.key}
+                        className={`dropdown-item ${selectedCondition === opt.key ? "active" : ""}`}
+                        onClick={() => { setSelectedCondition(opt.key); setConditionOpen(false); }}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Category Filter Dropdown */}
+              <div className="position-relative">
+                <button
+                  type="button"
+                  className="btn btn-light text-muted px-5 rounded-pill"
+                  onClick={() => setCategoryOpen(!categoryOpen)}
+                >
+                  &#9734; {categoryLabel} &#9662;
+                </button>
+                {categoryOpen && (
+                  <div className="dropdown-menu show" style={{ position: "absolute", left: 0, top: "100%", zIndex: 10 }}>
+                    <button
+                      className={`dropdown-item ${selectedCategory === null ? "active" : ""}`}
+                      onClick={() => { setSelectedCategory(null); setCategoryOpen(false); }}
+                    >
+                      All Types
+                    </button>
+                    {CATEGORY_OPTIONS.map((opt) => (
+                      <button
+                        key={opt.key}
+                        className={`dropdown-item ${selectedCategory === opt.key ? "active" : ""}`}
+                        onClick={() => { setSelectedCategory(opt.key); setCategoryOpen(false); }}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </>
           ) : (
             /* Standard Search Toggle */

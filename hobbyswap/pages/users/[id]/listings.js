@@ -26,6 +26,8 @@ export default function UserListing() {
   const [query, setQuery] = useState("");
   const [sortKey, setSortKey] = useState("popular");
   const [showSearch, setShowSearch] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedCondition, setSelectedCondition] = useState(null);
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -68,7 +70,17 @@ export default function UserListing() {
   useEffect(() => {
     let filtered = [...listings];
 
-    // Step 1: Apply Search Filter (by title or description)
+    // Step 1: Apply Category Filter
+    if (selectedCategory) {
+      filtered = filtered.filter((listing) => listing.category === selectedCategory);
+    }
+
+    // Step 2: Apply Condition Filter
+    if (selectedCondition) {
+      filtered = filtered.filter((listing) => listing.condition === selectedCondition);
+    }
+
+    // Step 3: Apply Search Filter (by title or description)
     if (query.trim()) {
       const lowerQuery = query.toLowerCase();
       filtered = filtered.filter(
@@ -78,7 +90,7 @@ export default function UserListing() {
       );
     }
 
-    // Step 2: Apply Sort
+    // Step 4: Apply Sort
     if (sortKey === "az") {
       filtered.sort((a, b) => a.itemName.localeCompare(b.itemName));
     } else if (sortKey === "za") {
@@ -86,12 +98,12 @@ export default function UserListing() {
     }
     // "popular" is the default - no sorting needed
 
-    // Step 3: Reset pagination to page 0 when filters change
+    // Step 5: Reset pagination to page 0 when filters change
     setCurrP(0);
     
-    // Step 4: Set filtered results for pagination
+    // Step 6: Set filtered results for pagination
     setFilteredListings(filtered);
-  }, [listings, query, sortKey]);
+  }, [listings, query, sortKey, selectedCategory, selectedCondition]);
 
   // Handle Pagination - Slice filtered results
   useEffect(() => {
@@ -189,13 +201,17 @@ export default function UserListing() {
           {/* Filter Section */}
 
           <SortFilter 
-            isFilterVisible={true} // Setting this to true shows the "All Filters/Types" buttons
+            isFilterVisible={true}
             sortKey={sortKey}
             setSortKey={setSortKey}
             query={query}
             setQuery={setQuery}
             showSearch={showSearch}
             setShowSearch={setShowSearch}
+            selectedCategory={selectedCategory}
+            setSelectedCategory={setSelectedCategory}
+            selectedCondition={selectedCondition}
+            setSelectedCondition={setSelectedCondition}
           />
 
           {/* Card Section */}
