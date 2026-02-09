@@ -98,6 +98,7 @@ const BaseLongCard = function BaseLongCard({
   cancelCallback = null,
   rating = -1,
   color = null,
+  requestUser = null,
 }) {
   const [saved, setSaved] = useState(isBookmarked);
   const router = useRouter();
@@ -138,7 +139,7 @@ const BaseLongCard = function BaseLongCard({
               alignItems: "center",
             }}
             onClick={() => {
-              router.push("/users/" + user._id);
+              if (user?._id) router.push("/users/" + user._id);
             }}
           >
             <strong>FROM:</strong>
@@ -179,13 +180,15 @@ const BaseLongCard = function BaseLongCard({
                   margin: 0,
                 }}
               >
-                <Image
-                  className="object-fit-contain"
-                  alt={offerItem.itemName}
-                  src={offerItem.images[0]}
-                  width={69}
-                  height={96}
-                />
+                {offerItem.images && (
+                  <Image
+                    className="object-fit-contain"
+                    alt={offerItem.itemName}
+                    src={offerItem.images[0]}
+                    width={69}
+                    height={96}
+                  />
+                )}
                 <div>
                   <p className="h4">{offerItem.itemName}</p>
                   <p style={{ height: "50px", overflowY: "auto" }}>
@@ -204,14 +207,14 @@ const BaseLongCard = function BaseLongCard({
               }}
             >
               <div style={{ marginBottom: 5 }}>
-                {requestItem?.user ? (
+                {requestUser ? (
                   <div style={{ display: "flex", gap: 10 }}>
                     <UserIcon
-                      user={requestItem.user.username}
-                      img={requestItem.user.avatar}
+                      user={requestUser.username}
+                      img={requestUser.avatar}
                       size={20}
                     />
-                    <span>{requestItem.user.username}</span>
+                    <span>{requestUser.username}</span>
                   </div>
                 ) : (
                   <strong>REQUESTING</strong>
@@ -223,15 +226,15 @@ const BaseLongCard = function BaseLongCard({
                   gap: 20,
                 }}
               >
-                {!hasMultiple && requestItem && (
+                {/* {!hasMultiple && requestItem && requestItem.images && (
                   <Image
                     className="object-fit-contain"
                     alt={requestItem.itemName}
-                    src={requestItem.images[0]}
+                    src={requestItem.images && requestItem.images[0]}
                     width={69}
                     height={96}
                   />
-                )}
+                )} */}
                 <div
                   style={{
                     width: "100%",
@@ -248,10 +251,7 @@ const BaseLongCard = function BaseLongCard({
                           ? "Unspecified"
                           : !requestItem && requestMoney
                             ? `$${requestMoney.toFixed(2)}`
-                            : requestItem?.itemName}
-                    </p>
-                    <p style={{ height: "50px", overflowY: "auto" }}>
-                      {!hasMultiple && requestItem?.description}
+                            : requestItem}
                     </p>
                   </div>
                   {(requestItem || requestItem === undefined) &&
@@ -282,13 +282,15 @@ const BaseLongCard = function BaseLongCard({
                   margin: 0,
                 }}
               >
-                <Image
-                  className="object-fit-contain"
-                  alt={offerItem.itemName}
-                  src={offerItem.images[0]}
-                  width={149}
-                  height={196}
-                />
+                {offerItem.images && (
+                  <Image
+                    className="object-fit-contain"
+                    alt={offerItem.itemName}
+                    src={offerItem.images[0]}
+                    width={149}
+                    height={196}
+                  />
+                )}
                 <div>
                   <p className="fw-semibold fs-4 text-primary text-capitalize">
                     {offerItem.itemName}
@@ -331,14 +333,14 @@ const BaseLongCard = function BaseLongCard({
                   marginLeft: 80,
                 }}
               >
-                {requestItem?.user ? (
+                {requestUser ? (
                   <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
                     <UserIcon
-                      user={requestItem.user.username}
-                      img={requestItem.user.avatar}
+                      user={requestUser.username}
+                      img={requestUser.avatar}
                       size={20}
                     />
-                    <span>{requestItem.user.username}</span>
+                    <span>{requestUser.username}</span>
                   </div>
                 ) : (
                   <p className="fs-4 text-capitalize fw-semibold text-primary opacity-75 mb-3">
@@ -352,15 +354,15 @@ const BaseLongCard = function BaseLongCard({
                     gap: 20,
                   }}
                 >
-                  {!hasMultiple && requestItem && (
+                  {/* {!hasMultiple && requestItem && requestItem.images && (
                     <Image
                       className="object-fit-contain"
                       alt={requestItem.itemName}
-                      src={requestItem.images[0]}
+                      src={requestItem.images && requestItem.images[0]}
                       width={149}
                       height={196}
                     />
-                  )}
+                  )} */}
                   <div>
                     <p className="h4">
                       {hasMultiple
@@ -369,7 +371,7 @@ const BaseLongCard = function BaseLongCard({
                           ? "Unspecified"
                           : !requestItem && requestMoney
                             ? `$${requestMoney.toFixed(2)}`
-                            : requestItem?.itemName}
+                            : requestItem}
                     </p>
                     <p style={{ height: "100px", overflowY: "auto" }}>
                       {!hasMultiple && requestItem?.description}
@@ -459,9 +461,15 @@ const TradeCard = function TradeCard({
       requestMoney={requestMoney}
       rating={rating}
     >
-      <Button variant="primary">View</Button>
-      {requestItem !== null && <Button variant="secondary">Trade Now</Button>}
-      {requestMoney && <Button variant="secondary">Buy Now</Button>}
+      <Button variant="primary rounded-pill" href={url}>
+        View
+      </Button>
+      {requestItem !== null && (
+        <Button variant="light rounded-pill text-primary">Trade Now</Button>
+      )}
+      {requestMoney && (
+        <Button variant="light rounded-pill text-primary">Buy Now</Button>
+      )}
     </BaseLongCard>
   );
 };
@@ -523,6 +531,7 @@ const StatusCard = function StatusCard({
   statusType,
   hasMultiple = false,
   requestMoney = 0.0,
+  requestUser = null,
 }) {
   // TODO: Button implementation
   const handleViewOffer = () => {};
@@ -562,7 +571,7 @@ const StatusCard = function StatusCard({
         />
         <EditOfferButton
           variant="light text-primary border border-primary border-2 rounded-pill"
-          link={`#`}
+          link={`/listings/edit/${offerItem._id}`}
         />
       </>
     ),
@@ -632,6 +641,7 @@ const StatusCard = function StatusCard({
       requestMoney={requestMoney}
       showBookmark={false}
       cancelCallback={currType.cancel}
+      requestUser={requestUser}
     >
       {currType.layout}
     </BaseLongCard>

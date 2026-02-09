@@ -97,6 +97,9 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
   const [meetUpLocation, setMeetUpLocation] = useState("");   // store selectedLocation.name
   const [user,setUser]=useState(null)
 
+  // Keep preview URLs for selected files so we can remove files before upload
+  const [selectedFilePreviews, setSelectedFilePreviews] = useState([]);
+
   useEffect(()=>{
     const token = localStorage.getItem("token");
     if (token) {
@@ -175,7 +178,33 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
       }
     } catch (err) {
       console.error(err);
-      setErrorMsg("Error uploading files");
+      setError("Error uploading files");
+      return;
+    }
+    
+    try {
+      const res = await fetch("/api/listings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ 
+          userId, itemName, description, category, condition, images: uploadedImageUrls, meetUp, location: meetUp ? meetUpLocation : "", requestItems: itemArr, requestMoney: moneyNum, userId: userId})
+
+          //Focuse on images: uploadedImageUrls
+        });
+
+      const data = await res.json();
+
+      // Fail
+      if (!res.ok) {
+        throw new Error(data?.error || "Create listing failed");
+      }
+
+      // Success
+      router.push(`/listings/create?status=true&id=${data.listing._id}`);
+    } catch (err) {
+      setError(err.message);
     }
   };
 
@@ -211,17 +240,50 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
   const [imageUrl, setImageUrl] = useState([]);
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files[0]; //Image File
     if (!file) return;
 
-    const previewUrl = URL.createObjectURL(file);
+    const previewUrl = URL.createObjectURL(file); //Url saved
 
     setSelectedFile((prev) => [...prev, file]);
-    setImageUrl((prev) => [...prev, previewUrl]);
+    setSelectedFilePreviews((prev) => [...prev, previewUrl]);
+    setImageUrl((prev) => [...prev, previewUrl]); // Array of Images
 
     // reset input so user can upload the SAME file again if they want
     e.target.value = "";
   };
+
+  // Remove image at given index from both imageUrl and selectedFile/selectedFilePreviews when appropriate
+  const handleRemoveImage = (index) => {
+    const urlToRemove = imageUrl[index];
+
+    // If this is a preview for a newly selected file, remove the file + its preview
+    const previewIndex = selectedFilePreviews.indexOf(urlToRemove);
+    if (previewIndex !== -1) {
+      // Revoke preview URL to free memory
+      try { URL.revokeObjectURL(urlToRemove); } catch (e) {}
+
+      setSelectedFile((prev) => prev.filter((_, i) => i !== previewIndex));
+      setSelectedFilePreviews((prev) => prev.filter((_, i) => i !== previewIndex));
+    }
+
+    // Always remove from imageUrl so it won't be sent to server
+    setImageUrl((prev) => prev.filter((_, i) => i !== index)); // Keep the ones tha are not the index (deleted)
+  };
+
+  const handleAddRequestItem = () => {
+    const trimmedItem = requestItemInput.trim();
+    if (!trimmedItem) return;       // clicking Add button with no input 
+
+    setRequestItems((prev) => [...prev, trimmedItem]);    // spread existing Requested Items array, add trimmed to the end
+    setRequestItemInput("");    // Reset field
+  }
+
+  const handleRemoveItem = (index) => {
+    setRequestItems((prev) => prev.filter((_, i) => i !== index)); // Removing past element
+  };
+
+  const trimmedRequestItem = requestItemInput.trim();
 
   if (status === "true") {
     return (
@@ -293,7 +355,7 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
                               <FontAwesomeIcon
                                 key={i}
                                 icon={
-                                  i < user.rating ? solidStar : emptyStar
+                                  i < user?.rating ? solidStar : emptyStar
                                 }
                                 className="text-secondary"
                               />
@@ -430,16 +492,21 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
                 />
               )}
               <div className="d-flex justify-content-start align-items-center gap-3">
-                {imageUrl.map((url, index) => (
-                  <Image
-                    key={index}
-                    src={url}
-                    alt={`preview-${index}`}
-                    width={55}
-                    height={55}
-                    className="border border-gray rounded-2 shadow"
-                  />
-                ))}
+              {imageUrl.map((url, index) => (
+                <div key={index} style={{ position: "relative", display: "inline-block", marginRight: 8 }}>
+                  <button
+                    type="button"
+                    aria-label="Remove image"
+                    className="btn btn-danger btn-sm position-absolute"
+                    style={{ top: -8, right: -8, zIndex: 2, borderRadius: 20, padding: '0 6px' }} // Top right Corner
+                    onClick={() => handleRemoveImage(index)}
+                  >
+                    ×
+                  </button>
+                  <Image src={url} alt={`thumb-${index}`} width={55} height={55} className="border rounded shadow" /> 
+                  {/* Image Thumbnails */}
+                </div>
+              ))}
 
                 <input
                   type="file"
@@ -518,24 +585,29 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
               <button
                 type="button"
                 onClick={handleAddRequestItem}
+                disabled={!trimmedRequestItem}
                 className="btn btn-primary fw-semibold rounded-pill px-4 py-2 mb-5"
                 aria-label="Add requested item"
               >Add Requested Item
               </button>
             </div>
-            {requestItems.length > 0 && (
-              <p className="text-muted fw-semibold mt-2 mb-2">Requested Items</p>
-            )}
+            <p className="text-muted fw-semibold mt-2 mb-2">Requested Items: </p>
             {/* Showing the requested items */}
             <div className="col-md-5 col-9">
-              {requestItems.map((item, index) => (
-                <div
-                  key={index}
-                  className="form-control bg-light text-gray p-3 fs-regular rounded-3 mb-3"
-                >
-                  {item}
-                </div>
-              ))}
+                {requestItems.map((item, i) => (
+                  <div key={i} style={{ position: "relative", display: "inline-block", marginRight: 8 }}>
+                  <button
+                    type="button"
+                    aria-label="Remove image"
+                    className="btn btn-danger btn-sm position-absolute"
+                    style={{ top: -8, right: -8, zIndex: 2, borderRadius: 20, padding: '0 6px' }} // Top right Corner
+                    onClick={() => handleRemoveItem(i)}
+                  >
+                    ×
+                  </button>
+                    <span key={i} className="badge bg-secondary me-2 p-2">{item}</span>
+                  </div>
+                ))}
             </div>
           </div>
 
@@ -546,7 +618,14 @@ export default function CreateListing() { // http://localhost:3000/listings/crea
               <input
                 type="text"
                 className="form-control bg-light text-gray p-3 fs-regular rounded-3"
-                placeholder="$0"
+                placeholder="0"
+                min="0"
+                value={requestMoney}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (value < 0) return;   // ignore negatives
+                  setRequestMoney(value);
+                }}
               />
             </div>
           </div>
