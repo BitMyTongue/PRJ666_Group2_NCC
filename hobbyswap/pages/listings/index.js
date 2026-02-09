@@ -1,12 +1,7 @@
 import { Image, Button } from "react-bootstrap";
 import { useMemo, useState, useEffect } from "react";
 import ItemCard from "../../components/item-card";
-
-const SORT_OPTIONS = [
-  { key: "popular", label: "Most Popular" },
-  { key: "az", label: "A - Z" },
-  { key: "za", label: "Z - A" },
-];
+import SortFilter from "../../components/sort_filter"
 
 const CATEGORY = {
   pokemon: {
@@ -79,10 +74,11 @@ export default function DashboardHome() {
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
+
   const [showFilters, setShowFilters] = useState(false);
   const [query, setQuery] = useState("");
   const [sortKey, setSortKey] = useState("popular");
-  const [sortOpen, setSortOpen] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
 
   const active = CATEGORY[activeCategory];
 
@@ -148,8 +144,6 @@ export default function DashboardHome() {
     return sortItems(mapped, sortKey);
   }, [listings, active.aliases, query, sortKey]);
 
-  const sortLabel =
-    SORT_OPTIONS.find((o) => o.key === sortKey)?.label ?? "Most Popular";
 
   return (
     <>
@@ -188,57 +182,16 @@ export default function DashboardHome() {
             style={{ height: "2px", backgroundColor: "#c2d1e4ff" }}
             aria-hidden="true"
           />
-          <div className="d-flex justify-content-between align-items-center mb-3">
-            <div>
-              <Button className="btn-light text-muted px-5 rounded-pill" onClick={() => setShowFilters((v) => !v)}>Search By Title &#9662;</Button>
-            </div>
 
-            <div className="position-relative">
-              <button
-                type="button"
-                className="btn btn-link p-0 text-decoration-none fw-semibold"
-                onClick={() => setSortOpen((v) => !v)}
-              >
-                <span className="me-2">Sort By</span>
-                <span className="text-muted">|</span>
-                <span className="ms-2">{sortLabel}</span>
-                <span className="ms-2">▾</span>
-              </button>
-
-              {sortOpen && (
-                <div
-                  className="dropdown-menu dropdown-menu-end show"
-                  style={{ position: "absolute", right: 0, top: "100%", zIndex: 10 }}
-                >
-                  {SORT_OPTIONS.map((opt) => (
-                    <button
-                      key={opt.key}
-                      type="button"
-                      className={`dropdown-item ${sortKey === opt.key ? "active" : ""}`}
-                      onClick={() => {
-                        setSortKey(opt.key);
-                        setSortOpen(false);
-                      }}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {showFilters && (
-            <div className="border rounded-3 p-3 mb-4 bg-white">
-              <label className="form-label fw-semibold mb-1">Search</label>
-              <input
-                className="form-control"
-                placeholder="Search by item name, description, location..."
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
-            </div>
-          )}
+          <SortFilter 
+            sortKey={sortKey} 
+            setSortKey={setSortKey}
+            query={query}
+            setQuery={setQuery}
+            showSearch={showSearch}
+            setShowSearch={setShowSearch}
+            isFilterVisible={false}
+          />
 
           {loading && <p className="text-center">Loading listings...</p>}
           {!loading && errorMsg && <p className="text-center text-danger">{errorMsg}</p>}

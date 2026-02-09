@@ -8,6 +8,7 @@ import { faLayerGroup, faShoppingBag } from "@fortawesome/free-solid-svg-icons";
 import { StatusCard, StatusType, TradeCard } from "@/components/base-long-card";
 import { Button } from "react-bootstrap";
 import Pagination from "@/components/pagination";
+import SortFilter from "@/components/sort_filter";
 export default function UserListing() {
   const router = useRouter();
   const { id } = router.query;
@@ -18,8 +19,15 @@ export default function UserListing() {
   const resultsPerPage = 1;
   const [currP, setCurrP] = useState(0);
   const [pageListings, setPageListings] = useState([]);
+  const [filteredListings, setFilteredListings] = useState([]);
   let [isOwner, setIsOwner] = useState(false);
   const [profile, setProfile] = useState(null);
+
+  const [query, setQuery] = useState("");
+  const [sortKey, setSortKey] = useState("popular");
+  const [showSearch, setShowSearch] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedCondition, setSelectedCondition] = useState(null);
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -58,17 +66,52 @@ export default function UserListing() {
   }, [router.isReady, id, user]);
   console.log(isOwner);
 
+  // Filter and Sort Listings
   useEffect(() => {
-    // Current Syncronous logic overwriten to asyncronously retrieve the start and ending pages
-    const effectAsync = async () => {
-      const copy = listings.slice(
-        currP * resultsPerPage,
-        currP * resultsPerPage + resultsPerPage,
+    let filtered = [...listings];
+
+    // Step 1: Apply Category Filter
+    if (selectedCategory) {
+      filtered = filtered.filter((listing) => listing.category === selectedCategory);
+    }
+
+    // Step 2: Apply Condition Filter
+    if (selectedCondition) {
+      filtered = filtered.filter((listing) => listing.condition === selectedCondition);
+    }
+
+    // Step 3: Apply Search Filter (by title or description)
+    if (query.trim()) {
+      const lowerQuery = query.toLowerCase();
+      filtered = filtered.filter(
+        (listing) =>
+          listing.itemName.toLowerCase().includes(lowerQuery) ||
+          listing.description.toLowerCase().includes(lowerQuery)
       );
-      setPageListings(copy);
-    };
-    effectAsync();
-  }, [currP, listings]);
+    }
+
+    // Step 4: Apply Sort
+    if (sortKey === "az") {
+      filtered.sort((a, b) => a.itemName.localeCompare(b.itemName));
+    } else if (sortKey === "za") {
+      filtered.sort((a, b) => b.itemName.localeCompare(a.itemName));
+    }
+    // "popular" is the default - no sorting needed
+
+    // Step 5: Reset pagination to page 0 when filters change
+    setCurrP(0);
+    
+    // Step 6: Set filtered results for pagination
+    setFilteredListings(filtered);
+  }, [listings, query, sortKey, selectedCategory, selectedCondition]);
+
+  // Handle Pagination - Slice filtered results
+  useEffect(() => {
+    const startIdx = currP * resultsPerPage;
+    const endIdx = startIdx + resultsPerPage;
+    const paginatedListings = filteredListings.slice(startIdx, endIdx);
+    setPageListings(paginatedListings);
+  }, [currP, filteredListings]);
 
   return (
     <>
@@ -156,54 +199,65 @@ export default function UserListing() {
       {listings.length > 0 ? (
         <>
           {/* Filter Section */}
-          <div className="container my-5 mx-auto">
-            <div className="d-flex gap-3">
-              <Button className="btn-light text-muted px-5 rounded-pill">
-                All Filters &#9662; &#9662;
-              </Button>
-              <Button className="btn-light text-muted px-5 rounded-pill">
-                &#9734; All Types &#9662;
-              </Button>
-              <p className="text-primary fw-semibold ms-auto">
-                Sort By |{" "}
-                <span className="fw-light ms-3">{"Most Relevant"}</span>
-              </p>
-            </div>
-          </div>
+
+          <SortFilter 
+            isFilterVisible={true}
+            sortKey={sortKey}
+            setSortKey={setSortKey}
+            query={query}
+            setQuery={setQuery}
+            showSearch={showSearch}
+            setShowSearch={setShowSearch}
+            selectedCategory={selectedCategory}
+            setSelectedCategory={setSelectedCategory}
+            selectedCondition={selectedCondition}
+            setSelectedCondition={setSelectedCondition}
+          />
+
           {/* Card Section */}
           <div className="container my-5 mx-auto">
-            <Pagination
-              dataLength={listings.length}
-              currPage={currP}
-              setCurrPage={setCurrP}
-              resultsPerPage={resultsPerPage}
-            />
-            {pageListings.map((listing, idx) => (
-              <div key={idx} className="my-4">
-                {isOwner ? (
-                  <StatusCard
-                    statusType={StatusType.AWAIT_PROPOSAL}
-                    user={profile}
-                    offerItem={listing}
-                    requestMoney={listing.requestMoney}
-                    url={`/users/${id}`}
-                  />
-                ) : (
-                  <TradeCard
-                    user={profile}
-                    offerItem={listing}
-                    requestMoney={listing.requestMoney}
-                    url={`/listings/${listing._id}`}
-                  />
-                )}
+            {filteredListings.length > 0 ? (
+              <>
+                <Pagination
+                  dataLength={filteredListings.length}
+                  currPage={currP}
+                  setCurrPage={setCurrP}
+                  resultsPerPage={resultsPerPage}
+                />
+                {pageListings.map((listing, idx) => (
+                  <div key={idx} className="my-4">
+                    {isOwner ? (
+                      <StatusCard
+                        statusType={StatusType.AWAIT_PROPOSAL}
+                        user={profile}
+                        offerItem={listing}
+                        requestMoney={listing.requestMoney}
+                        url={`/users/${id}`}
+                      />
+                    ) : (
+                      <TradeCard
+                        user={profile}
+                        offerItem={listing}
+                        requestMoney={listing.requestMoney}
+                        url={`/listings/${listing._id}`}
+                      />
+                    )}
+                  </div>
+                ))}
+                <Pagination
+                  dataLength={filteredListings.length}
+                  currPage={currP}
+                  setCurrPage={setCurrP}
+                  resultsPerPage={resultsPerPage}
+                />
+              </>
+            ) : (
+              <div className="text-center my-8">
+                <p className="text-muted text-capitalize fs-4 fst-italic">
+                  No listings match your search
+                </p>
               </div>
-            ))}
-            <Pagination
-              dataLength={listings.length}
-              currPage={currP}
-              setCurrPage={setCurrP}
-              resultsPerPage={resultsPerPage}
-            />
+            )}
           </div>
         </>
       ) : (
