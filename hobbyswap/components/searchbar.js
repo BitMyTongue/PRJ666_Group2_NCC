@@ -132,7 +132,6 @@ export default function SearchBar({ ...props }) {
           className="w-100"
           onSubmit={() => {
             handleSubmit();
-            router.reload();
           }}
         >
           <Modal.Header closeButton>
