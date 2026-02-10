@@ -130,7 +130,8 @@ export default function SearchBar({ ...props }) {
       >
         <Form
           className="w-100"
-          onSubmit={() => {
+          onSubmit={(e) => {
+            e.preventDefault();
             handleSubmit();
           }}
         >
