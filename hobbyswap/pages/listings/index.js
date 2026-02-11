@@ -1,3 +1,5 @@
+"use client";
+
 import { Image, Button } from "react-bootstrap";
 import { useMemo, useState, useEffect } from "react";
 import ItemCard from "../../components/item-card";
@@ -74,6 +76,7 @@ export default function DashboardHome() {
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
+  const [user, setUser] = useState(null);
 
   const [showFilters, setShowFilters] = useState(false);
   const [query, setQuery] = useState("");
@@ -89,6 +92,18 @@ export default function DashboardHome() {
       try {
         setLoading(true);
         setErrorMsg("");
+
+        // Get User
+        const token = localStorage.getItem("token");
+        if (token) {
+          fetch("/api/auth/protect", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
+          .then((res) => res.json())
+          .then((data) => setUser(data.user))
+        }
 
         const res = await fetch("/api/listings", { cache: "no-store" });
         const data = await res.json();
@@ -135,6 +150,7 @@ export default function DashboardHome() {
 
     const mapped = items.map((x) => ({
       id: x._id || x.id,
+      ownerId: x.userId || x.ownerId,
       name: x.itemName || x.title || "Untitled",
       desc: x.description || "No description provided.",
       img: getImageSrc(x.images),
@@ -201,7 +217,7 @@ export default function DashboardHome() {
               <div className="row justify-content-center g-5 p-6 pt-2">
                 {visibleItems.slice(0, 6).map((item) => (
                   <div key={item.id} className="col-12 col-sm-6 col-md-4 d-flex justify-content-center">
-                    <ItemCard img={item.img} name={item.name} desc={item.desc} saved={false} url={`/listings/${item.id}`}/>
+                    <ItemCard img={item.img} name={item.name} desc={item.desc} saved={false} url={`/listings/${item.id}`} listingId={item.id} ownerId={item.ownerId} currentUserId={user?._id}/>
                   </div>
                 ))}
               </div>

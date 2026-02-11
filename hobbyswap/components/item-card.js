@@ -1,8 +1,25 @@
 import Image from "next/image";
 import { Button } from "react-bootstrap";
 import BookmarkIcon from "./bookmark-icon";
+import { useRouter } from "next/router";
 
-export default function ItemCard({ img, name, desc, saved,url }) {
+export default function ItemCard({ img, name, desc, saved, url, listingId, ownerId, currentUserId}) {
+  const router = useRouter();
+
+  const handleTradeNow = () => {
+    if (!currentUserId) {
+      alert("You need to be logged in to propose a trade.");
+      return;
+    }
+
+    if (ownerId === currentUserId) {
+      alert("You can’t propose an offer on your own listing.");
+      return;
+    }
+
+    router.push(`/tradeOffers/create?listingId=${listingId}`);
+  };
+
   return (
     <div style={{ width: 280 }}>
       <Image
@@ -29,7 +46,7 @@ export default function ItemCard({ img, name, desc, saved,url }) {
         <Button className="w-100" variant="light rounded-pill text-primary" href={url}>
           View Details
         </Button>
-        <Button className="w-100" variant="primary rounded-pill">
+        <Button className="w-100" variant="primary rounded-pill"  onClick={handleTradeNow}>
           Trade Now
         </Button>
       </div>
