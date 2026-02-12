@@ -2,7 +2,7 @@ import { OfferRow } from "@/components/pageComponent/OfferRow";
 import { UserContext } from "@/contexts/UserContext";
 import { useRouter } from "next/router";
 import { useContext, useEffect, useState } from "react";
-import { Image } from "react-bootstrap";
+import { Button, Image } from "react-bootstrap";
 
 export default function ListingOffers() {
   const route = useRouter();
@@ -54,6 +54,19 @@ export default function ListingOffers() {
     const date = new Date(offer.createdAt);
     return date.getFullYear() === currentYear;
   }).length;
+
+  //Pagination
+const resultsPerPage = 3;
+const [visibleCount, setVisibleCount] = useState(resultsPerPage);
+const [pageOffers, setPageOffers] = useState([]);
+
+useEffect(() => {
+  setPageOffers(tradeOfferList.slice(0, visibleCount));
+}, [visibleCount, tradeOfferList]);
+
+const handleViewMore = () => {
+  setVisibleCount((prev) => prev + resultsPerPage);
+};
 
   //loading
   if (loading) {
@@ -112,11 +125,25 @@ export default function ListingOffers() {
         </div>
       </div>
       {tradeOfferList.length > 0 ? (
-        <div className="row">
-          {tradeOfferList.map((offer) => (
-            <OfferRow key={offer._id} offer={offer} listing={listing} />
-          ))}
+        <>
+        <div className="row my-5 ">
+        <p className="fw-semibold text-primary text-capitalize">Showing {Math.min(visibleCount, tradeOfferList.length)} out of {tradeOfferList.length} offers</p>
+          {pageOffers.map((offer) => (
+              <OfferRow key={offer._id} offer={offer} listing={listing} />
+            ))}
         </div>
+  {visibleCount < tradeOfferList.length && (
+      <div className="text-center pt-4 border-top border-gray border-2">
+        <Button 
+          variant="light" 
+          className="text-primary px-5 rounded-pill border-primary" 
+          onClick={handleViewMore}
+        >
+          View More
+        </Button>
+      </div>
+    )}
+            </>
       ) : (
         <p>No Offers Yet</p>
       )}
