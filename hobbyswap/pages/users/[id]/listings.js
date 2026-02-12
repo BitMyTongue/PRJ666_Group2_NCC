@@ -72,12 +72,16 @@ export default function UserListing() {
 
     // Step 1: Apply Category Filter
     if (selectedCategory) {
-      filtered = filtered.filter((listing) => listing.category === selectedCategory);
+      filtered = filtered.filter(
+        (listing) => listing.category === selectedCategory,
+      );
     }
 
     // Step 2: Apply Condition Filter
     if (selectedCondition) {
-      filtered = filtered.filter((listing) => listing.condition === selectedCondition);
+      filtered = filtered.filter(
+        (listing) => listing.condition === selectedCondition,
+      );
     }
 
     // Step 3: Apply Search Filter (by title or description)
@@ -86,7 +90,7 @@ export default function UserListing() {
       filtered = filtered.filter(
         (listing) =>
           listing.itemName.toLowerCase().includes(lowerQuery) ||
-          listing.description.toLowerCase().includes(lowerQuery)
+          listing.description.toLowerCase().includes(lowerQuery),
       );
     }
 
@@ -100,7 +104,7 @@ export default function UserListing() {
 
     // Step 5: Reset pagination to page 0 when filters change
     setCurrP(0);
-    
+
     // Step 6: Set filtered results for pagination
     setFilteredListings(filtered);
   }, [listings, query, sortKey, selectedCategory, selectedCondition]);
@@ -200,7 +204,7 @@ export default function UserListing() {
         <>
           {/* Filter Section */}
 
-          <SortFilter 
+          <SortFilter
             isFilterVisible={true}
             sortKey={sortKey}
             setSortKey={setSortKey}
@@ -231,6 +235,7 @@ export default function UserListing() {
                         statusType={StatusType.AWAIT_PROPOSAL}
                         user={profile}
                         offerItem={listing}
+                        requestItem={listing.requestItems}
                         requestMoney={listing.requestMoney}
                         url={`/users/${id}`}
                       />

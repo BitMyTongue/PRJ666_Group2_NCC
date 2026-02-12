@@ -91,7 +91,6 @@ const BaseLongCard = function BaseLongCard({
   offerItem,
   requestItem,
   status = "",
-  hasMultiple = false,
   requestMoney = 0.0,
   isBookmarked = false,
   showBookmark = true,
@@ -109,6 +108,7 @@ const BaseLongCard = function BaseLongCard({
     setSaved(!saved);
   };
 
+  const hasMultiple = requestItem?.length > 1;
   return (
     <>
       <div
@@ -250,7 +250,8 @@ const BaseLongCard = function BaseLongCard({
                     <p className="fs-4 text-primary fw-semibold">
                       {hasMultiple ? (
                         <a
-                          href="#"
+                          className="text-underline"
+                          role="button"
                           onClick={() => {
                             setShowModal(true);
                           }}
@@ -379,7 +380,8 @@ const BaseLongCard = function BaseLongCard({
                     <p className="h4">
                       {hasMultiple ? (
                         <a
-                          href="#"
+                          className="text-underline"
+                          role="button"
                           onClick={() => {
                             setShowModal(true);
                           }}
@@ -460,7 +462,6 @@ const BaseLongCard = function BaseLongCard({
             onHide={() => {
               setShowModal(false);
             }}
-            backdrop="static"
             keyboard={true}
           >
             <Modal.Header closeButton>
