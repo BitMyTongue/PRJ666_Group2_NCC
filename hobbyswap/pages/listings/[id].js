@@ -99,17 +99,29 @@ export default function Listing() {
   const { id } = router.query;
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [map, setMap] = useState(null);
+  const [user, setUser] = useState(null);
 
   const [listing, setListing] = useState(null);
-  const [owner,setOwner]=useState(null)
+  const [owner, setOwner]=useState(null)
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
 
   const [showRequests, setShowRequests] = useState(false);
 
-
   useEffect(() => {
     if (!router.isReady || !id) return;     // undefined on first render
+
+    // Get User
+    const token = localStorage.getItem("token");
+    if (token) {
+      fetch("/api/auth/protect", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((res) => res.json())
+      .then((data) => setUser(data.user))
+    }
 
     const load = async () => {
       try {
@@ -132,6 +144,21 @@ export default function Listing() {
 
     load();
   }, [router.isReady, id]);
+
+  const handleProposeTrade = () => {
+    const currentUserId = user?._id;
+    if (!currentUserId) {
+      alert("You need to be logged in to propose a trade.");
+      return;
+    }
+
+    if (owner._id === currentUserId) {
+      alert("You can’t propose an offer on your own listing.");
+      return;
+    }
+
+    router.push(`/tradeOffers/create?listingId=${id}`);
+  };
 
   const onLoad = useCallback(function callback(map) {
     const bounds = new window.google.maps.LatLngBounds(center);
@@ -369,7 +396,7 @@ export default function Listing() {
                 </div>
               </div>
               <div className="d-flex flex-column gap-3 border-bottom border-primary pb-4">
-                <button className="btn btn-primary text-white fw-semibold rounded-pill py-2">
+                <button className="btn btn-primary text-white fw-semibold rounded-pill py-2" onClick={handleProposeTrade}>
                   Propose Trade
                 </button>
                 <button className="btn btn-primary text-white fw-semibold rounded-pill py-2">

@@ -502,7 +502,10 @@ const TradeButton = function TradeButton({ variant, onClick }) {
 
 const MsgButton = function MsgButton({ onClick }) {
   return (
-    <Button variant={"secondary"} onClick={onClick}>
+    <Button
+      variant={"light rounded-pill border border-primary text-primary"}
+      onClick={onClick}
+    >
       Message
     </Button>
   );
@@ -510,16 +513,16 @@ const MsgButton = function MsgButton({ onClick }) {
 
 const AcceptButton = function AcceptButton({ onClick }) {
   return (
-    <Button variant={"success"} onClick={onClick}>
-      Message
+    <Button variant="success rounded-pill" onClick={onClick}>
+      Accept
     </Button>
   );
 };
 
 const DeclineButton = function DeclineButton({ onClick }) {
   return (
-    <Button variant={"danger"} onClick={onClick}>
-      Message
+    <Button variant={"danger rounded-pill"} onClick={onClick}>
+      Decline
     </Button>
   );
 };
@@ -559,7 +562,10 @@ const StatusCard = function StatusCard({
       <>
         <AcceptButton onClick={handleAccept} />
         <DeclineButton onClick={handleDecline} />
-        <OfferButton variant={"secondary"} onClick={handleViewOffer} />
+        <OfferButton
+          variant={"light rounded-pill border border-primary text-primary"}
+          onClick={handleViewOffer}
+        />
         <MsgButton onClick={handleMessage} />
       </>
     ),
@@ -573,6 +579,9 @@ const StatusCard = function StatusCard({
           variant="light text-primary border border-primary border-2 rounded-pill"
           link={`/listings/edit/${offerItem._id}`}
         />
+        <Button variant="light text-primary border border-primary border-2 rounded-pill" href={`/tradeOffers?listingId=${offerItem._id}`}>
+          View All Offers
+        </Button>
       </>
     ),
   };

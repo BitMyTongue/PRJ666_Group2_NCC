@@ -1,3 +1,5 @@
+"use client";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Image } from "react-bootstrap";
 import { useEffect, useMemo, useState } from "react";
@@ -50,6 +52,7 @@ export default function Home() {
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     let ignore = false;
@@ -59,6 +62,19 @@ export default function Home() {
         setLoading(true);
         setErrorMsg("");
 
+        // Get User
+        const token = localStorage.getItem("token");
+        if (token) {
+          fetch("/api/auth/protect", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
+          .then((res) => res.json())
+          .then((data) => setUser(data.user))
+        }
+
+        // Get listings
         const res = await fetch("/api/listings", { cache: "no-store" });
         const data = await res.json();
 
@@ -95,6 +111,7 @@ export default function Home() {
       .filter((x) => isActiveStatus(x.status))
       .map((x) => ({
         id: x._id || x.id,
+        ownerId: x.userId || x.ownerId,
         name: x.itemName || x.title || "Untitled",
         desc: x.description || "No description provided.",
         img: getImageSrc(x.images),
@@ -111,6 +128,7 @@ export default function Home() {
       .filter((x) => isActiveStatus(x.status))
       .map((x) => ({
         id: x._id || x.id,
+        ownerId: x.userId || x.ownerId,
         name: x.itemName || x.title || "Untitled",
         desc: x.description || "No description provided.",
         img: getImageSrc(x.images),
@@ -201,6 +219,9 @@ export default function Home() {
                     desc={item.desc}
                     saved={false}
                     url={`/listings/${item.id}`}
+                    listingId={item.id}
+                    ownerId={item.ownerId}
+                    currentUserId={user?._id}
                   />
                 </div>
               ))}
@@ -227,6 +248,9 @@ export default function Home() {
                     desc={item.desc}
                     saved={false}
                     url={`/listings/${item.id}`}
+                    listingId={item.id}
+                    ownerId={item.ownerId}
+                    currentUserId={user?._id}
                   />
                 </div>
               ))}

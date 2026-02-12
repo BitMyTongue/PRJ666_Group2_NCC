@@ -26,7 +26,7 @@ const Navbar = () => {
   return (
     <SearchProvider>
       <nav className="bg-primary mx-auto p-3 px-5 z-2">
-        <div className="d-flex justify-content-between align-items-center">
+        <div className="d-flex gap-5 justify-content-between align-items-center">
           <Link href="/" className="navbar-brand d-flex">
             <Image src="/images/logo.png" width={255} height={54} alt="Logo" />
           </Link>
@@ -34,10 +34,11 @@ const Navbar = () => {
           <SearchBar
             className="d-none d-xl-flex h-50 position-relative"
             role="search"
+            style={{ width: "100%" }}
           />
 
           <ul className="d-none d-xl-flex list-unstyled mb-0">
-            <li className="nav-item mx-4">
+            <li className="nav-item mx-4" style={{ width: "100px" }}>
               <Link
                 href="/about"
                 className="nav-link text-white text-uppercase fs-5"
@@ -98,7 +99,7 @@ const Navbar = () => {
             />
 
             <ul className="list-unstyled mb-0">
-              <li className="nav-item my-2">
+              <li className="nav-item my-2 w-100">
                 <Link
                   href="/about"
                   className="nav-link text-white text-uppercase"
