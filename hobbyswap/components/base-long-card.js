@@ -456,7 +456,7 @@ const BaseLongCard = function BaseLongCard({
             </div>
           </div>
         </div>
-        {hasMultiple && requestItem?.length > 1 && (
+        {hasMultiple && (
           <Modal
             show={showModal}
             onHide={() => {
@@ -475,7 +475,7 @@ const BaseLongCard = function BaseLongCard({
                 direction="vertical"
                 gap={5}
               >
-                {requestItem.map((it, idx) => (
+                {requestItem?.map((it, idx) => (
                   <p key={idx}>{it}</p>
                 ))}
               </Stack>

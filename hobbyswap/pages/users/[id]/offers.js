@@ -259,9 +259,7 @@ export default function UserOffers() {
                           statusType={status}
                           user={offer.owner}
                           offerItem={offer.listing}
-                          requestItem={
-                            offer.proposedItems && offer.proposedItems[0]
-                          }
+                          requestItem={offer.proposedItems}
                           hasMultiple={offer.proposedItems.length > 1}
                           requestMoney={offer.requestMoney}
                           requestUser={profile}
