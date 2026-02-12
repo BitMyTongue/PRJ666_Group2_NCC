@@ -1,4 +1,4 @@
-import { Button } from "react-bootstrap";
+import { Button, Modal, Stack } from "react-bootstrap";
 import Rating from "./rating";
 import Image from "next/image";
 import BookmarkIcon from "./bookmark-icon";
@@ -99,7 +99,10 @@ const BaseLongCard = function BaseLongCard({
   rating = -1,
   color = null,
   requestUser = null,
+  modalTitle = "View Requests",
+  cancelBthLabel: cancelBtnLabel = "Cancel",
 }) {
+  const [showModal, setShowModal] = useState(false);
   const [saved, setSaved] = useState(isBookmarked);
   const router = useRouter();
   const bookmarkCallback = () => {
@@ -245,13 +248,22 @@ const BaseLongCard = function BaseLongCard({
                 >
                   <div>
                     <p className="fs-4 text-primary fw-semibold">
-                      {hasMultiple
-                        ? "Multiple Items"
-                        : requestItem === undefined
-                          ? "Unspecified"
-                          : !requestItem && requestMoney
-                            ? `$${requestMoney.toFixed(2)}`
-                            : requestItem}
+                      {hasMultiple ? (
+                        <a
+                          href="#"
+                          onClick={() => {
+                            setShowModal(true);
+                          }}
+                        >
+                          Multiple Items
+                        </a>
+                      ) : requestItem === undefined ? (
+                        "Unspecified"
+                      ) : !requestItem && requestMoney ? (
+                        `$${requestMoney.toFixed(2)}`
+                      ) : (
+                        requestItem
+                      )}
                     </p>
                   </div>
                   {(requestItem || requestItem === undefined) &&
@@ -365,13 +377,22 @@ const BaseLongCard = function BaseLongCard({
                   )} */}
                   <div>
                     <p className="h4">
-                      {hasMultiple
-                        ? "Multiple Items"
-                        : requestItem === undefined
-                          ? "Unspecified"
-                          : !requestItem && requestMoney
-                            ? `$${requestMoney.toFixed(2)}`
-                            : requestItem}
+                      {hasMultiple ? (
+                        <a
+                          href="#"
+                          onClick={() => {
+                            setShowModal(true);
+                          }}
+                        >
+                          Multiple Items
+                        </a>
+                      ) : requestItem === undefined ? (
+                        "Unspecified"
+                      ) : !requestItem && requestMoney ? (
+                        `$${requestMoney.toFixed(2)}`
+                      ) : (
+                        requestItem
+                      )}
                     </p>
                     <p style={{ height: "100px", overflowY: "auto" }}>
                       {!hasMultiple && requestItem?.description}
@@ -427,12 +448,39 @@ const BaseLongCard = function BaseLongCard({
                     cancelCallback();
                   }}
                 >
-                  Cancel
+                  {cancelBtnLabel}
                 </Button>
               )}
             </div>
           </div>
         </div>
+        {hasMultiple && requestItem?.length > 1 && (
+          <Modal
+            show={showModal}
+            onHide={() => {
+              setShowModal(false);
+            }}
+            backdrop="static"
+            keyboard={true}
+          >
+            <Modal.Header closeButton>
+              <Modal.Title className="h1 text-uppercase color-primary">
+                {modalTitle}
+              </Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <Stack
+                className=" pb-5 w-100 overflow-scroll"
+                direction="vertical"
+                gap={5}
+              >
+                {requestItem.map((it, idx) => (
+                  <p key={idx}>{it}</p>
+                ))}
+              </Stack>
+            </Modal.Body>
+          </Modal>
+        )}
       </div>
     </>
   );
@@ -535,6 +583,7 @@ const StatusCard = function StatusCard({
   hasMultiple = false,
   requestMoney = 0.0,
   requestUser = null,
+  cancelCallback = null,
 }) {
   // TODO: Button implementation
   const handleViewOffer = () => {};
@@ -558,6 +607,7 @@ const StatusCard = function StatusCard({
         <MsgButton onClick={handleMessage} />
       </>
     ),
+
     CHOICE_LAYOUT: (
       <>
         <AcceptButton onClick={handleAccept} />
@@ -579,7 +629,10 @@ const StatusCard = function StatusCard({
           variant="light text-primary border border-primary border-2 rounded-pill"
           link={`/listings/edit/${offerItem._id}`}
         />
-        <Button variant="light text-primary border border-primary border-2 rounded-pill" href={`/tradeOffers?listingId=${offerItem._id}`}>
+        <Button
+          variant="light text-primary border border-primary border-2 rounded-pill"
+          href={`/tradeOffers?listingId=${offerItem._id}`}
+        >
           View All Offers
         </Button>
       </>
@@ -593,6 +646,7 @@ const StatusCard = function StatusCard({
       color: "#D00018",
       layout: ButtonLayout.MAIN_LAYOUT2,
       cancel: null,
+      cancelLabel: "Dismiss",
     },
     {
       id: 2,
@@ -600,6 +654,7 @@ const StatusCard = function StatusCard({
       color: "#F79E1B",
       layout: ButtonLayout.MAIN_LAYOUT1,
       cancel: () => {},
+      cancelLabel: "Cancel",
     },
     {
       id: 3,
@@ -607,6 +662,7 @@ const StatusCard = function StatusCard({
       color: "#3A8402",
       layout: ButtonLayout.MAIN_LAYOUT1,
       cancel: null,
+      cancelLabel: "Dismiss",
     },
     {
       id: 4,
@@ -614,6 +670,7 @@ const StatusCard = function StatusCard({
       color: "#777070",
       layout: ButtonLayout.MAIN_LAYOUT1,
       cancel: null,
+      cancelLabel: "Dismiss",
     },
     {
       id: 5,
@@ -621,6 +678,7 @@ const StatusCard = function StatusCard({
       color: "#00BAE8",
       layout: ButtonLayout.CHOICE_LAYOUT,
       cancel: () => {},
+      cancelLabel: "Cancel",
     },
     {
       id: 6,
@@ -628,6 +686,7 @@ const StatusCard = function StatusCard({
       color: "#006FCF",
       layout: ButtonLayout.EDIT_OFFER,
       cancel: () => {},
+      cancelLabel: "Delete",
     },
     {
       id: 7,
@@ -635,6 +694,7 @@ const StatusCard = function StatusCard({
       color: "#8895B4",
       layout: ButtonLayout.MAIN_LAYOUT2,
       cancel: null,
+      cancelLabel: "Cancel",
     },
   ];
 
@@ -649,7 +709,8 @@ const StatusCard = function StatusCard({
       hasMultiple={hasMultiple}
       requestMoney={requestMoney}
       showBookmark={false}
-      cancelCallback={currType.cancel}
+      cancelCallback={cancelCallback ?? currType.cancel}
+      cancelBtnLabel={currType.cancelLabel}
       requestUser={requestUser}
     >
       {currType.layout}
