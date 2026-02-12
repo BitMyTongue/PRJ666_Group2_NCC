@@ -260,7 +260,6 @@ export default function UserOffers() {
                           user={offer.owner}
                           offerItem={offer.listing}
                           requestItem={offer.proposedItems}
-                          hasMultiple={offer.proposedItems.length > 1}
                           requestMoney={offer.requestMoney}
                           requestUser={profile}
                           url={`/users/${id}`}

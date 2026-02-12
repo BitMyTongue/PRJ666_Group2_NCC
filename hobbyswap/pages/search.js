@@ -97,9 +97,8 @@ export default function SearchPage() {
                 user={v.user}
                 img={v.images[0]}
                 offerItem={v}
-                requestItem={v.requestItems && v.requestItems[0]}
+                requestItem={v.requestItems}
                 requestMoney={v.requestMoney}
-                hasMultiple={v.requestItems.length > 1}
                 rating={0}
                 url={"/listings/" + v._id}
               />
