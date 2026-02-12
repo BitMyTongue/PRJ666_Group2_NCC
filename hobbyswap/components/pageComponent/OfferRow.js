@@ -39,6 +39,8 @@ export function OfferRow({ offer, listing }) {
   return (
     <div className="col-12 p-2">
       <StatusCard
+        requestMoney={offer.proposedMoney}
+        requestUser={requestUser}
         user={requestUser}
         offerItem={listing}
         statusType={currentStatus}
