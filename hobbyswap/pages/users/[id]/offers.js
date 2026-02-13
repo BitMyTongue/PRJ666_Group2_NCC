@@ -9,6 +9,7 @@ import { StatusCard, StatusType, TradeCard } from "@/components/base-long-card";
 import { Button, Spinner } from "react-bootstrap";
 import Pagination from "@/components/pagination";
 import SortFilter from "@/components/sort_filter";
+import UserNavbar from "@/components/user-navbar";
 export default function UserOffers() {
   const router = useRouter();
   const { id } = router.query;
@@ -30,15 +31,12 @@ export default function UserOffers() {
   const [selectedCondition, setSelectedCondition] = useState(null);
 
   useEffect(() => {
+    setLoading(true);
     if (!router.isReady) return;
-    console.log("User", user?._id);
-    console.log("id", id);
-
     const checkOwner = user?._id === id;
     setIsOwner(checkOwner);
 
     const load = async () => {
-      setLoading(true);
       setLoadError("");
       const listingsData = await fetch("/api/listings").then((res) =>
         res.json(),
@@ -57,12 +55,10 @@ export default function UserOffers() {
 
           const profileFetch = await fetch(`/api/users/${id}`);
           const profileData = await profileFetch.json();
-          console.log(profileData);
           setProfile(profileData);
 
           const res = await fetch(`/api/tradeOffers/`);
           const data = await res.json();
-          console.log(data.tradeOffers);
           if (!res.ok) throw new Error(data?.error || "Failed to load offer");
           const userOffer = data.tradeOffers.filter((offer) => {
             offer.listing = listingsData.listings.find(
@@ -72,7 +68,6 @@ export default function UserOffers() {
             return offer.requesterId === id;
           });
           setoffers(userOffer);
-          console.log(userOffer);
         } catch (e) {
           setLoadError(e.message);
         } finally {
@@ -83,7 +78,6 @@ export default function UserOffers() {
 
     load();
   }, [router.isReady, id, user]);
-  console.log(isOwner);
 
   // Filter and Sort offers
   useEffect(() => {
@@ -141,89 +135,8 @@ export default function UserOffers() {
   return (
     isOwner && (
       <>
-        {/* Active Tab Section */}
-        <div className="bg-light">
-          <div className="container py-5">
-            <div className="row">
-              <div className="col-md-2 mx-auto d-flex flex-column justify-content-center align-items-center my-3">
-                <FontAwesomeIcon
-                  icon={faUser}
-                  size="3x"
-                  className="fw-bolder text-primary mb-1"
-                />
-                <Link
-                  href={`/users/${id}`}
-                  className={
-                    false
-                      ? "text-primary fw-semibold text-shadow custom-shadow-secondary"
-                      : "text-primary fw-semibold link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
-                  }
-                >
-                  {isOwner && "My"} Profile
-                </Link>
-              </div>
-              <div className="col-md-2 mx-auto d-flex flex-column justify-content-center align-items-center my-3">
-                <FontAwesomeIcon
-                  icon={faLayerGroup}
-                  size="3x"
-                  className="fw-bolder text-primary mb-1"
-                />
-
-                <Link
-                  href={`/users/${user._id}/listings`} //Now in {`/users/${profile._id}/offers`}
-                  className={
-                    router.asPath.includes("listings")
-                      ? "text-primary fw-semibold text-shadow custom-shadow-secondary"
-                      : "text-primary fw-semibold link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
-                  }
-                >
-                  {isOwner && "My"} Listings
-                </Link>
-              </div>
-              {isOwner && (
-                <>
-                  <div className="col-md-2 mx-auto d-flex flex-column justify-content-center align-items-center">
-                    <FontAwesomeIcon
-                      icon={faShoppingBag}
-                      size="3x"
-                      className="fw-bolder text-primary mb-1"
-                    />
-                    <Link
-                      href="/users/${profile._id}/offers"
-                      className={
-                        router.asPath.includes("offers")
-                          ? "text-primary fw-semibold text-shadow custom-shadow-secondary"
-                          : "text-primary fw-semibold link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
-                      }
-                    >
-                      My Offers
-                    </Link>
-                  </div>
-
-                  <div className="col-md-2 mx-auto d-flex flex-column justify-content-center align-items-center">
-                    <FontAwesomeIcon
-                      icon={faBookmark}
-                      size="3x"
-                      className="fw-bolder text-primary mb-1"
-                    />
-                    <Link
-                      href="#"
-                      className={
-                        router.asPath.includes("bookmarks")
-                          ? "text-primary fw-semibold text-shadow custom-shadow-secondary"
-                          : "text-primary fw-semibold link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
-                      }
-                    >
-                      My Bookmarks
-                    </Link>
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-        {!loading ? (
-          offers.length > 0 ? (
+        <UserNavbar id={id} loading={loading}>
+          {offers.length > 0 ? (
             <>
               {/* Filter Section */}
 
@@ -295,10 +208,8 @@ export default function UserOffers() {
                 No offers Added yet
               </p>
             </div>
-          )
-        ) : (
-          <Spinner className="m-5" />
-        )}
+          )}
+        </UserNavbar>
       </>
     )
   );
