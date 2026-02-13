@@ -3,8 +3,9 @@ import Rating from "./rating";
 import Image from "next/image";
 import BookmarkIcon from "./bookmark-icon";
 import UserIcon from "./user-icon";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useRouter } from "next/router";
+import { UserContext } from "@/contexts/UserContext";
 
 const StatusType = {
   DECLINED: 1,
@@ -13,7 +14,8 @@ const StatusType = {
   CANCELLED: 4,
   RES_NEEDED: 5,
   AWAIT_PROPOSAL: 6,
-  AWAIT_APPROVAL: 7,
+  AWAIT_P_APPROVAL: 7,
+  P_ACCEPTED: 8,
 };
 
 const SubtractSVG = function SubtractSVG({
@@ -100,6 +102,8 @@ const BaseLongCard = function BaseLongCard({
   requestUser = null,
   modalTitle = "View Requests",
   cancelBthLabel: cancelBtnLabel = "Cancel",
+  offerLabel = "OFFERING",
+  requestLabel = "REQUESTING",
 }) {
   const [showModal, setShowModal] = useState(false);
   const [saved, setSaved] = useState(isBookmarked);
@@ -108,6 +112,7 @@ const BaseLongCard = function BaseLongCard({
     setSaved(!saved);
   };
 
+  const { user: currUser } = useContext(UserContext);
   const hasMultiple = requestItem?.length > 1;
   return (
     <>
@@ -146,8 +151,12 @@ const BaseLongCard = function BaseLongCard({
             }}
           >
             <strong>FROM:</strong>
-            <UserIcon user={user.username} img={user.avatar} size={40} />
-            <div>{user.username}</div>
+            <UserIcon
+              user={user?._id === currUser?._id ? "YOU" : user.username}
+              img={user.avatar}
+              size={40}
+            />
+            <div>{user?._id === currUser?._id ? "YOU" : user.username}</div>
           </div>
           {rating > -1 && <Rating rating={rating} />}
           {status && (
@@ -174,7 +183,7 @@ const BaseLongCard = function BaseLongCard({
           >
             <div style={{ width: "100%", paddingBlock: 20, paddingInline: 40 }}>
               <div style={{ marginBottom: 5 }}>
-                <strong>OFFERING</strong>
+                <strong>{offerLabel}</strong>
               </div>
               <div
                 style={{
@@ -212,15 +221,30 @@ const BaseLongCard = function BaseLongCard({
               <div style={{ marginBottom: 5 }}>
                 {requestUser ? (
                   <div style={{ display: "flex", gap: 10 }}>
-                    <UserIcon
-                      user={requestUser.username}
-                      img={requestUser.avatar}
-                      size={20}
-                    />
-                    <span>{requestUser.username}</span>
+                    {requestUser?._id === currUser?._id ?? (
+                      <UserIcon
+                        user={
+                          requestUser?._id === currUser?._id
+                            ? "YOU"
+                            : requestUser.username
+                        }
+                        img={requestUser.avatar}
+                        size={20}
+                      />
+                    )}
+                    <span
+                      className={
+                        requestUser?._id === currUser?._id &&
+                        "fs-4 text-capitalize fw-semibold text-primary opacity-75 mb-3"
+                      }
+                    >
+                      {requestUser?._id === currUser?._id
+                        ? "YOU PROPOSE..."
+                        : requestUser.username}
+                    </span>
                   </div>
                 ) : (
-                  <strong>REQUESTING</strong>
+                  <strong>{requestLabel}</strong>
                 )}
               </div>
               <div
@@ -348,12 +372,27 @@ const BaseLongCard = function BaseLongCard({
               >
                 {requestUser ? (
                   <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
-                    <UserIcon
-                      user={requestUser.username}
-                      img={requestUser.avatar}
-                      size={20}
-                    />
-                    <span>{requestUser.username}</span>
+                    {requestUser?._id === currUser?._id ?? (
+                      <UserIcon
+                        user={
+                          requestUser?._id === currUser?._id
+                            ? "YOU"
+                            : requestUser.username
+                        }
+                        img={requestUser.avatar}
+                        size={20}
+                      />
+                    )}
+                    <span
+                      className={
+                        requestUser?._id === currUser?._id &&
+                        "fs-4 text-capitalize fw-semibold text-primary opacity-75 mb-3"
+                      }
+                    >
+                      {requestUser?._id === currUser?._id
+                        ? "YOU PROPOSE..."
+                        : requestUser.username}
+                    </span>
                   </div>
                 ) : (
                   <p className="fs-4 text-capitalize fw-semibold text-primary opacity-75 mb-3">
@@ -473,7 +512,7 @@ const BaseLongCard = function BaseLongCard({
               <Stack
                 className=" pb-5 w-100 overflow-scroll"
                 direction="vertical"
-                gap={5}
+                gap={2}
               >
                 {requestItem?.map((it, idx) => (
                   <p key={idx}>{it}</p>
@@ -642,15 +681,17 @@ const StatusCard = function StatusCard({
 
   const StatusLayout = [
     {
-      id: 1,
-      msg: "trade declined",
+      id: StatusType.DECLINED,
+      msg: "proposal declined",
       color: "#D00018",
       layout: ButtonLayout.MAIN_LAYOUT2,
       cancel: null,
       cancelLabel: "Dismiss",
+      offerLabel: "OFFERING",
+      requestLabel: "REQUESTING",
     },
     {
-      id: 2,
+      id: StatusType.IN_PROGRESS,
       msg: "trade in progress",
       color: "#F79E1B",
       layout: ButtonLayout.MAIN_LAYOUT1,
@@ -658,7 +699,7 @@ const StatusCard = function StatusCard({
       cancelLabel: "Cancel",
     },
     {
-      id: 3,
+      id: StatusType.COMPLETED,
       msg: "trade completed",
       color: "#3A8402",
       layout: ButtonLayout.MAIN_LAYOUT1,
@@ -666,7 +707,7 @@ const StatusCard = function StatusCard({
       cancelLabel: "Dismiss",
     },
     {
-      id: 4,
+      id: StatusType.CANCELLED,
       msg: "trade cancelled",
       color: "#777070",
       layout: ButtonLayout.MAIN_LAYOUT1,
@@ -674,7 +715,7 @@ const StatusCard = function StatusCard({
       cancelLabel: "Dismiss",
     },
     {
-      id: 5,
+      id: StatusType.RES_NEEDED,
       msg: "proposal response needed",
       color: "#00BAE8",
       layout: ButtonLayout.CHOICE_LAYOUT,
@@ -682,7 +723,7 @@ const StatusCard = function StatusCard({
       cancelLabel: "Cancel",
     },
     {
-      id: 6,
+      id: StatusType.AWAIT_PROPOSAL,
       msg: "awaiting proposals...",
       color: "#006FCF",
       layout: ButtonLayout.EDIT_OFFER,
@@ -690,12 +731,20 @@ const StatusCard = function StatusCard({
       cancelLabel: "Delete",
     },
     {
-      id: 7,
-      msg: "awaiting trade approval...",
-      color: "#8895B4",
+      id: StatusType.AWAIT_P_APPROVAL,
+      msg: "awaiting proposal approval...",
+      color: "#F79E1B",
       layout: ButtonLayout.MAIN_LAYOUT2,
-      cancel: null,
+      cancel: () => {},
       cancelLabel: "Cancel",
+    },
+    {
+      id: StatusType.P_ACCEPTED,
+      msg: "proposal accepted!",
+      color: "#3A8402",
+      layout: ButtonLayout.MAIN_LAYOUT2,
+      cancel: () => {},
+      cancelLabel: "Dismiss",
     },
   ];
 
