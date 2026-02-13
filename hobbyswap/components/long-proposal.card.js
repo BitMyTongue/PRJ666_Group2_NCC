@@ -52,7 +52,7 @@ export default function ProposalCard({
             style={{
               display: "flex",
               gap: 10,
-
+              color: "white",
               alignItems: "center",
             }}
             onClick={() => {
@@ -77,7 +77,9 @@ export default function ProposalCard({
           }}
         >
           <div
+            className="proposal p-5"
             style={{
+              width: "100%",
               display: "flex",
               flexDirection: "column",
               borderRightColor: "#E6E9EE",
@@ -91,9 +93,7 @@ export default function ProposalCard({
                     {proposedItems.map((it, idx) => {
                       if (idx > 1) return <></>;
                       return (
-                        <span key={idx}>
-                          {it + (proposedItems.length > 1 && ", ")}
-                        </span>
+                        <span key={idx}>{it + (idx < 1 ? ", " : "")}</span>
                       );
                     })}
                   </span>
@@ -143,13 +143,22 @@ export default function ProposalCard({
             }}
           >
             <div style={{ display: "flex", gap: 10, flexDirection: "column" }}>
-              <Button variant={"success"} onClick={acceptFn ?? handleAccept}>
+              <Button
+                className="rounded-pill"
+                variant={"success"}
+                onClick={acceptFn ?? handleAccept}
+              >
                 Accept
               </Button>
-              <Button variant={"danger"} onClick={declineFn ?? handleDecline}>
+              <Button
+                className="rounded-pill"
+                variant={"danger"}
+                onClick={declineFn ?? handleDecline}
+              >
                 Decline
               </Button>
               <Button
+                className="rounded-pill"
                 variant={"outline-primary"}
                 onClick={messageFn ?? handleMessage}
               >

@@ -114,7 +114,9 @@ const BaseLongCard = function BaseLongCard({
 
   const { user: currUser } = useContext(UserContext);
 
-  const isSameUser = user && currUser && user?._id === currUser._id;
+  const isSameUser = user && currUser && user._id === currUser._id;
+  const isSameReqUser =
+    requestUser && currUser && requestUser._id === currUser._id;
   const hasMultiple = requestItem?.length > 1;
   return (
     <>
@@ -147,8 +149,10 @@ const BaseLongCard = function BaseLongCard({
               gap: 10,
               height: 40,
               alignItems: "center",
+              cursor: !isSameUser && "pointer",
             }}
             onClick={() => {
+              if (isSameUser) return;
               if (user?._id) router.push("/users/" + user._id);
             }}
           >
@@ -224,8 +228,19 @@ const BaseLongCard = function BaseLongCard({
             >
               <div style={{ marginBottom: 5 }}>
                 {requestUser ? (
-                  <div style={{ display: "flex", gap: 10 }}>
-                    {requestUser?._id === currUser?._id ?? (
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: 10,
+                      cursor: !isSameReqUser && "pointer",
+                    }}
+                    onClick={() => {
+                      if (isSameReqUser) return;
+                      if (requestUser?._id)
+                        router.push("/users/" + requestUser._id);
+                    }}
+                  >
+                    {!isSameReqUser && (
                       <UserIcon
                         user={
                           requestUser?._id === currUser?._id
@@ -238,7 +253,7 @@ const BaseLongCard = function BaseLongCard({
                     )}
                     <span
                       className={
-                        requestUser?._id === currUser?._id &&
+                        isSameReqUser &&
                         "fs-4 text-capitalize fw-semibold text-primary opacity-75 mb-3"
                       }
                     >
@@ -375,8 +390,20 @@ const BaseLongCard = function BaseLongCard({
                 }}
               >
                 {requestUser ? (
-                  <div style={{ display: "flex", gap: 10, marginBottom: 20 }}>
-                    {requestUser?._id === currUser?._id ?? (
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: 10,
+                      marginBottom: 20,
+                      cursor: !isSameReqUser && "pointer",
+                    }}
+                    onClick={() => {
+                      if (isSameReqUser) return;
+                      if (requestUser?._id)
+                        router.push("/users/" + requestUser._id);
+                    }}
+                  >
+                    {!isSameReqUser && (
                       <UserIcon
                         user={
                           requestUser?._id === currUser?._id
@@ -389,7 +416,7 @@ const BaseLongCard = function BaseLongCard({
                     )}
                     <span
                       className={
-                        requestUser?._id === currUser?._id &&
+                        isSameReqUser &&
                         "fs-4 text-capitalize fw-semibold text-primary opacity-75 mb-3"
                       }
                     >
