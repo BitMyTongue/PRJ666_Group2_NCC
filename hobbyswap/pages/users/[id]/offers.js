@@ -247,9 +247,9 @@ export default function UserOffers() {
                   resultsPerPage={resultsPerPage}
                 />
                 {pageoffers.map((offer, idx) => {
-                  let status = StatusType.AWAIT_APPROVAL;
+                  let status = StatusType.AWAIT_P_APPROVAL;
                   if (offer.offerStatus === "ACCEPTED")
-                    status = StatusType.IN_PROGRESS;
+                    status = StatusType.P_ACCEPTED;
                   else if (offer.offerStatus === "DECLINED")
                     status = StatusType.DECLINED;
                   return (
