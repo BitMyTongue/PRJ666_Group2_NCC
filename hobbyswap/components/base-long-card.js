@@ -636,14 +636,25 @@ const StatusCard = function StatusCard({
   const ButtonLayout = {
     MAIN_LAYOUT1: (
       <>
-        <TradeButton variant={"primary"} onClick={handleViewTrade} />
-        <OfferButton variant={"secondary"} onClick={handleViewOffer} />
+        <TradeButton
+          variant={"primary rounded-pill"}
+          onClick={handleViewTrade}
+        />
+        <OfferButton
+          variant={
+            "light text-primary border border-primary border-2 rounded-pill"
+          }
+          link={`/listings/${offerItem._id}`}
+        />
         <MsgButton onClick={handleMessage} />
       </>
     ),
     MAIN_LAYOUT2: (
       <>
-        <OfferButton variant={"primary"} onClick={handleViewOffer} />
+        <OfferButton
+          variant={"primary rounded-pill"}
+          link={`/listings/${offerItem._id}`}
+        />
         <MsgButton onClick={handleMessage} />
       </>
     ),
