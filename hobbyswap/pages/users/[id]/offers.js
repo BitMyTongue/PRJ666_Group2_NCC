@@ -43,7 +43,10 @@ export default function UserOffers() {
       const listingsData = await fetch("/api/listings").then((res) =>
         res.json(),
       );
-      if (!listingsData) return;
+      if (!listingsData) {
+        setLoading(false);
+        return;
+      }
       const userRes = await fetch("/api/users", {
         method: "GET",
         cache: "no-store",
@@ -75,7 +78,7 @@ export default function UserOffers() {
         } finally {
           setLoading(false);
         }
-      }
+      } else setLoading(false);
     };
 
     load();
@@ -135,164 +138,168 @@ export default function UserOffers() {
     setPageoffers(paginatedoffers);
   }, [currP, filteredoffers]);
 
-  return isOwner ? (
-    <>
-      {/* Active Tab Section */}
-      <div className="bg-light">
-        <div className="container py-5">
-          <div className="row">
-            <div className="col-md-2 mx-auto d-flex flex-column justify-content-center align-items-center my-3">
-              <FontAwesomeIcon
-                icon={faUser}
-                size="3x"
-                className="fw-bolder text-primary mb-1"
-              />
-              <Link
-                href={`/users/${id}`}
-                className={
-                  false
-                    ? "text-primary fw-semibold text-shadow custom-shadow-secondary"
-                    : "text-primary fw-semibold link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
-                }
-              >
-                {isOwner && "My"} Profile
-              </Link>
-            </div>
-            <div className="col-md-2 mx-auto d-flex flex-column justify-content-center align-items-center my-3">
-              <FontAwesomeIcon
-                icon={faLayerGroup}
-                size="3x"
-                className="fw-bolder text-primary mb-1"
-              />
-
-              <Link
-                href={`/users/${user._id}/listings`} //Now in {`/users/${profile._id}/offers`}
-                className={
-                  router.asPath.includes("listings")
-                    ? "text-primary fw-semibold text-shadow custom-shadow-secondary"
-                    : "text-primary fw-semibold link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
-                }
-              >
-                {isOwner && "My"} Listings
-              </Link>
-            </div>
-            {isOwner && (
-              <>
-                <div className="col-md-2 mx-auto d-flex flex-column justify-content-center align-items-center">
-                  <FontAwesomeIcon
-                    icon={faShoppingBag}
-                    size="3x"
-                    className="fw-bolder text-primary mb-1"
-                  />
-                  <Link
-                    href="/users/${profile._id}/offers"
-                    className={
-                      router.asPath.includes("offers")
-                        ? "text-primary fw-semibold text-shadow custom-shadow-secondary"
-                        : "text-primary fw-semibold link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
-                    }
-                  >
-                    My Offers
-                  </Link>
-                </div>
-
-                <div className="col-md-2 mx-auto d-flex flex-column justify-content-center align-items-center">
-                  <FontAwesomeIcon
-                    icon={faBookmark}
-                    size="3x"
-                    className="fw-bolder text-primary mb-1"
-                  />
-                  <Link
-                    href="#"
-                    className={
-                      router.asPath.includes("bookmarks")
-                        ? "text-primary fw-semibold text-shadow custom-shadow-secondary"
-                        : "text-primary fw-semibold link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
-                    }
-                  >
-                    My Bookmarks
-                  </Link>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-      {offers.length > 0 ? (
-        <>
-          {/* Filter Section */}
-
-          <SortFilter
-            isFilterVisible={true}
-            sortKey={sortKey}
-            setSortKey={setSortKey}
-            query={query}
-            setQuery={setQuery}
-            showSearch={showSearch}
-            setShowSearch={setShowSearch}
-            selectedCategory={selectedCategory}
-            setSelectedCategory={setSelectedCategory}
-            selectedCondition={selectedCondition}
-            setSelectedCondition={setSelectedCondition}
-          />
-
-          {/* Card Section */}
-          <div className="container my-5 mx-auto">
-            {filteredoffers.length > 0 ? (
-              <>
-                <Pagination
-                  dataLength={filteredoffers.length}
-                  currPage={currP}
-                  setCurrPage={setCurrP}
-                  resultsPerPage={resultsPerPage}
+  return (
+    isOwner && (
+      <>
+        {/* Active Tab Section */}
+        <div className="bg-light">
+          <div className="container py-5">
+            <div className="row">
+              <div className="col-md-2 mx-auto d-flex flex-column justify-content-center align-items-center my-3">
+                <FontAwesomeIcon
+                  icon={faUser}
+                  size="3x"
+                  className="fw-bolder text-primary mb-1"
                 />
-                {pageoffers.map((offer, idx) => {
-                  let status = StatusType.AWAIT_P_APPROVAL;
-                  if (offer.offerStatus === "ACCEPTED")
-                    status = StatusType.P_ACCEPTED;
-                  else if (offer.offerStatus === "DECLINED")
-                    status = StatusType.DECLINED;
-                  return (
-                    <div key={idx} className="my-4">
-                      {isOwner && (
-                        <StatusCard
-                          statusType={status}
-                          user={offer.owner}
-                          offerItem={offer.listing}
-                          requestItem={offer.proposedItems}
-                          requestMoney={offer.requestMoney}
-                          requestUser={profile}
-                          url={`/users/${id}`}
-                        />
-                      )}
-                    </div>
-                  );
-                })}
-                <Pagination
-                  dataLength={filteredoffers.length}
-                  currPage={currP}
-                  setCurrPage={setCurrP}
-                  resultsPerPage={resultsPerPage}
-                />
-              </>
-            ) : (
-              <div className="text-center my-8">
-                <p className="text-muted text-capitalize fs-4 fst-italic">
-                  No offers match your search
-                </p>
+                <Link
+                  href={`/users/${id}`}
+                  className={
+                    false
+                      ? "text-primary fw-semibold text-shadow custom-shadow-secondary"
+                      : "text-primary fw-semibold link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
+                  }
+                >
+                  {isOwner && "My"} Profile
+                </Link>
               </div>
-            )}
+              <div className="col-md-2 mx-auto d-flex flex-column justify-content-center align-items-center my-3">
+                <FontAwesomeIcon
+                  icon={faLayerGroup}
+                  size="3x"
+                  className="fw-bolder text-primary mb-1"
+                />
+
+                <Link
+                  href={`/users/${user._id}/listings`} //Now in {`/users/${profile._id}/offers`}
+                  className={
+                    router.asPath.includes("listings")
+                      ? "text-primary fw-semibold text-shadow custom-shadow-secondary"
+                      : "text-primary fw-semibold link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
+                  }
+                >
+                  {isOwner && "My"} Listings
+                </Link>
+              </div>
+              {isOwner && (
+                <>
+                  <div className="col-md-2 mx-auto d-flex flex-column justify-content-center align-items-center">
+                    <FontAwesomeIcon
+                      icon={faShoppingBag}
+                      size="3x"
+                      className="fw-bolder text-primary mb-1"
+                    />
+                    <Link
+                      href="/users/${profile._id}/offers"
+                      className={
+                        router.asPath.includes("offers")
+                          ? "text-primary fw-semibold text-shadow custom-shadow-secondary"
+                          : "text-primary fw-semibold link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
+                      }
+                    >
+                      My Offers
+                    </Link>
+                  </div>
+
+                  <div className="col-md-2 mx-auto d-flex flex-column justify-content-center align-items-center">
+                    <FontAwesomeIcon
+                      icon={faBookmark}
+                      size="3x"
+                      className="fw-bolder text-primary mb-1"
+                    />
+                    <Link
+                      href="#"
+                      className={
+                        router.asPath.includes("bookmarks")
+                          ? "text-primary fw-semibold text-shadow custom-shadow-secondary"
+                          : "text-primary fw-semibold link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
+                      }
+                    >
+                      My Bookmarks
+                    </Link>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
-        </>
-      ) : (
-        <div className="container mx-auto my-8 text-center">
-          <p className="text-muted text-capitalize fs-4 fst-italic">
-            No offers Added yet
-          </p>
         </div>
-      )}
-    </>
-  ) : (
-    <Spinner />
+        {!loading ? (
+          offers.length > 0 ? (
+            <>
+              {/* Filter Section */}
+
+              <SortFilter
+                isFilterVisible={true}
+                sortKey={sortKey}
+                setSortKey={setSortKey}
+                query={query}
+                setQuery={setQuery}
+                showSearch={showSearch}
+                setShowSearch={setShowSearch}
+                selectedCategory={selectedCategory}
+                setSelectedCategory={setSelectedCategory}
+                selectedCondition={selectedCondition}
+                setSelectedCondition={setSelectedCondition}
+              />
+
+              {/* Card Section */}
+              <div className="container my-5 mx-auto">
+                {filteredoffers.length > 0 ? (
+                  <>
+                    <Pagination
+                      dataLength={filteredoffers.length}
+                      currPage={currP}
+                      setCurrPage={setCurrP}
+                      resultsPerPage={resultsPerPage}
+                    />
+                    {pageoffers.map((offer, idx) => {
+                      let status = StatusType.AWAIT_P_APPROVAL;
+                      if (offer.offerStatus === "ACCEPTED")
+                        status = StatusType.P_ACCEPTED;
+                      else if (offer.offerStatus === "DECLINED")
+                        status = StatusType.DECLINED;
+                      return (
+                        <div key={idx} className="my-4">
+                          {isOwner && (
+                            <StatusCard
+                              statusType={status}
+                              user={offer.owner}
+                              offerItem={offer.listing}
+                              requestItem={offer.proposedItems}
+                              requestMoney={offer.requestMoney}
+                              requestUser={profile}
+                              url={`/users/${id}`}
+                            />
+                          )}
+                        </div>
+                      );
+                    })}
+                    <Pagination
+                      dataLength={filteredoffers.length}
+                      currPage={currP}
+                      setCurrPage={setCurrP}
+                      resultsPerPage={resultsPerPage}
+                    />
+                  </>
+                ) : (
+                  <div className="text-center my-8">
+                    <p className="text-muted text-capitalize fs-4 fst-italic">
+                      No offers match your search
+                    </p>
+                  </div>
+                )}
+              </div>
+            </>
+          ) : (
+            <div className="container mx-auto my-8 text-center">
+              <p className="text-muted text-capitalize fs-4 fst-italic">
+                No offers Added yet
+              </p>
+            </div>
+          )
+        ) : (
+          <Spinner className="m-5" />
+        )}
+      </>
+    )
   );
 }
