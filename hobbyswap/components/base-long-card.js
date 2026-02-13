@@ -115,7 +115,6 @@ const BaseLongCard = function BaseLongCard({
   const { user: currUser } = useContext(UserContext);
 
   const isSameUser = user && currUser && user?._id === currUser._id;
-  console.log(user && currUser && user?._id === currUser._id);
   const hasMultiple = requestItem?.length > 1;
   return (
     <>
