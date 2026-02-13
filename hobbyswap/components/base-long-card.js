@@ -113,6 +113,9 @@ const BaseLongCard = function BaseLongCard({
   };
 
   const { user: currUser } = useContext(UserContext);
+
+  const isSameUser = user && currUser && user?._id === currUser._id;
+  console.log(user && currUser && user?._id === currUser._id);
   const hasMultiple = requestItem?.length > 1;
   return (
     <>
@@ -143,7 +146,7 @@ const BaseLongCard = function BaseLongCard({
             style={{
               display: "flex",
               gap: 10,
-
+              height: 40,
               alignItems: "center",
             }}
             onClick={() => {
@@ -151,12 +154,14 @@ const BaseLongCard = function BaseLongCard({
             }}
           >
             <strong>FROM:</strong>
-            <UserIcon
-              user={user?._id === currUser?._id ? "YOU" : user.username}
-              img={user.avatar}
-              size={40}
-            />
-            <div>{user?._id === currUser?._id ? "YOU" : user.username}</div>
+            {!isSameUser && (
+              <UserIcon
+                user={user?._id === currUser?._id ? "YOU" : user.username}
+                img={user.avatar}
+                size={40}
+              />
+            )}
+            <div>{isSameUser ? "YOU" : user.username}</div>
           </div>
           {rating > -1 && <Rating rating={rating} />}
           {status && (
