@@ -27,7 +27,12 @@ const CustomMenu = forwardRef(function CustomMenu(
 ) {
   return (
     <div ref={ref} style={style} className={className}>
-      <Link className="btn btn-primary text-white mx-2 mt-1 mb-3" href="/listings/create">Create Listing</Link>
+      <Link
+        className="btn btn-primary text-white mx-2 mt-1 mb-3"
+        href="/listings/create"
+      >
+        Create Listing
+      </Link>
       <ul className="list-unstyled">{children}</ul>
     </div>
   );
@@ -40,16 +45,22 @@ export default function CurrentUserDropdown({ user, handleLogout }) {
       </Dropdown.Toggle>
 
       <Dropdown.Menu as={CustomMenu}>
-       <Dropdown.Item as="button" className="btn btn-primary" href="#">
+        <Dropdown.Item as="button" className="btn btn-primary" href="#">
           View Your Store Page
         </Dropdown.Item>
-        <Dropdown.Item className="btn btn-primary" href={`/users/${user._id}/listings`}>
+        <Dropdown.Item
+          className="btn btn-primary"
+          href={`/users/${user._id}/listings`}
+        >
           View Your Listings
         </Dropdown.Item>
-        <Dropdown.Item as="button" className="btn btn-primary" href="#">
-          View Your Trade History
+        <Dropdown.Item
+          className="btn btn-primary"
+          href={`/users/${user._id}/offers`}
+        >
+          View Your Proposals
         </Dropdown.Item>
-        <Dropdown.Item as="button" className="btn btn-primary" href="#">
+        <Dropdown.Item className="btn btn-primary" href="#">
           View Your Bookmarks
         </Dropdown.Item>
         <Dropdown.Item
