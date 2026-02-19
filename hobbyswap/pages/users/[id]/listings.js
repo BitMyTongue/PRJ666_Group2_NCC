@@ -9,6 +9,7 @@ import { StatusCard, StatusType, TradeCard } from "@/components/base-long-card";
 import { Button } from "react-bootstrap";
 import Pagination from "@/components/pagination";
 import SortFilter from "@/components/sort_filter";
+import UserNavbar from "@/components/user-navbar";
 export default function UserListing() {
   const router = useRouter();
   const { id } = router.query;
@@ -72,12 +73,16 @@ export default function UserListing() {
 
     // Step 1: Apply Category Filter
     if (selectedCategory) {
-      filtered = filtered.filter((listing) => listing.category === selectedCategory);
+      filtered = filtered.filter(
+        (listing) => listing.category === selectedCategory,
+      );
     }
 
     // Step 2: Apply Condition Filter
     if (selectedCondition) {
-      filtered = filtered.filter((listing) => listing.condition === selectedCondition);
+      filtered = filtered.filter(
+        (listing) => listing.condition === selectedCondition,
+      );
     }
 
     // Step 3: Apply Search Filter (by title or description)
@@ -86,7 +91,7 @@ export default function UserListing() {
       filtered = filtered.filter(
         (listing) =>
           listing.itemName.toLowerCase().includes(lowerQuery) ||
-          listing.description.toLowerCase().includes(lowerQuery)
+          listing.description.toLowerCase().includes(lowerQuery),
       );
     }
 
@@ -100,7 +105,7 @@ export default function UserListing() {
 
     // Step 5: Reset pagination to page 0 when filters change
     setCurrP(0);
-    
+
     // Step 6: Set filtered results for pagination
     setFilteredListings(filtered);
   }, [listings, query, sortKey, selectedCategory, selectedCondition]);
@@ -115,158 +120,80 @@ export default function UserListing() {
 
   return (
     <>
-      {/* Active Tab Section */}
-      <div className="bg-light">
-        <div className="container py-5">
-          <div className="row">
-            <div className="col-md-2 mx-auto d-flex flex-column justify-content-center align-items-center my-3">
-              <FontAwesomeIcon
-                icon={faUser}
-                size="3x"
-                className="fw-bolder text-primary mb-1"
-              />
-              <Link
-                href={`/users/${id}`}
-                className={
-                  false
-                    ? "text-primary fw-semibold text-shadow custom-shadow-secondary"
-                    : "text-primary fw-semibold link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
-                }
-              >
-                {isOwner && "My"} Profile
-              </Link>
-            </div>
-            <div className="col-md-2 mx-auto d-flex flex-column justify-content-center align-items-center my-3">
-              <FontAwesomeIcon
-                icon={faLayerGroup}
-                size="3x"
-                className="fw-bolder text-primary mb-1"
-              />
+      <UserNavbar id={id} loading={loading}>
+        {listings.length > 0 ? (
+          <>
+            {/* Filter Section */}
 
-              <Link
-                href="#" //Now in {`/users/${profile._id}/listings`}
-                className={
-                  router.asPath.includes("listings")
-                    ? "text-primary fw-semibold text-shadow custom-shadow-secondary"
-                    : "text-primary fw-semibold link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
-                }
-              >
-                {isOwner && "My"} Listings
-              </Link>
-            </div>
-            {isOwner && (
-              <>
-                <div className="col-md-2 mx-auto d-flex flex-column justify-content-center align-items-center">
-                  <FontAwesomeIcon
-                    icon={faShoppingBag}
-                    size="3x"
-                    className="fw-bolder text-primary mb-1"
+            <SortFilter
+              isFilterVisible={true}
+              sortKey={sortKey}
+              setSortKey={setSortKey}
+              query={query}
+              setQuery={setQuery}
+              showSearch={showSearch}
+              setShowSearch={setShowSearch}
+              selectedCategory={selectedCategory}
+              setSelectedCategory={setSelectedCategory}
+              selectedCondition={selectedCondition}
+              setSelectedCondition={setSelectedCondition}
+            />
+
+            {/* Card Section */}
+            <div className="container my-5 mx-auto">
+              {filteredListings.length > 0 ? (
+                <>
+                  <Pagination
+                    dataLength={filteredListings.length}
+                    currPage={currP}
+                    setCurrPage={setCurrP}
+                    resultsPerPage={resultsPerPage}
                   />
-                  <Link
-                    href="#"
-                    className={
-                      router.asPath.includes("history")
-                        ? "text-primary fw-semibold text-shadow custom-shadow-secondary"
-                        : "text-primary fw-semibold link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
-                    }
-                  >
-                    My History
-                  </Link>
-                </div>
-
-                <div className="col-md-2 mx-auto d-flex flex-column justify-content-center align-items-center">
-                  <FontAwesomeIcon
-                    icon={faBookmark}
-                    size="3x"
-                    className="fw-bolder text-primary mb-1"
+                  {pageListings.map((listing, idx) => (
+                    <div key={idx} className="my-4">
+                      {isOwner ? (
+                        <StatusCard
+                          statusType={StatusType.AWAIT_PROPOSAL}
+                          user={profile}
+                          offerItem={listing}
+                          requestItem={listing.requestItems}
+                          requestMoney={listing.requestMoney}
+                          url={`/users/${id}`}
+                        />
+                      ) : (
+                        <TradeCard
+                          user={profile}
+                          offerItem={listing}
+                          requestMoney={listing.requestMoney}
+                          url={`/listings/${listing._id}`}
+                        />
+                      )}
+                    </div>
+                  ))}
+                  <Pagination
+                    dataLength={filteredListings.length}
+                    currPage={currP}
+                    setCurrPage={setCurrP}
+                    resultsPerPage={resultsPerPage}
                   />
-                  <Link
-                    href="#"
-                    className={
-                      router.asPath.includes("bookmarks")
-                        ? "text-primary fw-semibold text-shadow custom-shadow-secondary"
-                        : "text-primary fw-semibold link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
-                    }
-                  >
-                    My Bookmarks
-                  </Link>
+                </>
+              ) : (
+                <div className="text-center my-8">
+                  <p className="text-muted text-capitalize fs-4 fst-italic">
+                    No listings match your search
+                  </p>
                 </div>
-              </>
-            )}
+              )}
+            </div>
+          </>
+        ) : (
+          <div className="container mx-auto my-8 text-center">
+            <p className="text-muted text-capitalize fs-4 fst-italic">
+              No Listings Added yet
+            </p>
           </div>
-        </div>
-      </div>
-      {listings.length > 0 ? (
-        <>
-          {/* Filter Section */}
-
-          <SortFilter 
-            isFilterVisible={true}
-            sortKey={sortKey}
-            setSortKey={setSortKey}
-            query={query}
-            setQuery={setQuery}
-            showSearch={showSearch}
-            setShowSearch={setShowSearch}
-            selectedCategory={selectedCategory}
-            setSelectedCategory={setSelectedCategory}
-            selectedCondition={selectedCondition}
-            setSelectedCondition={setSelectedCondition}
-          />
-
-          {/* Card Section */}
-          <div className="container my-5 mx-auto">
-            {filteredListings.length > 0 ? (
-              <>
-                <Pagination
-                  dataLength={filteredListings.length}
-                  currPage={currP}
-                  setCurrPage={setCurrP}
-                  resultsPerPage={resultsPerPage}
-                />
-                {pageListings.map((listing, idx) => (
-                  <div key={idx} className="my-4">
-                    {isOwner ? (
-                      <StatusCard
-                        statusType={StatusType.AWAIT_PROPOSAL}
-                        user={profile}
-                        offerItem={listing}
-                        requestMoney={listing.requestMoney}
-                        url={`/users/${id}`}
-                      />
-                    ) : (
-                      <TradeCard
-                        user={profile}
-                        offerItem={listing}
-                        requestMoney={listing.requestMoney}
-                        url={`/listings/${listing._id}`}
-                      />
-                    )}
-                  </div>
-                ))}
-                <Pagination
-                  dataLength={filteredListings.length}
-                  currPage={currP}
-                  setCurrPage={setCurrP}
-                  resultsPerPage={resultsPerPage}
-                />
-              </>
-            ) : (
-              <div className="text-center my-8">
-                <p className="text-muted text-capitalize fs-4 fst-italic">
-                  No listings match your search
-                </p>
-              </div>
-            )}
-          </div>
-        </>
-      ) : (
-        <div className="container mx-auto my-8 text-center">
-          <p className="text-muted text-capitalize fs-4 fst-italic">
-            No Listings Added yet
-          </p>
-        </div>
-      )}
+        )}
+      </UserNavbar>
     </>
   );
 }
