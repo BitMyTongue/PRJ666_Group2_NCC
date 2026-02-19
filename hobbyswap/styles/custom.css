@@ -99,6 +99,22 @@
   top: -13px;
 }
 
+.proposal hr {
+  color: black;
+  text-align: center;
+  overflow: visible;
+  opacity: 1;
+}
+
+.proposal hr::after {
+  color: black;
+  background: white;
+  content: "OR";
+  padding: 0 4px;
+  position: relative;
+  top: -13px;
+}
+
 .caption {
   font-size: 12;
   color: gray;
