@@ -1,6 +1,10 @@
 import { mongooseConnect } from "@/lib/dbUtils";
 import { TradeOfferModel } from "@/lib/tradeOffer";
 import { ListingModel } from "@/lib/listing";
+import { UserModel } from "@/lib/dbUtils";
+import { Knock } from "@knocklabs/node";
+
+const knockClient = new Knock({ apiKey: process.env.KNOCK_API_KEY });
 
 export default async function handler(req, res) {
   const { method } = req;
@@ -14,24 +18,32 @@ export default async function handler(req, res) {
         break;
 
       case "POST": {
-        const { requesterId, listingId, proposedMoney, proposedItems } = req.body;
+        const { requesterId, listingId, proposedMoney, proposedItems } =
+          req.body;
 
         // validate required fields
-        if (!requesterId) return res.status(401).json({ error: "RequesterId not found" });
-        if (!listingId) return res.status(400).json({ error: "Missing ListingId" });
+        if (!requesterId)
+          return res.status(401).json({ error: "RequesterId not found" });
+        if (!listingId)
+          return res.status(400).json({ error: "Missing ListingId" });
 
         // get listing, check it exists
         const listing = await ListingModel.findById(listingId).exec();
-        if (!listing) return res.status(404).json({ error: "Listing not found" });
-        
+        if (!listing)
+          return res.status(404).json({ error: "Listing not found" });
+
         // listing must be active
         if (listing.status !== "ACTIVE") {
-          return res.status(400).json({ error: "This listing is not available for offers." });
+          return res
+            .status(400)
+            .json({ error: "This listing is not available for offers." });
         }
 
         // requester cannot offer on their own listing
         if (String(listing.userId) === String(requesterId)) {
-          return res.status(400).json({ error: "You cannot make an offer on your own listing." });
+          return res
+            .status(400)
+            .json({ error: "You cannot make an offer on your own listing." });
         }
 
         // requester cannot have more than 1 active offer on a given listing
@@ -43,7 +55,11 @@ export default async function handler(req, res) {
           offerStatus: { $in: ["PENDING", "ACCEPTED"] },
         }).exec();
         if (existingActive) {
-          return res.status(409).json({ error: "You've already proposed an offer for this listing." });
+          return res
+            .status(409)
+            .json({
+              error: "You've already proposed an offer for this listing.",
+            });
         }
 
         // validate proposed items + money
@@ -51,12 +67,16 @@ export default async function handler(req, res) {
         const moneyNum = Number(proposedMoney) || 0;
 
         if (moneyNum < 0) {
-          return res.status(400).json({ error: "Proposed money cannot be negative." });
+          return res
+            .status(400)
+            .json({ error: "Proposed money cannot be negative." });
         }
 
         // trade must offer item(s) and/or money
         if (!(itemArr.length > 0) && !(moneyNum > 0)) {
-          return res.status(400).json({ error: "You must offer item(s) and/or money." });
+          return res
+            .status(400)
+            .json({ error: "You must offer item(s) and/or money." });
         }
 
         // Create trade offer
@@ -71,7 +91,30 @@ export default async function handler(req, res) {
           createdAt: new Date(),
         });
         await newTradeOffer.save();
-        res.status(201).json({ message: "Trade Offer Created", tradeOffer: newTradeOffer });
+        const tradeListing =await ListingModel.findById(listingId).select("itemName").exec();
+       
+        try {
+          await knockClient.workflows.trigger("new-activity", {
+            data: {
+              listingId: String(tradeListing.itemName),
+              proposedItems: newTradeOffer.proposedItems, 
+              proposedMoney: newTradeOffer.proposedMoney,
+              meetUp: newTradeOffer.meetUp, 
+              offerStatus: newTradeOffer.offerStatus,
+              tradeStatus: newTradeOffer.tradeStatus,
+              action_url: `${process.env.NEXT_PUBLIC_BASE_URL}/trade-offers/${newTradeOffer._id}`
+            },
+            recipients: [listing.userId.toString()], 
+            actor: requesterId.toString(),
+          });
+          console.log("Knock Workflow Triggered for New Trade Offer");
+        } catch (knockErr) {
+          console.error("Knock Trigger Error:", knockErr.message);
+          // We don't return 500 here so the user's trade still saves even if notification fails
+        }
+        res
+          .status(201)
+          .json({ message: "Trade Offer Created", tradeOffer: newTradeOffer });
         break;
       }
 
