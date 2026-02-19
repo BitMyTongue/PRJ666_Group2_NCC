@@ -101,7 +101,6 @@ export default function UserListing() {
     } else if (sortKey === "za") {
       filtered.sort((a, b) => b.itemName.localeCompare(a.itemName));
     }
-    // "popular" is the default - no sorting needed
 
     // Step 5: Reset pagination to page 0 when filters change
     setCurrP(0);

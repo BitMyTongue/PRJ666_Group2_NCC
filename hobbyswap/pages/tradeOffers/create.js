@@ -209,9 +209,7 @@ export default function CreateTradeOffer() {
     (loc) => loc.name === listing?.location
   );
 
-  // ------------------- //
-  // RENDER CONFIRMATION //
-  // ------------------- //
+ 
 
   if (status === "true") {
 

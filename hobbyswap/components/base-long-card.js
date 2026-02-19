@@ -593,6 +593,22 @@ const TradeCard = function TradeCard({
   );
 };
 
+const ItemCard = function ItemCard({ img, name, desc, saved = false, url, listingId, ownerId, currentUserId }) {
+  return (
+    <BaseLongCard
+      offerItem={{ itemName: name, description: desc, images: [img], _id: listingId }}
+      user={{ username: "Seller", _id: ownerId }}
+      isBookmarked={saved}
+      url={url}
+    >
+      <Button variant="primary rounded-pill" href={url}>
+        View Offers
+      </Button>
+      <Button variant="light rounded-pill text-primary">Create Listing</Button>
+    </BaseLongCard>
+  );
+}
+
 /// buttons below are meant for StatusCard, mostly for organizing
 
 const OfferButton = function OfferButton({ variant, link }) {
@@ -610,6 +626,7 @@ const EditOfferButton = function EditOfferButton({ variant, link }) {
     </Button>
   );
 };
+
 
 const TradeButton = function TradeButton({ variant, onClick }) {
   return (
