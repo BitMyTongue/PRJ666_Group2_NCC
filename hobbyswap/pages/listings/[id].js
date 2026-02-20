@@ -40,12 +40,6 @@ const responsive = {
   },
 };
 
-const currentUser = {
-  userName: "test1",
-  avatar: "/images/default-avatar.png",
-  rating: 5,
-};
-
 const imageWrapperStyle = {
   width: "100%",
   maxWidth: "520px",
@@ -84,14 +78,14 @@ export default function Listing() {
   const [user, setUser] = useState(null);
 
   const [listing, setListing] = useState(null);
-  const [owner, setOwner]=useState(null)
+  const [owner, setOwner] = useState(null);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
 
   const [showRequests, setShowRequests] = useState(false);
 
   useEffect(() => {
-    if (!router.isReady || !id) return;     // undefined on first render
+    if (!router.isReady || !id) return; // undefined on first render
 
     // Get User
     const token = localStorage.getItem("token");
@@ -116,7 +110,7 @@ export default function Listing() {
         if (!res.ok) throw new Error(data?.error || "Failed to load listing");
 
         setListing(data.listing);
-        setOwner(data.listing.userId)
+        setOwner(data.listing.userId);
       } catch (e) {
         setLoadError(e.message);
       } finally {
@@ -157,7 +151,7 @@ export default function Listing() {
   });
 
   const meetUpLocation = pickUpLocations.find(
-    (loc) => loc.name === listing?.location
+    (loc) => loc.name === listing?.location,
   );
   const getCityProvince = (address) => {
     if (!address) return "";
@@ -182,7 +176,6 @@ export default function Listing() {
 
   return (
     <>
-    
       {/* Category Section */}
       <div className="bg-light">
         <div className="container py-5">
@@ -192,8 +185,7 @@ export default function Listing() {
               <Link
                 href="#"
                 className={
-                  listing.category.toLowerCase() ===
-                  "pokemon card"
+                  listing.category.toLowerCase() === "pokemon card"
                     ? "text-primary fw-semibold text-shadow custom-shadow-secondary"
                     : "text-primary fw-semibold link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
                 }
@@ -210,8 +202,7 @@ export default function Listing() {
               <Link
                 href="#"
                 className={
-                  listing.category.toLowerCase() ===
-                  "blind box"
+                  listing.category.toLowerCase() === "blind box"
                     ? "text-primary fw-semibold text-shadow custom-shadow-secondary"
                     : "text-primary fw-semibold link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
                 }
@@ -224,8 +215,7 @@ export default function Listing() {
               <Link
                 href="#"
                 className={
-                  listing.category.toLowerCase() ===
-                  "yugioh card"
+                  listing.category.toLowerCase() === "yugioh card"
                     ? "text-primary fw-semibold text-shadow custom-shadow-secondary"
                     : "text-primary fw-semibold link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
                 }
@@ -238,8 +228,7 @@ export default function Listing() {
               <Link
                 href="#"
                 className={
-                  listing.category.toLowerCase() ===
-                  "figurine"
+                  listing.category.toLowerCase() === "figurine"
                     ? "text-primary fw-semibold text-shadow custom-shadow-secondary"
                     : "text-primary fw-semibold link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
                 }
@@ -255,16 +244,16 @@ export default function Listing() {
         {/* Product general details */}
         <div className="row d-flex flex-column flex-md-row mt-5 gap-3">
           <div className="col-12 col-md-7 border border-gray rounded-5 shadow d-flex flex-column">
-          <div className="px-4 pt-4 d-flex justify-content-center">
-            <div style={imageWrapperStyle}>
-              <Image
-                src={selectedImage}
-                alt="Selected"
-                style={imageStyle}
-                className="rounded-4 shadow"
-              />
+            <div className="px-4 pt-4 d-flex justify-content-center">
+              <div style={imageWrapperStyle}>
+                <Image
+                  src={selectedImage}
+                  alt="Selected"
+                  style={imageStyle}
+                  className="rounded-4 shadow"
+                />
+              </div>
             </div>
-          </div>
             {/* Carousel */}
             <div className="row mt-3">
               <Carousel
@@ -303,29 +292,33 @@ export default function Listing() {
               {listing.itemName}
             </p>
             <div className="col-8 d-flex flex-column gap-3">
-              <div className="d-flex justify-content-between align-items-center col-12">
-                <p className="rounded-pill bg-success text-center py-2 text-white fw-semibold col-4 mb-0">
-                  Trade
-                </p>
-                <Link
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setShowRequests(true);
-                  }}
-                  className="fw-semibold mb-0 align-self-center"
-                >
-                  View Requests
-                </Link>
-              </div>
-              <div className="d-flex justify-content-between align-items-center col-12">
-                <p className="rounded-pill bg-danger text-center px-4 py-2 text-white fw-semibold col-4 mb-0">
-                  Sell
-                </p>
-                <p className="fw-semibold mb-0 align-self-center text-primary">
+              {listing.requestItems.length !== 0 && (
+                <div className="d-flex justify-content-between align-items-center col-12">
+                  <p className="rounded-pill bg-success text-center py-2 text-white fw-semibold col-4 mb-0">
+                    Trade
+                  </p>
+                  <Link
+                    href="#"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setShowRequests(true);
+                    }}
+                    className="fw-semibold mb-0 align-self-center"
+                  >
+                    View Requests
+                  </Link>
+                </div>
+              )}
+              {listing.requestMoney !== 0 && (
+                <div className="d-flex justify-content-between align-items-center col-12">
+                  <p className="rounded-pill bg-danger text-center px-4 py-2 text-white fw-semibold col-4 mb-0">
+                    Sell
+                  </p>
+                  <p className="fw-semibold mb-0 align-self-center text-primary">
                     ${listing.requestMoney.toFixed(2)}
-                </p>
-              </div>
+                  </p>
+                </div>
+              )}
               <div className="d-grid my-3">
                 <div className="row">
                   <div className="col-5">
@@ -374,9 +367,7 @@ export default function Listing() {
                           {Array.from({ length: 5 }, (_, i) => (
                             <FontAwesomeIcon
                               key={i}
-                              icon={
-                                i < owner.rating ? solidStar : emptyStar
-                              }
+                              icon={i < owner.rating ? solidStar : emptyStar}
                               className="text-secondary"
                             />
                           ))}
@@ -387,12 +378,16 @@ export default function Listing() {
                 </div>
               </div>
               <div className="d-flex flex-column gap-3 border-bottom border-primary pb-4">
-                <button className="btn btn-primary text-white fw-semibold rounded-pill py-2" onClick={handleProposeTrade}>
-                  Propose Trade
-                </button>
-                <button className="btn btn-primary text-white fw-semibold rounded-pill py-2">
-                  Pay Now
-                </button>
+                {listing.requestItems.length !== 0 && (
+                  <button className="btn btn-primary text-white fw-semibold rounded-pill py-2">
+                    Propose Trade
+                  </button>
+                )}
+                {listing.requestMoney !== 0 && (
+                  <Button className="btn btn-primary text-white fw-semibold rounded-pill py-2" href={`/checkout/pay/${id}?step=payment info`}>
+                    Pay Now
+                  </Button>
+                )}
                 <button className="btn btn-white text-primary fw-semibold rounded-pill py-2 border border-primary border-2">
                   Message Owner
                 </button>
@@ -542,9 +537,7 @@ export default function Listing() {
         </Modal.Body>
 
         <Modal.Footer>
-          <Button onClick={() => setShowRequests(false)}>
-            Close
-          </Button>
+          <Button onClick={() => setShowRequests(false)}>Close</Button>
         </Modal.Footer>
       </Modal>
     </>
