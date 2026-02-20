@@ -28,13 +28,18 @@ const YourAppLayout = () => {
     <KnockProvider
       apiKey={"pk_test_toofF_1-0VT8s2bgSiVGWkfCvNfzzCUJV6xG4RHrjBA"}
       //ts-ignore
-      user={{ id: user?._id?.toString() || user?.id }} 
+      user={{ id: user?._id?.toString() || user?.id }}
     >
+      <style>{`
+      .rnf-notification-icon-button { color: white !important; width: 35px !important; height: 35px !important; }
+      .rnf-notification-icon-button svg { width: 35px !important; height: 35px !important;}
+    `}</style>
       <KnockFeedProvider feedId={"bca9a5f1-1982-433f-bb1f-8269695efcbc"}>
         <>
           <NotificationIconButton
             ref={notifButtonRef}
             onClick={(e) => setIsVisible(!isVisible)}
+            size={48}
           />
           <NotificationFeedPopover
             buttonRef={notifButtonRef}
@@ -48,4 +53,4 @@ const YourAppLayout = () => {
     <FontAwesomeIcon icon={faBell} color="white" size="2x" role="button" />
   );
 };
- export default YourAppLayout;
+export default YourAppLayout;
