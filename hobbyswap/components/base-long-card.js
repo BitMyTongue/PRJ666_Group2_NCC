@@ -568,6 +568,24 @@ const TradeCard = function TradeCard({
   rating = 0,
   url,
 }) {
+
+  const router = useRouter();
+  const { user: currUser } = useContext(UserContext);
+
+  const handleTradeNow = () => {
+    if (!currUser?._id) {
+      alert("You need to be logged in to propose a trade.");
+      return;
+    }
+
+    if (offerItem.userId === currUser._id) {
+      alert("You can’t propose an offer on your own listing.");
+      return;
+    }
+
+    router.push(`/tradeOffers/create?listingId=${offerItem._id}`);
+  };
+
   // TODO: Button implementation
   return (
     <BaseLongCard
@@ -584,7 +602,7 @@ const TradeCard = function TradeCard({
         View
       </Button>
       {requestItem !== null && (
-        <Button variant="light rounded-pill text-primary">Trade Now</Button>
+        <Button variant="light rounded-pill text-primary" onClick={handleTradeNow}>Trade Now</Button>
       )}
       {requestMoney && (
         <Button variant="light rounded-pill text-primary">Buy Now</Button>
