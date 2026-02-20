@@ -379,7 +379,7 @@ export default function Listing() {
               </div>
               <div className="d-flex flex-column gap-3 border-bottom border-primary pb-4">
                 {listing.requestItems.length !== 0 && (
-                  <button className="btn btn-primary text-white fw-semibold rounded-pill py-2">
+                  <button className="btn btn-primary text-white fw-semibold rounded-pill py-2" onClick={handleProposeTrade}>
                     Propose Trade
                   </button>
                 )}
