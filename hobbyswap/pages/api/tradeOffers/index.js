@@ -102,7 +102,7 @@ export default async function handler(req, res) {
               meetUp: newTradeOffer.meetUp, 
               offerStatus: newTradeOffer.offerStatus,
               tradeStatus: newTradeOffer.tradeStatus,
-              action_url: `${process.env.NEXT_PUBLIC_BASE_URL}/trade-offers/${newTradeOffer._id}`
+              action_url: `${process.env.NEXT_PUBLIC_BASE_URL}/tradeOffers/${newTradeOffer._id}`
             },
             recipients: [listing.userId.toString()], 
             actor: requesterId.toString(),
