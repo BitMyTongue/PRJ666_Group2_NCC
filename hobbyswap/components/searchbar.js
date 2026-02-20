@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSearch } from "@fortawesome/free-solid-svg-icons";
+import { faSearch, faX } from "@fortawesome/free-solid-svg-icons";
 import {
   Button,
   Dropdown,
@@ -10,20 +10,29 @@ import {
 import { useContext, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { SearchContext } from "@/contexts/SearchContext";
+import { useRef } from "react";
 
 export default function SearchBar({ ...props }) {
   const router = useRouter();
 
-  const { history, addToHistory, searchItem, setSearchItem } =
-    useContext(SearchContext);
+  const {
+    history,
+    addToHistory,
+    removeFromHistory,
+    searchItem,
+    setSearchItem,
+  } = useContext(SearchContext);
   const [searchUserName, setSearchUserName] = useState("");
   const [searchCondition, setSearchCondition] = useState("");
   const [searchCategory, setSearchCategory] = useState("");
   const [searchSince, setSearchSince] = useState("");
   const [searchUntil, setSearchUntil] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const toggleRef = useRef(null);
 
   const handleSubmit = async (str) => {
+    if (toggleRef.current?.classList.contains("show"))
+      toggleRef.current?.click();
     const uri = "/search?";
     const queries = [];
     if (str) {
@@ -61,51 +70,63 @@ export default function SearchBar({ ...props }) {
     <div {...props}>
       <Form
         className="w-100"
-        onSubmit={() => {
+        onSubmit={(e) => {
+          e.preventDefault();
           handleSubmit();
         }}
       >
-        <Dropdown className="p-0 w-100 m-0">
-          <Dropdown.Toggle
-            as="div"
-            className="form-control w-100 rounded-pill search-bar"
-            variant="success"
-            id="dropdown-basic"
-            style={{ maxHeight: "37px" }}
-          >
-            <input
-              className="me-2 search-bar border-0"
-              type="search"
-              aria-label="Search"
-              value={searchItem}
-              style={{ width: "90%" }}
-              onChange={(e) => {
-                setSearchItem(e.target.value);
-              }}
-            />
+        <Dropdown ref={toggleRef} className="p-0 w-100 m-0" autoClose="outside">
+          <div className="d-flex flex-fill align-items-center form-control w-100 rounded-pill search-bar">
+            <Dropdown.Toggle
+              as="div"
+              className="col-3 me-2 search-bar border-0"
+              style={{ maxHeight: "37px", width: 75 }}
+            >
+              <input
+                type="search"
+                className="w-100 me-2 search-bar border-0"
+                aria-label="Search"
+                value={searchItem}
+                onChange={(e) => {
+                  setSearchItem(e.target.value);
+                }}
+              />
+            </Dropdown.Toggle>
             <FontAwesomeIcon
               icon={faSearch}
               role="button"
-              className=" position-absolute end-0 translate-middle-y me-3 text-primary"
-              style={{ top: 18 }}
+              className="col-1 me-3 text-primary"
+              style={{ top: 18, width: 25 }}
               onClick={() => {
                 handleSubmit();
               }}
             />
-          </Dropdown.Toggle>
+          </div>
 
-          <Dropdown.Menu className="w-100">
+          <Dropdown.Menu style={{ width: "95%" }}>
             {history.map((v, idx) => {
               return (
                 <Dropdown.Item
+                  className="d-flex justify-space-between align-items-center"
                   key={idx}
-                  type="button"
-                  onClick={() => {
-                    setSearchItem(v);
-                    handleSubmit(v);
-                  }}
                 >
-                  {v}
+                  <span
+                    className="w-100"
+                    onClick={() => {
+                      setSearchItem(v);
+                      handleSubmit(v);
+                    }}
+                  >
+                    {v}
+                  </span>
+                  <FontAwesomeIcon
+                    onClick={() => {
+                      removeFromHistory(v);
+                    }}
+                    as="span"
+                    size="xs"
+                    icon={faX}
+                  />
                 </Dropdown.Item>
               );
             })}
@@ -119,13 +140,21 @@ export default function SearchBar({ ...props }) {
             </Dropdown.Item>
           </Dropdown.Menu>
         </Dropdown>
-        <Modal
-          show={showModal}
-          onHide={() => {
-            setShowModal(false);
+      </Form>
+      <Modal
+        show={showModal}
+        onHide={() => {
+          setShowModal(false);
+        }}
+        backdrop="static"
+        keyboard={true}
+      >
+        <Form
+          className="w-100"
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit();
           }}
-          backdrop="static"
-          keyboard={true}
         >
           <Modal.Header closeButton>
             <Modal.Title className="h1 text-uppercase color-primary">
@@ -202,17 +231,10 @@ export default function SearchBar({ ...props }) {
             </div>
           </Modal.Body>
           <Modal.Footer>
-            <Button
-              onClick={() => {
-                handleSubmit();
-                router.reload();
-              }}
-            >
-              Submit
-            </Button>
+            <Button type="submit">Submit</Button>
           </Modal.Footer>
-        </Modal>
-      </Form>
+        </Form>
+      </Modal>
     </div>
   );
 }

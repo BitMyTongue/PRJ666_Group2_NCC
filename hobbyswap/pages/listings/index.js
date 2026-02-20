@@ -1,12 +1,9 @@
+"use client";
+
 import { Image, Button } from "react-bootstrap";
 import { useMemo, useState, useEffect } from "react";
 import ItemCard from "../../components/item-card";
-
-const SORT_OPTIONS = [
-  { key: "popular", label: "Most Popular" },
-  { key: "az", label: "A - Z" },
-  { key: "za", label: "Z - A" },
-];
+import SortFilter from "../../components/sort_filter"
 
 const CATEGORY = {
   pokemon: {
@@ -79,10 +76,12 @@ export default function DashboardHome() {
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
+  const [user, setUser] = useState(null);
+
   const [showFilters, setShowFilters] = useState(false);
   const [query, setQuery] = useState("");
   const [sortKey, setSortKey] = useState("popular");
-  const [sortOpen, setSortOpen] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
 
   const active = CATEGORY[activeCategory];
 
@@ -93,6 +92,18 @@ export default function DashboardHome() {
       try {
         setLoading(true);
         setErrorMsg("");
+
+        // Get User
+        const token = localStorage.getItem("token");
+        if (token) {
+          fetch("/api/auth/protect", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
+          .then((res) => res.json())
+          .then((data) => setUser(data.user))
+        }
 
         const res = await fetch("/api/listings", { cache: "no-store" });
         const data = await res.json();
@@ -139,6 +150,7 @@ export default function DashboardHome() {
 
     const mapped = items.map((x) => ({
       id: x._id || x.id,
+      ownerId: x.userId || x.ownerId,
       name: x.itemName || x.title || "Untitled",
       desc: x.description || "No description provided.",
       img: getImageSrc(x.images),
@@ -148,8 +160,6 @@ export default function DashboardHome() {
     return sortItems(mapped, sortKey);
   }, [listings, active.aliases, query, sortKey]);
 
-  const sortLabel =
-    SORT_OPTIONS.find((o) => o.key === sortKey)?.label ?? "Most Popular";
 
   return (
     <>
@@ -188,57 +198,16 @@ export default function DashboardHome() {
             style={{ height: "2px", backgroundColor: "#c2d1e4ff" }}
             aria-hidden="true"
           />
-          <div className="d-flex justify-content-between align-items-center mb-3">
-            <div>
-              <Button className="btn-light text-muted px-5 rounded-pill" onClick={() => setShowFilters((v) => !v)}>Search By Title &#9662;</Button>
-            </div>
 
-            <div className="position-relative">
-              <button
-                type="button"
-                className="btn btn-link p-0 text-decoration-none fw-semibold"
-                onClick={() => setSortOpen((v) => !v)}
-              >
-                <span className="me-2">Sort By</span>
-                <span className="text-muted">|</span>
-                <span className="ms-2">{sortLabel}</span>
-                <span className="ms-2">▾</span>
-              </button>
-
-              {sortOpen && (
-                <div
-                  className="dropdown-menu dropdown-menu-end show"
-                  style={{ position: "absolute", right: 0, top: "100%", zIndex: 10 }}
-                >
-                  {SORT_OPTIONS.map((opt) => (
-                    <button
-                      key={opt.key}
-                      type="button"
-                      className={`dropdown-item ${sortKey === opt.key ? "active" : ""}`}
-                      onClick={() => {
-                        setSortKey(opt.key);
-                        setSortOpen(false);
-                      }}
-                    >
-                      {opt.label}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {showFilters && (
-            <div className="border rounded-3 p-3 mb-4 bg-white">
-              <label className="form-label fw-semibold mb-1">Search</label>
-              <input
-                className="form-control"
-                placeholder="Search by item name, description, location..."
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
-            </div>
-          )}
+          <SortFilter 
+            sortKey={sortKey} 
+            setSortKey={setSortKey}
+            query={query}
+            setQuery={setQuery}
+            showSearch={showSearch}
+            setShowSearch={setShowSearch}
+            isFilterVisible={false}
+          />
 
           {loading && <p className="text-center">Loading listings...</p>}
           {!loading && errorMsg && <p className="text-center text-danger">{errorMsg}</p>}
@@ -248,7 +217,7 @@ export default function DashboardHome() {
               <div className="row justify-content-center g-5 p-6 pt-2">
                 {visibleItems.slice(0, 6).map((item) => (
                   <div key={item.id} className="col-12 col-sm-6 col-md-4 d-flex justify-content-center">
-                    <ItemCard img={item.img} name={item.name} desc={item.desc} saved={false} url={`/listings/${item.id}`}/>
+                    <ItemCard img={item.img} name={item.name} desc={item.desc} saved={false} url={`/listings/${item.id}`} listingId={item.id} ownerId={item.ownerId} currentUserId={user?._id}/>
                   </div>
                 ))}
               </div>

@@ -1,6 +1,6 @@
 .search-bar {
   background-color: #8895b4;
-  width: 100%;
+  flex: 2;
 }
 
 .search-bar.dropdown-toggle::after {
@@ -78,7 +78,8 @@
   }
 
   .search-bar {
-    width: 387px;
+    width: 100%;
+    flex: 2;
   }
 }
 
@@ -92,6 +93,22 @@
 .card-max hr::after {
   color: black;
   background: #e6e9ee;
+  content: "OR";
+  padding: 0 4px;
+  position: relative;
+  top: -13px;
+}
+
+.proposal hr {
+  color: black;
+  text-align: center;
+  overflow: visible;
+  opacity: 1;
+}
+
+.proposal hr::after {
+  color: black;
+  background: white;
   content: "OR";
   padding: 0 4px;
   position: relative;

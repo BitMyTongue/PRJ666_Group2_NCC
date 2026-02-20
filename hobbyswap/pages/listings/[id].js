@@ -75,6 +75,7 @@ export default function Listing() {
   const { id } = router.query;
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [map, setMap] = useState(null);
+  const [user, setUser] = useState(null);
 
   const [listing, setListing] = useState(null);
   const [owner, setOwner] = useState(null);
@@ -85,6 +86,18 @@ export default function Listing() {
 
   useEffect(() => {
     if (!router.isReady || !id) return; // undefined on first render
+
+    // Get User
+    const token = localStorage.getItem("token");
+    if (token) {
+      fetch("/api/auth/protect", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((res) => res.json())
+      .then((data) => setUser(data.user))
+    }
 
     const load = async () => {
       try {
@@ -107,6 +120,21 @@ export default function Listing() {
 
     load();
   }, [router.isReady, id]);
+
+  const handleProposeTrade = () => {
+    const currentUserId = user?._id;
+    if (!currentUserId) {
+      alert("You need to be logged in to propose a trade.");
+      return;
+    }
+
+    if (owner._id === currentUserId) {
+      alert("You can’t propose an offer on your own listing.");
+      return;
+    }
+
+    router.push(`/tradeOffers/create?listingId=${id}`);
+  };
 
   const onLoad = useCallback(function callback(map) {
     const bounds = new window.google.maps.LatLngBounds(center);
