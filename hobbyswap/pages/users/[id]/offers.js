@@ -170,10 +170,13 @@ export default function UserOffers() {
                         status = StatusType.P_ACCEPTED;
                       else if (offer.offerStatus === "DECLINED")
                         status = StatusType.DECLINED;
+                      else if (offer.offerStatus === "RETRACTED")
+                        status = StatusType.RETRACTED;
                       return (
                         <div key={idx} className="my-4">
                           {isOwner && (
                             <StatusCard
+                              offerId={offer._id}
                               statusType={status}
                               user={offer.owner}
                               offerItem={offer.listing}

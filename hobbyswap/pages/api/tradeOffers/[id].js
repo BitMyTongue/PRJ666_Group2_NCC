@@ -55,6 +55,9 @@ export default async function handler(req, res) {
         }
 
         tradeOffer.offerStatus = "RETRACTED";
+        tradeOffer.respondedAt = new Date();
+        await tradeOffer.save();
+        return res.status(200).json({ message: "Offer Retracted", tradeOffer });
       }
 
       // OWNER: ACCEPT
@@ -104,6 +107,7 @@ export default async function handler(req, res) {
 
         // R6
         tradeOffer.tradeStatus = "CANCELED";
+        tradeOffer.offerStatus = "DECLINED";
         tradeOffer.canceledAt = new Date();
         await tradeOffer.save();
         listing.status = "ACTIVE";

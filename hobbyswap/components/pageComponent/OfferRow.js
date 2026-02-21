@@ -39,19 +39,20 @@ export function OfferRow({ offer, listing }) {
   }
   return (
     <div className="col-12 p-2">
-      {/* <StatusCard
+      <StatusCard
+        offerId={offer._id}
         requestMoney={offer.proposedMoney}
         requestUser={requestUser}
         user={requestUser}
         offerItem={listing}
         statusType={currentStatus}
-      /> */}
-      <ProposalCard
+      />
+      {/* <ProposalCard
         offerObj={offer}
         fromUser={requestUser}
         proposedItems={offer.proposedItems}
         proposedMoney={offer.proposedMoney}
-      />
+      /> */}
     </div>
   );
 }

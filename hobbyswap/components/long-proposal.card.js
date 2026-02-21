@@ -1,7 +1,8 @@
 import { Button, Modal, Stack } from "react-bootstrap";
 import UserIcon from "./user-icon";
-import { useState } from "react";
 import { useRouter } from "next/router";
+import { useContext, useState } from "react";
+import { UserContext } from "@/contexts/UserContext";
 
 export default function ProposalCard({
   offerObj, // used to process button callbacks
@@ -15,11 +16,41 @@ export default function ProposalCard({
   declineFn = null,
   messageFn = null,
 }) {
+  const { user: currUser } = useContext(UserContext);
+  
   const [showModal, setShowModal] = useState(false);
   const router = useRouter();
+  const patchOffer = async (action) => {
+    if (!currUser?._id) {
+      alert("You need to be logged in.");
+      return;
+    }
 
-  const handleAccept = () => {};
-  const handleDecline = () => {};
+    if (!offerObj?._id) {
+      alert("Offer id missing.");
+      return;
+    }
+
+    const res = await fetch(`/api/tradeOffers/${offerObj._id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action,
+        actorId: currUser._id,
+      }),
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      alert(data?.error || "Something went wrong.");
+      return;
+    }
+
+    router.reload();
+  };
+
+  const handleAccept = () => patchOffer("ACCEPT");
+  const handleDecline = () => patchOffer("DECLINE");
 
   const handleMessage = () => {};
 

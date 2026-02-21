@@ -16,6 +16,7 @@ const StatusType = {
   AWAIT_PROPOSAL: 6,
   AWAIT_P_APPROVAL: 7,
   P_ACCEPTED: 8,
+  RETRACTED: 9,
 };
 
 const SubtractSVG = function SubtractSVG({
@@ -665,6 +666,7 @@ const DeclineButton = function DeclineButton({ onClick }) {
 };
 
 const StatusCard = function StatusCard({
+  offerId,
   user,
   offerItem,
   requestItem,
@@ -674,13 +676,48 @@ const StatusCard = function StatusCard({
   requestUser = null,
   cancelCallback = null,
 }) {
+  const { user: currUser } = useContext(UserContext);
+  const router = useRouter();
+
   // TODO: Button implementation
   const handleViewOffer = () => {};
   const handleEditOffer = () => {};
   const handleViewTrade = () => {};
   const handleMessage = () => {};
-  const handleAccept = () => {};
-  const handleDecline = () => {};
+
+  const patchOffer = async (action) => {
+    if (!currUser?._id) {
+      alert("You need to be logged in.");
+      return;
+    }
+
+    if (!offerId) {
+      alert("Offer id missing.");
+      return;
+    }
+console.log("PATCH ACTION:", action, "offerId:", offerId);
+    const res = await fetch(`/api/tradeOffers/${offerId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action,
+        actorId: currUser._id,
+      }),
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      alert(data?.error || "Something went wrong.");
+      return;
+    }
+
+    router.reload();
+  };
+
+  const handleAccept = () => patchOffer("ACCEPT");
+  const handleDecline = () => patchOffer("DECLINE");
+  const handleCancelTrade = () => patchOffer("CANCEL");
+  const handleRetractOffer = () => patchOffer("RETRACT");
 
   const ButtonLayout = {
     MAIN_LAYOUT1: (
@@ -755,7 +792,7 @@ const StatusCard = function StatusCard({
       msg: "trade in progress",
       color: "#F79E1B",
       layout: ButtonLayout.MAIN_LAYOUT1,
-      cancel: () => {},
+      cancel: handleCancelTrade,
       cancelLabel: "Cancel",
     },
     {
@@ -795,7 +832,7 @@ const StatusCard = function StatusCard({
       msg: "awaiting proposal approval...",
       color: "#F79E1B",
       layout: ButtonLayout.MAIN_LAYOUT2,
-      cancel: () => {},
+      cancel: handleRetractOffer,
       cancelLabel: "Cancel",
     },
     {
@@ -803,9 +840,17 @@ const StatusCard = function StatusCard({
       msg: "proposal accepted!",
       color: "#3A8402",
       layout: ButtonLayout.MAIN_LAYOUT2,
-      cancel: () => {},
+      cancel: handleCancelTrade,
       cancelLabel: "Dismiss",
     },
+    {
+      id: StatusType.RETRACTED,
+      msg: "offer retracted",
+      color: "#777070",
+      layout: ButtonLayout.MAIN_LAYOUT2,
+      cancel: null,
+      cancelLabel: "Dismiss",
+    }
   ];
 
   const currType = StatusLayout.find((obj) => statusType === obj.id);
