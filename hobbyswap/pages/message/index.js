@@ -85,13 +85,17 @@ export default function MessagePage() {
     effectAsync();
   }, [user]);
   useEffect(() => {
-    if (!client) return;
-    if (!userQuery) return;
-
-    client.channel("messaging", {
-      members: [user._id, userQuery],
-    });
-  }, [client, userQuery]);
+    const effectAsync = async () => {
+      if (!client) return;
+      if (!userQuery) return;
+      console.log(userQuery);
+      const channel = client.channel("messaging", {
+        members: [user._id, userQuery],
+      });
+      await channel.create();
+    };
+    effectAsync();
+  }, [user, client, userQuery]);
 
   return (
     <div id="root" className="sm-d-shadow">
