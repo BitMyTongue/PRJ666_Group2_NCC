@@ -247,6 +247,9 @@ export default function MessagePage() {
               <MessageList
                 messageActions={actions}
                 customMessageActions={customActions}
+                onUserClick={(_, user) => {
+                  router.push("/users/" + user.id);
+                }}
               />
               <MessageInput />
             </Window>
