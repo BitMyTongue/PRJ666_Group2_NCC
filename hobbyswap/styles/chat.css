@@ -1,8 +1,8 @@
 /* Mostly imported from https://getstream.io/chat/docs/sdk/react/basics/getting_started/ */
 
 #root {
-  margin: 5%;
-  padding: 2%;
+  margin: 20px;
+  padding: 10px;
   height: 100%;
   min-height: 600px;
   max-height: 6dvh;
@@ -19,7 +19,10 @@
   .str-chat__main-panel-inner {
     min-height: 400px;
     max-height: 400px;
-    overflow-y: scroll;
+  }
+
+  .str-chat__channel-list-toggle {
+    display: block;
   }
 
   .str-chat__channel-list {
@@ -27,19 +30,21 @@
     z-index: 1;
     height: 100%;
     width: 0;
+    margin-left: -10px;
+    margin-top: 0;
     min-height: 520px;
-    max-height: 520px;
+    min-height: 600px;
     overflow-y: scroll;
     flex-shrink: 0;
     box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
     top: 0;
-
-    &--open {
-      width: 30%;
-      height: 100%;
-      position: absolute;
-    }
     transition: width 0.3s ease-out;
+  }
+
+  .str-chat__channel-list.--open {
+    width: 100%;
+    height: 100%;
+    position: absolute;
   }
 
   .str-chat__message-input {
@@ -74,8 +79,7 @@
 
   .str-chat__channel-header .str-chat__header-hamburger {
     width: 30px;
-    height: 38px;
-    padding: var(--xxs-p);
+    padding: var(--xs-p);
     margin-right: var(--xs-m);
     display: flex;
     align-items: center;
@@ -93,7 +97,9 @@
   }
 
   @media screen and (min-width: 768px) {
-    .str-chat__channel-list {
+    .str-chat__channel-list,
+    .str-chat__channel-list.--open {
+      margin-top: -10px;
       width: 30%;
       position: initial;
       z-index: 0;
@@ -123,7 +129,8 @@
       max-width: 45%;
     }
 
-    .str-chat__channel-header .str-chat__header-hamburger {
+    .str-chat__channel-header .str-chat__header-hamburger,
+    .str-chat__channel-list-toggle {
       display: none;
     }
   }
