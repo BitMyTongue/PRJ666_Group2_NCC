@@ -26,8 +26,12 @@ import {
 //TODO: build on this
 
 const apiKey = process.env.NEXT_PUBLIC_STREAM_CHAT_KEY;
-
-const curr = "test";
+const actions = ["delete", "mute", "pin", "quote"];
+const customActions = {
+  Report: (msg) => {
+    //TODO: report stuff
+  },
+};
 
 // export const getServerSideProps = async ({ id }) => {
 //   const apiSecret = process.env.STREAM_CHAT_SECRET;
@@ -240,7 +244,10 @@ export default function MessagePage() {
           <Channel>
             <Window>
               <CustomChannelHeader id={user._id} hasUnread={hasUnread} />
-              <MessageList />
+              <MessageList
+                messageActions={actions}
+                customMessageActions={customActions}
+              />
               <MessageInput />
             </Window>
             <Thread />
