@@ -9,7 +9,8 @@ export function OfferRow({ offer, listing }) {
     PENDING: StatusType.RES_NEEDED,
     DECLINED: StatusType.DECLINED,
     ACCEPTED: StatusType.IN_PROGRESS,
-    RETRACTED: StatusType.CANCELLED,
+    RETRACTED: StatusType.RETRACTED,
+    CANCELED: StatusType.CANCELED
   };
   const currentStatus = statusMap[offer.offerStatus] || StatusType.RES_NEEDED;
 

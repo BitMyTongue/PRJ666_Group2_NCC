@@ -107,7 +107,7 @@ export default async function handler(req, res) {
 
         // R6
         tradeOffer.tradeStatus = "CANCELED";
-        tradeOffer.offerStatus = "DECLINED";
+        tradeOffer.offerStatus = "CANCELED";
         tradeOffer.canceledAt = new Date();
         await tradeOffer.save();
         listing.status = "ACTIVE";

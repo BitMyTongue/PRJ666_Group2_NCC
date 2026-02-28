@@ -23,7 +23,8 @@ const tradeOfferSchema = new mongoose.Schema({
     // ACCEPTED: listing.owner accepted this offer, listing is put on IN TRADE, trade is put on ONGOING
     // DECLINED: listing.owner declined this offer
     // RETRACTED: REQUESTER has retracted this offer
-    enum: ["PENDING", "ACCEPTED", "DECLINED", "RETRACTED"],
+    // CANCELED: either the listing.owner OR the requester has CANCELED a once ACTIVE trade (tradeStatus and offerStatus are both CANCELED)
+    enum: ["PENDING", "ACCEPTED", "DECLINED", "RETRACTED", "CANCELED"],
     required: true,
     default: "PENDING",
   },

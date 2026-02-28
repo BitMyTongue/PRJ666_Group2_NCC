@@ -166,12 +166,15 @@ export default function UserOffers() {
                     />
                     {pageoffers.map((offer, idx) => {
                       let status = StatusType.AWAIT_P_APPROVAL;
+                      
                       if (offer.offerStatus === "ACCEPTED")
                         status = StatusType.P_ACCEPTED;
                       else if (offer.offerStatus === "DECLINED")
                         status = StatusType.DECLINED;
                       else if (offer.offerStatus === "RETRACTED")
                         status = StatusType.RETRACTED;
+                      else if (offer.offerStatus === "CANCELED" || offer.tradeStatus === "CANCELED")
+                        status = StatusType.CANCELED;
                       return (
                         <div key={idx} className="my-4">
                           {isOwner && (
