@@ -695,7 +695,7 @@ const StatusCard = function StatusCard({
       alert("Offer id missing.");
       return;
     }
-console.log("PATCH ACTION:", action, "offerId:", offerId);
+
     const res = await fetch(`/api/tradeOffers/${offerId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -718,6 +718,7 @@ console.log("PATCH ACTION:", action, "offerId:", offerId);
   const handleDecline = () => patchOffer("DECLINE");
   const handleCancelTrade = () => patchOffer("CANCEL");
   const handleRetractOffer = () => patchOffer("RETRACT");
+  const handleCompleteTrade = () => patchOffer("COMPLETE");
 
   const ButtonLayout = {
     MAIN_LAYOUT1: (
@@ -774,6 +775,22 @@ console.log("PATCH ACTION:", action, "offerId:", offerId);
         </Button>
       </>
     ),
+    IN_PROGRESS_LAYOUT: (
+    <>
+      <Button
+        variant="success rounded-pill"
+        onClick={handleCompleteTrade}
+      >
+        Complete Trade
+      </Button>
+
+      <OfferButton
+        variant={"light text-primary border border-primary border-2 rounded-pill"}
+        link={`/listings/${offerItem._id}`}
+      />
+      <MsgButton onClick={handleMessage} />
+    </>
+  ),
   };
 
   const StatusLayout = [
@@ -791,7 +808,7 @@ console.log("PATCH ACTION:", action, "offerId:", offerId);
       id: StatusType.IN_PROGRESS,
       msg: "trade in progress",
       color: "#F79E1B",
-      layout: ButtonLayout.MAIN_LAYOUT1,
+      layout: ButtonLayout.IN_PROGRESS_LAYOUT,
       cancel: handleCancelTrade,
       cancelLabel: "Cancel",
     },
@@ -816,8 +833,7 @@ console.log("PATCH ACTION:", action, "offerId:", offerId);
       msg: "proposal response needed",
       color: "#00BAE8",
       layout: ButtonLayout.CHOICE_LAYOUT,
-      cancel: () => {},
-      cancelLabel: "Cancel",
+      cancel: null,
     },
     {
       id: StatusType.AWAIT_PROPOSAL,

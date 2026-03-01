@@ -10,10 +10,27 @@ export function OfferRow({ offer, listing }) {
     DECLINED: StatusType.DECLINED,
     ACCEPTED: StatusType.IN_PROGRESS,
     RETRACTED: StatusType.RETRACTED,
-    CANCELED: StatusType.CANCELED
+    CANCELED: StatusType.CANCELED,
   };
-  const currentStatus = statusMap[offer.offerStatus] || StatusType.RES_NEEDED;
 
+  let currentStatus;
+
+  if (offer.tradeStatus === "COMPLETED") {
+    currentStatus = StatusType.COMPLETED;
+  } else if (offer.tradeStatus === "CANCELED") {
+    currentStatus = StatusType.CANCELED;
+  } else {
+    const statusMap = {
+      PENDING: StatusType.RES_NEEDED,
+      DECLINED: StatusType.DECLINED,
+      ACCEPTED: StatusType.IN_PROGRESS,
+      RETRACTED: StatusType.RETRACTED,
+      CANCELED: StatusType.CANCELED,
+    };
+
+    currentStatus = statusMap[offer.offerStatus] || StatusType.RES_NEEDED;
+  }
+  
   useEffect(() => {
     const loadRequestUser = async () => {
       try {

@@ -165,16 +165,20 @@ export default function UserOffers() {
                       resultsPerPage={resultsPerPage}
                     />
                     {pageoffers.map((offer, idx) => {
-                      let status = StatusType.AWAIT_P_APPROVAL;
-                      
-                      if (offer.offerStatus === "ACCEPTED")
-                        status = StatusType.P_ACCEPTED;
-                      else if (offer.offerStatus === "DECLINED")
-                        status = StatusType.DECLINED;
-                      else if (offer.offerStatus === "RETRACTED")
-                        status = StatusType.RETRACTED;
-                      else if (offer.offerStatus === "CANCELED" || offer.tradeStatus === "CANCELED")
+                      let status;
+
+                      if (offer.tradeStatus === "COMPLETED") {
+                        status = StatusType.COMPLETED;
+                      } else if (offer.tradeStatus === "CANCELED") {
                         status = StatusType.CANCELED;
+                      } else {
+                        status = StatusType.AWAIT_P_APPROVAL;
+
+                        if (offer.offerStatus === "ACCEPTED") status = StatusType.IN_PROGRESS;
+                        else if (offer.offerStatus === "DECLINED") status = StatusType.DECLINED;
+                        else if (offer.offerStatus === "RETRACTED") status = StatusType.RETRACTED;
+                        else if (offer.offerStatus === "CANCELED") status = StatusType.CANCELED;
+                      }
                       return (
                         <div key={idx} className="my-4">
                           {isOwner && (
