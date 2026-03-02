@@ -2,7 +2,7 @@ import { UserModel, mongooseConnect } from "@/lib/dbUtils";
 
 export default async function handler(req, res) {
   const { id } = req.query;
-  const { firstName, lastName, username, email, password } = req.body;
+  const { firstName, lastName, username, email, password, address, site, gender, dateOfBirth, profilePicture } = req.body;
   const { method } = req;
 
   res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
@@ -32,9 +32,16 @@ export default async function handler(req, res) {
         if (username) updateData.username = username;
         if (email) updateData.email = email;
         if (password) updateData.password = password;
+        if (address !== undefined) updateData.address = address;
+        if (site !== undefined) updateData.site = site;
+        if (gender) updateData.gender = gender;
+        if (dateOfBirth !== undefined) updateData.dateOfBirth = dateOfBirth;
+        if (profilePicture !== undefined) updateData.profilePicture = profilePicture;
 
         await UserModel.updateOne({ _id: id }, { $set: updateData }).exec();
-        res.status(200).json({ message: `User with id: ${id} updated` });
+        // return updated user so client can refresh state
+        const updatedUser = await UserModel.findById(id).select("-password");
+        res.status(200).json({ message: `User with id: ${id} updated`, user: updatedUser });
         break;
       case "DELETE":
         await UserModel.deleteOne({ _id: id }).exec();

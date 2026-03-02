@@ -22,9 +22,6 @@ import {
   useChannelStateContext,
   useChatContext,
 } from "stream-chat-react";
-
-//TODO: build on this
-
 const apiKey = process.env.NEXT_PUBLIC_STREAM_CHAT_KEY;
 const actions = ["delete", "mute", "pin", "quote"];
 const customActions = {
