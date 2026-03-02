@@ -9,7 +9,7 @@ import {
   faStar as solidStar,
 } from "@fortawesome/free-solid-svg-icons";
 import { faStar as emptyStar } from "@fortawesome/free-regular-svg-icons";
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState } from "react";
 import BookmarkIcon from "@/components/bookmark-icon";
 import {
   GoogleMap,
@@ -95,8 +95,8 @@ export default function Listing() {
           Authorization: `Bearer ${token}`,
         },
       })
-      .then((res) => res.json())
-      .then((data) => setUser(data.user))
+        .then((res) => res.json())
+        .then((data) => setUser(data.user));
     }
 
     const load = async () => {
@@ -149,7 +149,7 @@ export default function Listing() {
     id: "google-map-script",
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY,
   });
-
+  //TODO: CHANGE TO RETRIEVE DYNAMICALLY
   const meetUpLocation = pickUpLocations.find(
     (loc) => loc.name === listing?.location,
   );
@@ -162,17 +162,9 @@ export default function Listing() {
     const province = parts[parts.length - 1].trim().split(" ")[0];
     return `${city}, ${province}`;
   };
-  const [selectedImage, setSelectedImage] = useState("");
-
-  useEffect(() => {
-    if (listing?.images?.length > 0) {
-      setSelectedImage(listing.images[0]);
-    }
-  }, [listing]);
-
-  if (loading) return <h1>Loading the listing...</h1>;
-  if (loadError) return <h1 className="text-danger">{loadError}</h1>;
-  if (!listing) return <h1>Listing not found.</h1>;
+  const [selectedImage, setSelectedImage] = useState(
+    fakeSuccessfullyCreatedData.imageUrl[0],
+  );
 
   return (
     <>
@@ -233,7 +225,7 @@ export default function Listing() {
                     : "text-primary fw-semibold link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
                 }
               >
-                Figurine
+                figurines
               </Link>
             </div>
           </div>
@@ -264,7 +256,7 @@ export default function Listing() {
                 infinite={true}
                 keyBoardControl
               >
-                {listing.images.map((img, index) => (
+                {fakeSuccessfullyCreatedData.imageUrl.map((img, index) => (
                   <div
                     key={index}
                     className={`text-center rounded-3 p-2 ${
@@ -328,7 +320,7 @@ export default function Listing() {
                   </div>
                   <div className="col-7">
                     <p className="text-primary text-capitalize fw-light">
-                      {listing.category}
+                      {fakeSuccessfullyCreatedData.category}
                     </p>
                   </div>
                 </div>
@@ -340,7 +332,7 @@ export default function Listing() {
                   </div>
                   <div className="col-7">
                     <p className="text-primary text-uppercase fw-light">
-                      {listing.condition}
+                      {fakeSuccessfullyCreatedData.condition}
                     </p>
                   </div>
                 </div>
@@ -384,16 +376,23 @@ export default function Listing() {
                   </button>
                 )}
                 {listing.requestMoney !== 0 && (
-                  <Button className="btn btn-primary text-white fw-semibold rounded-pill py-2" href={`/checkout/pay/${id}?step=payment info`}>
+                  <Button
+                    className="btn btn-primary text-white fw-semibold rounded-pill py-2"
+                    href={`/checkout/pay/${id}?step=payment info`}
+                  >
                     Pay Now
                   </Button>
                 )}
-                <button className="btn btn-white text-primary fw-semibold rounded-pill py-2 border border-primary border-2">
+                <Button
+                  variant="primary-outline"
+                  className="btn btn-white text-primary fw-semibold rounded-pill py-2 border border-primary border-2"
+                  href={"/message?user=" + owner._id}
+                >
                   Message Owner
-                </button>
+                </Button>
               </div>
               <div className="d-flex flex-column gap-1 border-bottom border-primary pb-4">
-                {listing.meetUp && (
+                {fakeSuccessfullyCreatedData.meetUp && (
                   <div className="d-flex justify-content-start align-items-center gap-2 mt-2">
                     <FontAwesomeIcon
                       icon={faPeopleLine}
@@ -437,7 +436,7 @@ export default function Listing() {
               Description
             </p>
             <p className="text-primary text-capitalize fw-regular">
-              {listing.description}
+              {fakeSuccessfullyCreatedData.description}
             </p>
             <p className="text-primary text-capitalize fw-semibold mb-1">
               Owner Details

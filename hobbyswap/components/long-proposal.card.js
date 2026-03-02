@@ -52,7 +52,9 @@ export default function ProposalCard({
   const handleAccept = () => patchOffer("ACCEPT");
   const handleDecline = () => patchOffer("DECLINE");
 
-  const handleMessage = () => {};
+  const handleMessage = () => {
+    router.push("/message?user=" + fromUser._id);
+  };
 
   const hasMultiple = proposedItems?.length > 1;
   return (

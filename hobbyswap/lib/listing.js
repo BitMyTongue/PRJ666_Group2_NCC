@@ -54,7 +54,7 @@ const listingSchema = new mongoose.Schema({
     default: 0,
   },
   datePosted: {
-    type: Date,
+    type: Date, 
     default: Date.now,
   },
 });

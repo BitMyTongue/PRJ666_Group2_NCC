@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Image } from "react-bootstrap";
 import { useState } from "react";
 import { useRouter } from "next/router";
+import NextImage from "next/image";
 
 export default function Register() {
   const [formData, setFormData] = useState({ // Setting states for the Form Data
@@ -11,10 +12,17 @@ export default function Register() {
     email: "",
     password: "",
     passwordConfirm: "",
+    address: "",
+    site: "",
+    gender: "Not Specified",
+    dateOfBirth: "",
+    profilePicture: null,
     terms: false,
   });
   const [error, setError] = useState(""); // Setting state for error messages
   const [loading, setLoading] = useState(false); // Setting state for loading indicator
+  const [profileImageUrl, setProfileImageUrl] = useState(null); // Profile picture URL
+  const [isUploadingProfilePic, setIsUploadingProfilePic] = useState(false); // Profile pic upload loading
   const router = useRouter(); // Initializing the router for navigation
 
   const handleChange = (e) => { // Handling input changes
@@ -58,6 +66,11 @@ export default function Register() {
           username: formData.username,
           email: formData.email,
           password: formData.password,
+          address: formData.address,
+          site: formData.site,
+          gender: formData.gender,
+          dateOfBirth: formData.dateOfBirth || null,
+          profilePicture: profileImageUrl || null,
         }),
       });
 
@@ -118,6 +131,41 @@ export default function Register() {
               onChange={handleChange}
             />
             <input
+              type="text"
+              className="form-control bg-light p-3"
+              id="address"
+              placeholder="Address (Optional)"
+              value={formData.address}
+              onChange={handleChange}
+            />
+            <input
+              type="text"
+              className="form-control bg-light p-3"
+              id="site"
+              placeholder="Website (Optional)"
+              value={formData.site}
+              onChange={handleChange}
+            />
+            <select
+              className="form-control bg-light p-3"
+              id="gender"
+              value={formData.gender}
+              onChange={handleChange}
+            >
+              <option value="Not Specified">Gender (Optional)</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Not Specified">Not Specified</option>
+            </select>
+            <input
+              type="date"
+              className="form-control bg-light p-3"
+              id="dateOfBirth"
+              placeholder="Date of Birth (Optional)"
+              value={formData.dateOfBirth}
+              onChange={handleChange}
+            />
+            <input
               type="password"
               className="form-control bg-light p-3"
               id="password"
@@ -147,10 +195,10 @@ export default function Register() {
             </div>
             <button
               type="submit"
-              disabled={loading} //disable the submit button while loading
+              disabled={loading || isUploadingProfilePic} // disable while loading or uploading picture
               className="btn btn-primary w-100 mt-4 text-uppercase fw-bold rounded-pill p-3"
             >
-              {loading ? "Signing Up..." : "Sign Up"}
+              {loading ? "Signing Up..." : isUploadingProfilePic ? "Uploading image..." : "Sign Up"}
             </button>
           </form>
           <div className="d-flex text-center justify-content-center mb-5">

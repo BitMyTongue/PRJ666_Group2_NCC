@@ -1,4 +1,4 @@
-import { Button, Modal, Stack } from "react-bootstrap";
+import { Button, Modal, Stack} from "react-bootstrap";
 import Rating from "./rating";
 import Image from "next/image";
 import BookmarkIcon from "./bookmark-icon";
@@ -86,6 +86,7 @@ const SubtractSVG = function SubtractSVG({
     </div>
   );
 };
+
 
 /// children is ONLY used to layout buttons
 const BaseLongCard = function BaseLongCard({
@@ -608,6 +609,12 @@ const TradeCard = function TradeCard({
       {requestMoney && (
         <Button variant="light rounded-pill text-primary">Buy Now</Button>
       )}
+      <Button
+        variant={"light rounded-pill border border-primary text-primary"}
+        href={"/message?user=" + user._id}
+      >
+        Message User
+      </Button>
     </BaseLongCard>
   );
 };
@@ -618,6 +625,14 @@ const OfferButton = function OfferButton({ variant, link }) {
   return (
     <Button variant={variant} href={link}>
       View Listing
+    </Button>
+  );
+};
+
+const DeleteButton = function DeleteButton({ variant, onClick }) {
+  return (
+    <Button variant={variant} onClick={onClick}>
+      Delete Listing
     </Button>
   );
 };
@@ -638,13 +653,13 @@ const TradeButton = function TradeButton({ variant, onClick }) {
   );
 };
 
-const MsgButton = function MsgButton({ onClick }) {
+const MsgButton = function MsgButton({ user }) {
   return (
     <Button
       variant={"light rounded-pill border border-primary text-primary"}
-      onClick={onClick}
+      href={"/message?user=" + user._id}
     >
-      Message
+      Message User
     </Button>
   );
 };
@@ -670,18 +685,48 @@ const StatusCard = function StatusCard({
   user,
   offerItem,
   requestItem,
-  statusType,
+  statusType, // To be added: Do it only if the status type is not in progress
   hasMultiple = false,
   requestMoney = 0.0,
   requestUser = null,
   cancelCallback = null,
 }) {
   const { user: currUser } = useContext(UserContext);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
 
   // TODO: Button implementation
   const handleViewOffer = () => {};
-  const handleEditOffer = () => {};
+  // const handleEditOffer = () => {}; // Implemented ./listings/edit/{id}
+  const handleDeleteButton = () => {
+    setShowDeleteModal(true);
+  };
+  
+  const confirmDelete = async () => {
+    setIsDeleting(true);
+    try {
+      const response = await fetch(`/api/listings/${offerItem._id}`, {
+        method: "DELETE",
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        alert(`Error deleting listing: ${error.error}`);
+        setIsDeleting(false);
+        return;
+      }
+      
+      setShowDeleteModal(false);
+      alert("Listing deleted successfully");
+      router.reload();
+    } catch (err) {
+      console.error("Delete error:", err);
+      alert("Failed to delete listing");
+      setIsDeleting(false);
+    }
+  };
+  
   const handleViewTrade = () => {};
   const handleMessage = () => {};
 
@@ -733,7 +778,7 @@ const StatusCard = function StatusCard({
           }
           link={`/listings/${offerItem._id}`}
         />
-        <MsgButton onClick={handleMessage} />
+        <MsgButton user={user} />
       </>
     ),
     MAIN_LAYOUT2: (
@@ -742,7 +787,7 @@ const StatusCard = function StatusCard({
           variant={"primary rounded-pill"}
           link={`/listings/${offerItem._id}`}
         />
-        <MsgButton onClick={handleMessage} />
+        <MsgButton user={user} />
       </>
     ),
 
@@ -754,7 +799,7 @@ const StatusCard = function StatusCard({
           variant={"light rounded-pill border border-primary text-primary"}
           onClick={handleViewOffer}
         />
-        <MsgButton onClick={handleMessage} />
+        <MsgButton user={user} />
       </>
     ),
     EDIT_OFFER: (
@@ -773,6 +818,11 @@ const StatusCard = function StatusCard({
         >
           View All Offers
         </Button>
+        <DeleteButton
+          variant="danger text-light border border-primary border-2 rounded-pill"
+          onClick={handleDeleteButton}
+          
+        />
       </>
     ),
     IN_PROGRESS_LAYOUT: (
@@ -871,21 +921,54 @@ const StatusCard = function StatusCard({
 
   const currType = StatusLayout.find((obj) => statusType === obj.id);
   return (
-    <BaseLongCard
-      user={user}
-      status={currType.msg}
-      color={currType.color}
-      offerItem={offerItem}
-      requestItem={requestItem}
-      hasMultiple={hasMultiple}
-      requestMoney={requestMoney}
-      showBookmark={false}
-      cancelCallback={cancelCallback ?? currType.cancel}
+    <>
+      <BaseLongCard
+        user={user}
+        status={currType.msg}
+        color={currType.color}
+        offerItem={offerItem}
+        requestItem={requestItem}
+        hasMultiple={hasMultiple}
+        requestMoney={requestMoney}
+        showBookmark={false}
+        cancelCallback={cancelCallback ?? currType.cancel}
       cancelBtnLabel={currType.cancelLabel}
-      requestUser={requestUser}
-    >
-      {currType.layout}
-    </BaseLongCard>
+        requestUser={requestUser}
+      >
+        {currType.layout}
+      </BaseLongCard>
+
+      <Modal
+        show={showDeleteModal}
+        onHide={() => setShowDeleteModal(false)}
+        backdrop="static"
+        keyboard={false}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Deletion</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>Are you sure you want to delete this listing? This action cannot be undone.</p>
+          <p><strong>Listing:</strong> {offerItem?.itemName}</p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button 
+            variant="secondary" 
+            onClick={() => setShowDeleteModal(false)}
+            disabled={isDeleting}
+          >
+            Cancel
+          </Button>
+          <Button 
+            variant="danger" 
+            onClick={confirmDelete}
+            disabled={isDeleting}
+          >
+            {isDeleting ? "Deleting..." : "Delete"}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </>
   );
 };
 

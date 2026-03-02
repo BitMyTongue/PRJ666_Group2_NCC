@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch, faBars, faTimes } from "@fortawesome/free-solid-svg-icons";
-import { faEnvelope } from "@fortawesome/free-regular-svg-icons";
+import { faBell, faEnvelope } from "@fortawesome/free-regular-svg-icons";
 import { useState, useContext } from "react";
 import { useRouter } from "next/router";
 import CurrentUserDropdown from "./dropdowns/current-user-options";
@@ -10,6 +10,7 @@ import UserIcon from "./user-icon";
 import { UserContext } from "@/contexts/UserContext";
 import SearchBar from "./searchbar";
 import { SearchProvider } from "@/contexts/SearchContext";
+import YourAppLayout from "./notification-menu";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -70,6 +71,7 @@ const Navbar = () => {
                     size="2x"
                     onClick={() => router.push("/message")}
                   />
+                  <YourAppLayout />
                 </div>
               ) : (
                 <Link
@@ -135,6 +137,7 @@ const Navbar = () => {
                           size="2x"
                           onClick={() => router.push("/message")}
                         />
+                        <YourAppLayout /> {/* Notification Bell Component */}
                       </div>
 
                       <div className="d-flex flex-column justify-content-start align-items-start">
