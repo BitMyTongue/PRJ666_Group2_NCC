@@ -25,27 +25,6 @@ const userSchema = new mongoose.Schema(
      type: String, 
      required: true, 
     },
-    address: {
-      type: String,
-      default: null,
-    },
-    site: {
-      type: String,
-      default: null,
-    },
-    gender: {
-      type: String,
-      enum: ["Male", "Female", "Not Specified"],
-      default: "Not Specified",
-    },
-    dateOfBirth: {
-      type: Date,
-      default: null,
-    },
-    profilePicture: {
-      type: String,
-      default: null,
-    },
   },
   { timestamps: true }
 );

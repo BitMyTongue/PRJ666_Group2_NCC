@@ -9,7 +9,7 @@ import {
   faStar as solidStar,
 } from "@fortawesome/free-solid-svg-icons";
 import { faStar as emptyStar } from "@fortawesome/free-regular-svg-icons";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import BookmarkIcon from "@/components/bookmark-icon";
 import {
   GoogleMap,
@@ -149,7 +149,7 @@ export default function Listing() {
     id: "google-map-script",
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY,
   });
-  //TODO: CHANGE TO RETRIEVE DYNAMICALLY
+
   const meetUpLocation = pickUpLocations.find(
     (loc) => loc.name === listing?.location,
   );
@@ -162,9 +162,17 @@ export default function Listing() {
     const province = parts[parts.length - 1].trim().split(" ")[0];
     return `${city}, ${province}`;
   };
-  const [selectedImage, setSelectedImage] = useState(
-    fakeSuccessfullyCreatedData.imageUrl[0],
-  );
+  const [selectedImage, setSelectedImage] = useState("");
+
+  useEffect(() => {
+    if (listing?.images?.length > 0) {
+      setSelectedImage(listing.images[0]);
+    }
+  }, [listing]);
+
+  if (loading) return <h1>Loading the listing...</h1>;
+  if (loadError) return <h1 className="text-danger">{loadError}</h1>;
+  if (!listing) return <h1>Listing not found.</h1>;
 
   return (
     <>
@@ -225,7 +233,7 @@ export default function Listing() {
                     : "text-primary fw-semibold link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
                 }
               >
-                figurines
+                Figurine
               </Link>
             </div>
           </div>
@@ -256,7 +264,7 @@ export default function Listing() {
                 infinite={true}
                 keyBoardControl
               >
-                {fakeSuccessfullyCreatedData.imageUrl.map((img, index) => (
+                {listing.images.map((img, index) => (
                   <div
                     key={index}
                     className={`text-center rounded-3 p-2 ${
@@ -320,7 +328,7 @@ export default function Listing() {
                   </div>
                   <div className="col-7">
                     <p className="text-primary text-capitalize fw-light">
-                      {fakeSuccessfullyCreatedData.category}
+                      {listing.category}
                     </p>
                   </div>
                 </div>
@@ -332,7 +340,7 @@ export default function Listing() {
                   </div>
                   <div className="col-7">
                     <p className="text-primary text-uppercase fw-light">
-                      {fakeSuccessfullyCreatedData.condition}
+                      {listing.condition}
                     </p>
                   </div>
                 </div>
@@ -385,7 +393,7 @@ export default function Listing() {
                 </button>
               </div>
               <div className="d-flex flex-column gap-1 border-bottom border-primary pb-4">
-                {fakeSuccessfullyCreatedData.meetUp && (
+                {listing.meetUp && (
                   <div className="d-flex justify-content-start align-items-center gap-2 mt-2">
                     <FontAwesomeIcon
                       icon={faPeopleLine}
@@ -429,7 +437,7 @@ export default function Listing() {
               Description
             </p>
             <p className="text-primary text-capitalize fw-regular">
-              {fakeSuccessfullyCreatedData.description}
+              {listing.description}
             </p>
             <p className="text-primary text-capitalize fw-semibold mb-1">
               Owner Details

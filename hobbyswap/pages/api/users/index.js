@@ -1,7 +1,7 @@
 import { UserModel, mongooseConnect } from "@/lib/dbUtils";
 
 export default async function handler(req, res) {
-  const { firstName, lastName, username, email, password, address, site, gender, dateOfBirth, profilePicture } = req.body;
+  const { firstName, lastName, username, email, password } = req.body;
   const { method } = req;
 
   try {
@@ -29,11 +29,6 @@ export default async function handler(req, res) {
         username,
         email,
         password,
-        address: address || null,
-        site: site || null,
-        gender: gender || "Not Specified",
-        dateOfBirth: dateOfBirth || null,
-        profilePicture: profilePicture || null,
       });
       const userObj = user.toObject();
       delete userObj.password;

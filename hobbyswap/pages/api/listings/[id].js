@@ -19,50 +19,7 @@ export default async function handler(req, res) {
   try {
     await mongooseConnect();
 
-    if (method === "DELETE") {
-      const listing = await ListingModel.findById(id);
-      if (!listing) {
-        return res.status(404).json({ error: "Listing not found" });
-      }
-
-      const images = listing.images || [];
-
-      // DELETE IMAGES FROM S3
-      if (images.length > 0) {
-        try {
-          const s3 = new S3Client({
-            region: process.env.AWS_REGION,
-            credentials: {
-              accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-              secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-            },
-          });
-
-          await Promise.all(
-            images.map(async (imgUrl) => {
-              const Key = s3KeyFromUrl(imgUrl);
-              if (!Key) return;
-              await s3.send(
-                new DeleteObjectCommand({
-                  Bucket: process.env.AWS_S3_BUCKET,
-                  Key,
-                })
-              );
-            })
-          );
-        } catch (err) {
-          console.error("S3 delete error:", err);
-          return res.status(500).json({ error: "Failed to delete images from S3" });
-        }
-      }
-
-      // DELETE LISTING FROM MONGODB
-      await ListingModel.findByIdAndDelete(id);
-
-      return res.status(200).json({ message: "Listing deleted successfully" });
-    }
-
-    else if (method === "GET") {
+    if (method === "GET") {
       const listing = await ListingModel
         .findById(id)
         .populate("userId"); // 👈 THIS is the fix
@@ -126,7 +83,7 @@ export default async function handler(req, res) {
       return res.status(200).json({ listing: updated });
     }
 
-    res.setHeader("Allow", ["GET", "PUT", "DELETE"]);
+    res.setHeader("Allow", ["GET, PUT"]);
     res.status(405).end(`Method ${method} Not Allowed`);
   } catch (err) {
     console.error("LISTING BY ID API ERROR:", err);
