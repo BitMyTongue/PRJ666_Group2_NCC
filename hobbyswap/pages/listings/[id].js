@@ -18,6 +18,7 @@ import {
   useJsApiLoader,
 } from "@react-google-maps/api";
 import Carousel from "react-multi-carousel";
+import {useEffect} from "react";
 import "react-multi-carousel/lib/styles.css";
 import { pickUpLocations } from "@/lib/data/pickupLocations";
 import { Modal, Button } from "react-bootstrap";

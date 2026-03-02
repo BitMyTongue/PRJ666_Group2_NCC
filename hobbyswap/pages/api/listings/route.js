@@ -13,8 +13,7 @@ const s3 = new S3Client({
   },
 });
 
-export async function TO_POST(req) { // Post testing from differnt fomponent for AWS
-  const formData = await req.formData();
+export async function TO_POST(req) { 
   const files = formData.getAll("files");
 
   if (!files.length) {

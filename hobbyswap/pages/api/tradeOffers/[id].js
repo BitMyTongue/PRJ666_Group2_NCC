@@ -2,19 +2,6 @@ import { mongooseConnect } from "@/lib/dbUtils";
 import { TradeOfferModel } from "@/lib/tradeOffer";
 import { ListingModel } from "@/lib/listing";
 
-/***********************************************************************************************************
- *                                              DA RULES
- * ---------------------------------------------------------------------------------------------------------
- * 
- * R1. Listing owner MUST be the one to ACCEPT or DECLINE an offer
- * R2. Listing owner cannot accept more than 1 offer at a time. (Listing status must be ACTIVE) 
- * R3. If offer is ACCEPTED, trade is ONGOING, listing is IN TRADE.
- * R4. If listing is NOT ACTIVE, an offer cannot be made (A trade is already ONGOING or COMPLETE)
- * R5. Only the Owner or Requester can CANCEL or COMPLETE a TRADE.
- * R6. If ONGOING TRADE is canceled, listing.status is set to ACTIVE (people can offer on the listing again) 
- * R7. If TRADE is COMPLETE, listing.status is also set to COMPLETE 
- * 
- **********************************************************************************************************/
 
 export default async function handler(req, res) {
   const { method, query } = req;

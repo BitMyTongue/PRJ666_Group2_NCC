@@ -133,6 +133,30 @@ export default function DashboardHome() {
     };
   }, []);
 
+  const [bookmarkedIds, setBookmarkedIds] = useState(new Set());
+
+  useEffect(() => {
+    if (!user?._id) return;
+
+    (async () => {
+      try {
+        const res = await fetch(`/api/bookmarks?userId=${user._id}`);
+        const text = await res.text();
+        const data = text ? JSON.parse(text) : {};
+
+        if (!res.ok) {
+          console.error("Failed to fetch bookmarks:", data);
+          return;
+        }
+
+        const ids = new Set((data.bookmarks || []).map((b) => b.listingId));
+        setBookmarkedIds(ids);
+      } catch (e) {
+        console.error("Failed to load bookmarks", e);
+      }
+    })();
+  }, [user?._id]);
+
   const visibleItems = useMemo(() => {
     let items = listings.filter((x) => categoryMatches(x.category, active.aliases));
 
@@ -148,7 +172,17 @@ export default function DashboardHome() {
       });
     }
 
+    // const mapped = items.map((x) => ({
+    //   id: x._id || x.id,
+    //   ownerId: x.userId || x.ownerId,
+    //   name: x.itemName || x.title || "Untitled",
+    //   desc: x.description || "No description provided.",
+    //   img: getImageSrc(x.images),
+    //   datePosted: x.datePosted || x.createdAt,
+    // }));
+
     const mapped = items.map((x) => ({
+      ...x, 
       id: x._id || x.id,
       ownerId: x.userId || x.ownerId,
       name: x.itemName || x.title || "Untitled",
@@ -217,7 +251,22 @@ export default function DashboardHome() {
               <div className="row justify-content-center g-5 p-6 pt-2">
                 {visibleItems.slice(0, 6).map((item) => (
                   <div key={item.id} className="col-12 col-sm-6 col-md-4 d-flex justify-content-center">
-                    <ItemCard img={item.img} name={item.name} desc={item.desc} saved={false} url={`/listings/${item.id}`} listingId={item.id} ownerId={item.ownerId} currentUserId={user?._id}/>
+                    {/* <ItemCard img={item.img} name={item.name} desc={item.desc} saved={false} url={`/listings/${item.id}`} listingId={item.id} ownerId={item.ownerId} currentUserId={user?._id}/> */}
+                    <ItemCard
+                      img={item.img}
+                      name={item.name}
+                      desc={item.desc}
+                      saved={bookmarkedIds.has(item.id)}
+                      url={`/listings/${item.id}`}
+                      listingId={item.id}
+                      ownerId={item.ownerId}
+                      currentUserId={user?._id}
+
+                      category={item.category}
+                      brand={item.brand}
+                      condition={item.condition}
+                      images={item.images}
+                    />
                   </div>
                 ))}
               </div>
