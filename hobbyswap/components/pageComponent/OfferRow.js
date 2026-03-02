@@ -9,10 +9,28 @@ export function OfferRow({ offer, listing }) {
     PENDING: StatusType.RES_NEEDED,
     DECLINED: StatusType.DECLINED,
     ACCEPTED: StatusType.IN_PROGRESS,
-    RETRACTED: StatusType.CANCELLED,
+    RETRACTED: StatusType.RETRACTED,
+    CANCELED: StatusType.CANCELED,
   };
-  const currentStatus = statusMap[offer.offerStatus] || StatusType.RES_NEEDED;
 
+  let currentStatus;
+
+  if (offer.tradeStatus === "COMPLETED") {
+    currentStatus = StatusType.COMPLETED;
+  } else if (offer.tradeStatus === "CANCELED") {
+    currentStatus = StatusType.CANCELED;
+  } else {
+    const statusMap = {
+      PENDING: StatusType.RES_NEEDED,
+      DECLINED: StatusType.DECLINED,
+      ACCEPTED: StatusType.IN_PROGRESS,
+      RETRACTED: StatusType.RETRACTED,
+      CANCELED: StatusType.CANCELED,
+    };
+
+    currentStatus = statusMap[offer.offerStatus] || StatusType.RES_NEEDED;
+  }
+  
   useEffect(() => {
     const loadRequestUser = async () => {
       try {
@@ -39,19 +57,20 @@ export function OfferRow({ offer, listing }) {
   }
   return (
     <div className="col-12 p-2">
-      {/* <StatusCard
+      <StatusCard
+        offerId={offer._id}
         requestMoney={offer.proposedMoney}
         requestUser={requestUser}
         user={requestUser}
         offerItem={listing}
         statusType={currentStatus}
-      /> */}
-      <ProposalCard
+      />
+      {/* <ProposalCard
         offerObj={offer}
         fromUser={requestUser}
         proposedItems={offer.proposedItems}
         proposedMoney={offer.proposedMoney}
-      />
+      /> */}
     </div>
   );
 }

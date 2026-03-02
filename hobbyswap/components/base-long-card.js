@@ -11,11 +11,12 @@ const StatusType = {
   DECLINED: 1,
   IN_PROGRESS: 2,
   COMPLETED: 3,
-  CANCELLED: 4,
+  CANCELED: 4,
   RES_NEEDED: 5,
   AWAIT_PROPOSAL: 6,
   AWAIT_P_APPROVAL: 7,
   P_ACCEPTED: 8,
+  RETRACTED: 9,
 };
 
 const SubtractSVG = function SubtractSVG({
@@ -569,6 +570,24 @@ const TradeCard = function TradeCard({
   rating = 0,
   url,
 }) {
+
+  const router = useRouter();
+  const { user: currUser } = useContext(UserContext);
+
+  const handleTradeNow = () => {
+    if (!currUser?._id) {
+      alert("You need to be logged in to propose a trade.");
+      return;
+    }
+
+    if (offerItem.userId === currUser._id) {
+      alert("You can’t propose an offer on your own listing.");
+      return;
+    }
+
+    router.push(`/tradeOffers/create?listingId=${offerItem._id}`);
+  };
+
   // TODO: Button implementation
   return (
     <BaseLongCard
@@ -585,7 +604,7 @@ const TradeCard = function TradeCard({
         View
       </Button>
       {requestItem !== null && (
-        <Button variant="light rounded-pill text-primary">Trade Now</Button>
+        <Button variant="light rounded-pill text-primary" onClick={handleTradeNow}>Trade Now</Button>
       )}
       {requestMoney && (
         <Button variant="light rounded-pill text-primary">Buy Now</Button>
@@ -662,6 +681,7 @@ const DeclineButton = function DeclineButton({ onClick }) {
 };
 
 const StatusCard = function StatusCard({
+  offerId,
   user,
   offerItem,
   requestItem,
@@ -671,6 +691,7 @@ const StatusCard = function StatusCard({
   requestUser = null,
   cancelCallback = null,
 }) {
+  const { user: currUser } = useContext(UserContext);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
@@ -708,8 +729,41 @@ const StatusCard = function StatusCard({
   
   const handleViewTrade = () => {};
   const handleMessage = () => {};
-  const handleAccept = () => {};
-  const handleDecline = () => {};
+
+  const patchOffer = async (action) => {
+    if (!currUser?._id) {
+      alert("You need to be logged in.");
+      return;
+    }
+
+    if (!offerId) {
+      alert("Offer id missing.");
+      return;
+    }
+
+    const res = await fetch(`/api/tradeOffers/${offerId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action,
+        actorId: currUser._id,
+      }),
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      alert(data?.error || "Something went wrong.");
+      return;
+    }
+
+    router.reload();
+  };
+
+  const handleAccept = () => patchOffer("ACCEPT");
+  const handleDecline = () => patchOffer("DECLINE");
+  const handleCancelTrade = () => patchOffer("CANCEL");
+  const handleRetractOffer = () => patchOffer("RETRACT");
+  const handleCompleteTrade = () => patchOffer("COMPLETE");
 
   const ButtonLayout = {
     MAIN_LAYOUT1: (
@@ -771,6 +825,22 @@ const StatusCard = function StatusCard({
         />
       </>
     ),
+    IN_PROGRESS_LAYOUT: (
+    <>
+      <Button
+        variant="success rounded-pill"
+        onClick={handleCompleteTrade}
+      >
+        Complete Trade
+      </Button>
+
+      <OfferButton
+        variant={"light text-primary border border-primary border-2 rounded-pill"}
+        link={`/listings/${offerItem._id}`}
+      />
+      <MsgButton onClick={handleMessage} />
+    </>
+  ),
   };
 
   const StatusLayout = [
@@ -788,8 +858,8 @@ const StatusCard = function StatusCard({
       id: StatusType.IN_PROGRESS,
       msg: "trade in progress",
       color: "#F79E1B",
-      layout: ButtonLayout.MAIN_LAYOUT1,
-      cancel: () => {},
+      layout: ButtonLayout.IN_PROGRESS_LAYOUT,
+      cancel: handleCancelTrade,
       cancelLabel: "Cancel",
     },
     {
@@ -801,8 +871,8 @@ const StatusCard = function StatusCard({
       cancelLabel: "Dismiss",
     },
     {
-      id: StatusType.CANCELLED,
-      msg: "trade cancelled",
+      id: StatusType.CANCELED,
+      msg: "trade canceled",
       color: "#777070",
       layout: ButtonLayout.MAIN_LAYOUT1,
       cancel: null,
@@ -813,8 +883,7 @@ const StatusCard = function StatusCard({
       msg: "proposal response needed",
       color: "#00BAE8",
       layout: ButtonLayout.CHOICE_LAYOUT,
-      cancel: () => {},
-      cancelLabel: "Cancel",
+      cancel: null,
     },
     {
       id: StatusType.AWAIT_PROPOSAL,
@@ -829,7 +898,7 @@ const StatusCard = function StatusCard({
       msg: "awaiting proposal approval...",
       color: "#F79E1B",
       layout: ButtonLayout.MAIN_LAYOUT2,
-      cancel: () => {},
+      cancel: handleRetractOffer,
       cancelLabel: "Cancel",
     },
     {
@@ -837,9 +906,17 @@ const StatusCard = function StatusCard({
       msg: "proposal accepted!",
       color: "#3A8402",
       layout: ButtonLayout.MAIN_LAYOUT2,
-      cancel: () => {},
+      cancel: handleCancelTrade,
       cancelLabel: "Dismiss",
     },
+    {
+      id: StatusType.RETRACTED,
+      msg: "offer retracted",
+      color: "#777070",
+      layout: ButtonLayout.MAIN_LAYOUT2,
+      cancel: null,
+      cancelLabel: "Dismiss",
+    }
   ];
 
   const currType = StatusLayout.find((obj) => statusType === obj.id);
