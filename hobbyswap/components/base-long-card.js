@@ -1,9 +1,9 @@
-import { Button, Modal, Stack, Modal} from "react-bootstrap";
+import { Button, Modal, Stack} from "react-bootstrap";
 import Rating from "./rating";
 import Image from "next/image";
 import BookmarkIcon from "./bookmark-icon";
 import UserIcon from "./user-icon";
-import { useContext, useEffect, useContext, useState } from "react";
+import { useContext, useState } from "react";
 import { useRouter } from "next/router";
 import { UserContext } from "@/contexts/UserContext";
 
