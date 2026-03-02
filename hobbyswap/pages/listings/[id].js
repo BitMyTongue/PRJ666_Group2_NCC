@@ -95,8 +95,8 @@ export default function Listing() {
           Authorization: `Bearer ${token}`,
         },
       })
-      .then((res) => res.json())
-      .then((data) => setUser(data.user))
+        .then((res) => res.json())
+        .then((data) => setUser(data.user));
     }
 
     const load = async () => {
@@ -384,13 +384,20 @@ export default function Listing() {
                   </button>
                 )}
                 {listing.requestMoney !== 0 && (
-                  <Button className="btn btn-primary text-white fw-semibold rounded-pill py-2" href={`/checkout/pay/${id}?step=payment info`}>
+                  <Button
+                    className="btn btn-primary text-white fw-semibold rounded-pill py-2"
+                    href={`/checkout/pay/${id}?step=payment info`}
+                  >
                     Pay Now
                   </Button>
                 )}
-                <button className="btn btn-white text-primary fw-semibold rounded-pill py-2 border border-primary border-2">
+                <Button
+                  variant="primary-outline"
+                  className="btn btn-white text-primary fw-semibold rounded-pill py-2 border border-primary border-2"
+                  href={"/message?user=" + owner._id}
+                >
                   Message Owner
-                </button>
+                </Button>
               </div>
               <div className="d-flex flex-column gap-1 border-bottom border-primary pb-4">
                 {listing.meetUp && (

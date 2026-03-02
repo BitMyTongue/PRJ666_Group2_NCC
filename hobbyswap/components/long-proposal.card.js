@@ -21,7 +21,9 @@ export default function ProposalCard({
   const handleAccept = () => {};
   const handleDecline = () => {};
 
-  const handleMessage = () => {};
+  const handleMessage = () => {
+    router.push("/message?user=" + fromUser._id);
+  };
 
   const hasMultiple = proposedItems?.length > 1;
   return (

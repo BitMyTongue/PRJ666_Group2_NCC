@@ -182,12 +182,12 @@ export default function MessagePage() {
   useEffect(() => {
     const effectAsync = async () => {
       if (!client) return;
-      if (!userQuery) return;
+      if (!userQuery || user._id === userQuery) return;
       const channel = client.channel("messaging", {
         members: [user._id, userQuery],
       });
 
-      const result = await channel.create();
+      const result = await channel.watch();
       setActiveCh(result.channel.id);
     };
     effectAsync();
@@ -197,7 +197,9 @@ export default function MessagePage() {
     <div id="root" className="sm-d-shadow">
       {loading ? (
         <Spinner />
-      ) : client && options && (!userQuery || activeCh) ? (
+      ) : client &&
+        options &&
+        (!userQuery || user._id === userQuery || activeCh) ? (
         <Chat client={client} initialNavOpen={false}>
           <ChannelList
             List={CustomChannelList}

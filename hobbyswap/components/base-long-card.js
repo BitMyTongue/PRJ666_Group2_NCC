@@ -589,6 +589,12 @@ const TradeCard = function TradeCard({
       {requestMoney && (
         <Button variant="light rounded-pill text-primary">Buy Now</Button>
       )}
+      <Button
+        variant={"light rounded-pill border border-primary text-primary"}
+        href={"/message?user=" + user._id}
+      >
+        Message User
+      </Button>
     </BaseLongCard>
   );
 };
@@ -619,13 +625,13 @@ const TradeButton = function TradeButton({ variant, onClick }) {
   );
 };
 
-const MsgButton = function MsgButton({ onClick }) {
+const MsgButton = function MsgButton({ user }) {
   return (
     <Button
       variant={"light rounded-pill border border-primary text-primary"}
-      onClick={onClick}
+      href={"/message?user=" + user._id}
     >
-      Message
+      Message User
     </Button>
   );
 };
@@ -677,7 +683,7 @@ const StatusCard = function StatusCard({
           }
           link={`/listings/${offerItem._id}`}
         />
-        <MsgButton onClick={handleMessage} />
+        <MsgButton user={user} />
       </>
     ),
     MAIN_LAYOUT2: (
@@ -686,7 +692,7 @@ const StatusCard = function StatusCard({
           variant={"primary rounded-pill"}
           link={`/listings/${offerItem._id}`}
         />
-        <MsgButton onClick={handleMessage} />
+        <MsgButton user={user} />
       </>
     ),
 
@@ -698,7 +704,7 @@ const StatusCard = function StatusCard({
           variant={"light rounded-pill border border-primary text-primary"}
           onClick={handleViewOffer}
         />
-        <MsgButton onClick={handleMessage} />
+        <MsgButton user={user} />
       </>
     ),
     EDIT_OFFER: (

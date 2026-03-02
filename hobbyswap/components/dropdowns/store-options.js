@@ -64,7 +64,7 @@ export default function StoreOptionsDropdown({ userId }) {
             href="#/action-1"
             onClick={() => {
               if (user) {
-                router.push("/message/user=" + userId);
+                router.push("/message?user=" + userId);
               } else router.push("/login");
             }}
           >
