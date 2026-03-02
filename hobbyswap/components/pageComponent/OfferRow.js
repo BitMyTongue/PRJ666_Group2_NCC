@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { StatusCard, StatusType } from "../base-long-card";
+import ProposalCard from "../long-proposal.card";
 
 export function OfferRow({ offer, listing }) {
   const [requestUser, setRequestUser] = useState(null);
@@ -38,12 +39,18 @@ export function OfferRow({ offer, listing }) {
   }
   return (
     <div className="col-12 p-2">
-      <StatusCard
+      {/* <StatusCard
         requestMoney={offer.proposedMoney}
         requestUser={requestUser}
         user={requestUser}
         offerItem={listing}
         statusType={currentStatus}
+      /> */}
+      <ProposalCard
+        offerObj={offer}
+        fromUser={requestUser}
+        proposedItems={offer.proposedItems}
+        proposedMoney={offer.proposedMoney}
       />
     </div>
   );

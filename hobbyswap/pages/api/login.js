@@ -1,6 +1,7 @@
 import { UserModel, mongooseConnect } from "@/lib/dbUtils";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { StreamChat } from "stream-chat";
 
 const JWT_SECRET = process.env.JWT_SECRET || "supersecretkey"; // ideally store in env
 const JWT_EXPIRES_IN = "7d"; // 7 days
@@ -47,15 +48,26 @@ export default async function handler(req, res) {
     delete userObj.password;
 
     const token = jwt.sign(
-  { id: user._id, email: user.email }, // payload
-  JWT_SECRET,
-  { expiresIn: JWT_EXPIRES_IN }
-);
+      { id: user._id, email: user.email }, // payload
+      JWT_SECRET,
+      { expiresIn: JWT_EXPIRES_IN },
+    );
+    const chatClient = new StreamChat(
+      process.env.NEXT_PUBLIC_STREAM_CHAT_KEY,
+      process.env.STREAM_CHAT_SECRET,
+    );
+
+    // creates a new user for messaging
+    const updateResponse = await chatClient.upsertUsers([
+      { id: user._id, role: "user" },
+    ]);
+
+    console.log(updateResponse);
 
     return res.status(200).json({
       message: "Login successful",
       user: userObj,
-      token
+      token,
     });
   } catch (err) {
     console.error("LOGIN ERROR:", err);
