@@ -2,6 +2,7 @@ import { forwardRef } from "react";
 import { Button, Dropdown } from "react-bootstrap";
 import UserIcon from "../user-icon";
 import Link from "next/link";
+import Image from "next/image";
 
 const CustomToggle = forwardRef(function CustomToggle(
   { children, onClick },
@@ -36,7 +37,18 @@ export default function CurrentUserDropdown({ user, handleLogout }) {
   return (
     <Dropdown>
       <Dropdown.Toggle as={CustomToggle} id="current-user-dropdown">
-        <UserIcon user={user.username} img={user.avatar} size={40} />
+        {user?.profilePicture ? (
+          <Image
+            src={user.profilePicture}
+            alt="Profile"
+            width={40}
+            height={40}
+            className="rounded-circle"
+            style={{ objectFit: "cover" }}
+          />
+        ) : (
+          <UserIcon user={user.username} img={user.avatar} size={40} />
+        )}
       </Dropdown.Toggle>
 
       <Dropdown.Menu as={CustomMenu}>
