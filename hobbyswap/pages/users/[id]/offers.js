@@ -65,7 +65,7 @@ export default function UserOffers() {
               (l) => offer.listingId == l._id,
             );
             offer.owner = users.find((u) => offer.ownerId === u._id);
-            return offer.requesterId === id;
+            return offer.requesterId === id && offer.listing;
           });
           setoffers(userOffer);
         } catch (e) {

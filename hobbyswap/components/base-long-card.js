@@ -778,7 +778,7 @@ const StatusCard = function StatusCard({
           }
           link={`/listings/${offerItem._id}`}
         />
-        <MsgButton user={user} />
+        <MsgButton user={user} onClick={handleMessage}/>
       </>
     ),
     MAIN_LAYOUT2: (
@@ -787,7 +787,7 @@ const StatusCard = function StatusCard({
           variant={"primary rounded-pill"}
           link={`/listings/${offerItem._id}`}
         />
-        <MsgButton user={user} />
+        <MsgButton user={user} onClick={handleMessage}/>
       </>
     ),
 
@@ -799,7 +799,7 @@ const StatusCard = function StatusCard({
           variant={"light rounded-pill border border-primary text-primary"}
           onClick={handleViewOffer}
         />
-        <MsgButton user={user} />
+        <MsgButton user={user} onClick={handleMessage}/>
       </>
     ),
     EDIT_OFFER: (
@@ -838,7 +838,7 @@ const StatusCard = function StatusCard({
         variant={"light text-primary border border-primary border-2 rounded-pill"}
         link={`/listings/${offerItem._id}`}
       />
-      <MsgButton onClick={handleMessage} />
+      <MsgButton user={user} onClick={handleMessage}/>
     </>
   ),
   };
