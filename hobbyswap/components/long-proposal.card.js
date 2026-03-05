@@ -6,9 +6,6 @@ import { useRouter } from "next/router";
 export default function ProposalCard({
   offerObj, // used to process button callbacks
   fromUser, // offerObj only has ids for user, so fromUser has to include the entire user
-  /*
-    if the comp loads in users instead, it might load in offers where userIds exist but not the user object itself, also might include additional overhead 
-   */
   proposedItems,
   proposedMoney = 0.0,
   acceptFn = null,

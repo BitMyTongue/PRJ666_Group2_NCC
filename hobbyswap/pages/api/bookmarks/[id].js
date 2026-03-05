@@ -23,7 +23,6 @@ export default async function handler(req, res) {
                 return res.status(404).json({ error: "Bookmark not found" });
             }
 
-            // Delete images from S3
             const s3 = new S3Client({
                 region: process.env.AWS_REGION,
                 credentials: {

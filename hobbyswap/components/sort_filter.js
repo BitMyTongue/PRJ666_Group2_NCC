@@ -49,7 +49,6 @@ export default function SortFilter({
         <div className="d-flex align-items-center gap-3">
           {isFilterVisible ? (
             <>
-              {/* Condition Filter Dropdown */}
               <div className="position-relative">
                 <button
                   type="button"
@@ -79,7 +78,6 @@ export default function SortFilter({
                 )}
               </div>
 
-              {/* Category Filter Dropdown */}
               <div className="position-relative">
                 <button
                   type="button"
@@ -110,7 +108,6 @@ export default function SortFilter({
               </div>
             </>
           ) : (
-            /* Standard Search Toggle */
             <Button 
               className="btn-light text-muted px-5 rounded-pill" 
               onClick={() => setShowSearch(!showSearch)}
@@ -119,7 +116,6 @@ export default function SortFilter({
             </Button>
           )}
 
-          {/* Sort Dropdown */}
           <div className="position-relative ms-auto">
             <button
               type="button"
@@ -148,7 +144,6 @@ export default function SortFilter({
           </div>
         </div>
 
-        {/* Search Input (Visible if not in complex filter mode OR if search is toggled) */}
         {(showSearch || !isFilterVisible) && (
           <div className="mt-2">
             <input

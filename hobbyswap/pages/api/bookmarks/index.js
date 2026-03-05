@@ -1,98 +1,67 @@
+// pages/api/bookmarks/index.js
 import { mongooseConnect } from "@/lib/dbUtils";
-import { ListingModel } from "@/lib/listing";
-import { BookmarkModel } from "@/lib/bookmark"; // ✅ correct import
+import { BookmarkModel } from "@/lib/bookmarks";
 
 export default async function handler(req, res) {
-  const { method, query, body } = req;
-
   try {
     await mongooseConnect();
 
-    // ✅ GET /api/bookmark?userId=123
-    if (method === "GET") {
-      const { userId } = query;
-      if (!userId) {
-        return res.status(400).json({ error: "Missing userId" });
-      }
+    if (req.method === "POST") {
+      const body = req.body || {};
+      const { userId, listingId } = body;
 
-      const bookmarks = await BookmarkModel.find({ userId })
-        .exec();
-      console.log("DB:", BookmarkModel.db.name);
-      console.log("COLLECTION:", BookmarkModel.collection.name);
-      return res.status(200).json({ bookmarks });
-    }
+      if (!userId) return res.status(400).json({ error: "Missing userId" });
+      if (!listingId) return res.status(400).json({ error: "Missing listingId" });
 
-    // ✅ POST /api/bookmark  { userId, listingId }
-    if (method === "POST") {
-      // const { userId, listingId } = body;
-      const { userId, listingId, title, description, category, brand, condition, images } = req.body;
-
-
-      if (!userId || !listingId) {
-        return res.status(400).json({ error: "Missing userId or listingId" });
-      }
-
-      const listing = await ListingModel.findById(listingId).lean().exec();
-      if (!listing) {
-        return res.status(404).json({ error: "Listing not found" });
-      }
-
-      if (method === "DELETE") {
-        const { userId, listingId } = req.query;
-        if (!userId || !listingId) {
-          return res.status(400).json({ error: "Missing userId or listingId" });
+      const doc = await BookmarkModel.findOneAndUpdate(
+        { userId, listingId },
+        {
+          $set: {
+            userId,
+            listingId,
+            title: body.title ?? "Untitled",
+            description: body.description ?? "",
+            category: body.category ?? "Uncategorized",
+            brand: body.brand ?? "Unknown",
+            condition: body.condition ?? "Unknown",
+            images: Array.isArray(body.images) ? body.images : [],
+            dateBookmarked: new Date(),
+          },
+        },
+        {
+          upsert: true,
+          returnDocument: "after", // ✅ replaces deprecated `new: true`
+          runValidators: true,
         }
+      );
 
-        await BookmarkModel.findOneAndDelete({ userId, listingId }).exec();
-        return res.status(200).json({ message: "Bookmark removed" });
-      }
-
-      // Build snapshot fields for UI
-      const doc = {
-        userId,
-        listingId,
-        title: listing.title ?? listing.itemName ?? "Untitled",
-        description: listing.description ?? "",
-        category: listing.category ?? "Other",
-        brand: listing.brand ?? "Unknown",
-        condition: listing.condition ?? "Unknown",
-        images: listing.images ?? [],
-      };
-
-      // ✅ upsert prevents duplicate bookmark errors
-      // const bookmark = await BookmarkModel.findOneAndUpdate(
-      //   { userId, listingId },
-      //   { $setOnInsert: doc },
-      //   { new: true, upsert: true }
-      // ).exec();
-      
-      // prevent duplicates
-      const existing = await BookmarkModel.findOne({ userId, listingId }).exec();
-      if (existing) return res.status(200).json({ message: "Already bookmarked", bookmark: existing });
-
-      const newBookmark = await BookmarkModel.create({
-        userId,
-        listingId,
-        title,
-        description,
-        category,
-        brand,
-        condition,
-        images,
-      });
-
-      return res.status(201).json({ message: "Bookmarked created", newBookmark });
+      return res.status(200).json({ ok: true, saved: true, bookmark: doc });
     }
 
+    if (req.method === "GET") {
+      const { userId } = req.query;
+      if (!userId) return res.status(400).json({ error: "Missing userId" });
+
+      const docs = await BookmarkModel.find({ userId })
+        .sort({ createdAt: -1 })
+        .lean();
+
+      return res.status(200).json({ ok: true, bookmarks: docs });
+    }
+
+    if (req.method === "DELETE") {
+      const { userId, listingId } = req.query;
+      if (!userId) return res.status(400).json({ error: "Missing userId" });
+      if (!listingId) return res.status(400).json({ error: "Missing listingId" });
+
+      await BookmarkModel.deleteOne({ userId, listingId });
+      return res.status(200).json({ ok: true, saved: false });
+    }
+
+    res.setHeader("Allow", ["GET", "POST", "DELETE"]);
     return res.status(405).json({ error: "Method not allowed" });
   } catch (err) {
-    console.error(err);
-
-    // duplicate key error (already bookmarked)
-    if (err?.code === 11000) {
-      return res.status(200).json({ message: "Already bookmarked" });
-    }
-
-    return res.status(500).json({ error: "Server error" });
+    console.error("API /bookmarks error:", err);
+    return res.status(500).json({ error: err.message || "Server error" });
   }
 }

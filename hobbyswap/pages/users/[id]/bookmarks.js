@@ -356,7 +356,6 @@ export default function UserBookmarksPage() {
         </div>
       ) : (
         <>
-          {/* Filters */}
           <SortFilter
             isFilterVisible={true}
             sortKey={sortKey}

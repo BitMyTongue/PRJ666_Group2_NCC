@@ -82,8 +82,40 @@ export default function DashboardHome() {
   const [query, setQuery] = useState("");
   const [sortKey, setSortKey] = useState("popular");
   const [showSearch, setShowSearch] = useState(false);
-
+  
   const active = CATEGORY[activeCategory];
+  const [bookmarkedIds, setBookmarkedIds] = useState(new Set());
+
+  const refreshBookmarks = async (userId) => {
+  if (!userId) return;
+
+  try {
+    const res = await fetch(`/api/bookmarks?userId=${encodeURIComponent(userId)}`, {
+      cache: "no-store",
+    });
+
+    const contentType = res.headers.get("content-type") || "";
+    const data = contentType.includes("application/json")
+      ? await res.json()
+      : { raw: await res.text() };
+
+    if (!res.ok) {
+      console.error("Failed to fetch bookmarks:", res.status, data);
+      return;
+    }
+
+    const ids = new Set((data.bookmarks || []).map((b) => String(b.listingId)));
+    setBookmarkedIds(ids);
+  } catch (e) {
+    console.error("Failed to load bookmarks", e);
+  }
+};
+
+  useEffect(() => {
+    if (!user?._id) return;
+    refreshBookmarks(user._id);
+  }, [user?._id]);
+
 
   useEffect(() => {
     let ignore = false;
@@ -132,30 +164,6 @@ export default function DashboardHome() {
       ignore = true;
     };
   }, []);
-
-  const [bookmarkedIds, setBookmarkedIds] = useState(new Set());
-
-  useEffect(() => {
-    if (!user?._id) return;
-
-    (async () => {
-      try {
-        const res = await fetch(`/api/bookmarks?userId=${user._id}`);
-        const text = await res.text();
-        const data = text ? JSON.parse(text) : {};
-
-        if (!res.ok) {
-          console.error("Failed to fetch bookmarks:", data);
-          return;
-        }
-
-        const ids = new Set((data.bookmarks || []).map((b) => b.listingId));
-        setBookmarkedIds(ids);
-      } catch (e) {
-        console.error("Failed to load bookmarks", e);
-      }
-    })();
-  }, [user?._id]);
 
   const visibleItems = useMemo(() => {
     let items = listings.filter((x) => categoryMatches(x.category, active.aliases));
@@ -256,17 +264,18 @@ export default function DashboardHome() {
                       img={item.img}
                       name={item.name}
                       desc={item.desc}
-                      saved={bookmarkedIds.has(item.id)}
+                      saved={bookmarkedIds.has(String(item.id))}
                       url={`/listings/${item.id}`}
                       listingId={item.id}
                       ownerId={item.ownerId}
                       currentUserId={user?._id}
-
+                      onBookmarkChanged={() => refreshBookmarks(user?._id)}
                       category={item.category}
                       brand={item.brand}
                       condition={item.condition}
                       images={item.images}
                     />
+                    
                   </div>
                 ))}
               </div>
