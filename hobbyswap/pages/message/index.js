@@ -153,8 +153,8 @@ export default function MessagePage() {
       });
       if (tokenReq.ok && user) {
         const { token: chatToken } = await tokenReq.json();
-        const client = StreamChat.getInstance(apiKey);
-        await client.connectUser(
+        const cli = StreamChat.getInstance(apiKey);
+        await cli.connectUser(
           {
             id: user._id,
             name: user.username,
@@ -191,16 +191,19 @@ export default function MessagePage() {
             },
           },
         });
-
-        client.setMessageComposerSetupFunction(({ composer }) => {
-          composer.compositionMiddlewareExecutor.insert({
-            middleware: [notifMiddleware(composer)],
-            position: {
-              after: "stream-io/message-composer-middleware/data-cleanup",
-            },
+        if (!client) {
+          cli.setMessageComposerSetupFunction(({ composer }) => {
+            console.log("setting");
+            composer.compositionMiddlewareExecutor.insert({
+              middleware: [notifMiddleware(composer)],
+              position: {
+                after: "stream-io/message-composer-middleware/data-cleanup",
+              },
+            });
           });
-        });
-        setClient(client);
+        }
+
+        setClient(cli);
         setLoading(false);
         setOptions({
           sort: { last_message_at: -1 },

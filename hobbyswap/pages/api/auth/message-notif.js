@@ -15,6 +15,18 @@ export default async function handler(req, res) {
     const user = await userReq.json();
     console.log(user);
     const body = JSON.parse(req.body);
+    for await (const n of knockClient.messages.list({
+      source: "new-message",
+      engagement_status: ["unseen"],
+    })) {
+      if (
+        n.recipient === body.to &&
+        n.actors.length > 0 &&
+        n.actors[0] == body.source
+      ) {
+        return res.status(204).end();
+      }
+    }
     const result = await knockClient.workflows.trigger("new-message", {
       recipients: [body.to],
       actor: body.source,
