@@ -159,7 +159,7 @@ const Navbar = () => {
                         <Link as="button" className="btn btn-primary" href="#">
                           View Your Trade History
                         </Link>
-                        <Link as="button" className="btn btn-primary" href="#">
+                        <Link className="btn btn-primary" href={`/users/${user._id}/bookmarks`}>
                           View Your Bookmarks
                         </Link>
                         <Link

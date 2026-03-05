@@ -1,12 +1,7 @@
 import { UserContext } from "@/contexts/UserContext";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import { useContext, useEffect, useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBookmark, faUser } from "@fortawesome/free-regular-svg-icons";
-import { faLayerGroup, faShoppingBag } from "@fortawesome/free-solid-svg-icons";
-import { StatusCard, StatusType, TradeCard } from "@/components/base-long-card";
-import { Button } from "react-bootstrap";
+import { TradeCard } from "@/components/base-long-card";
 import Pagination from "@/components/pagination";
 import SortFilter from "@/components/sort_filter";
 import UserNavbar from "@/components/user-navbar";
@@ -189,7 +184,7 @@ export default function UserBookmark() {
                 ) : (
                   <div className="text-center my-8">
                     <p className="text-muted text-capitalize fs-4 fst-italic">
-                      No listings match your search
+                      No bookmarks match your search
                     </p>
                   </div>
                 )}
@@ -198,7 +193,7 @@ export default function UserBookmark() {
           ) : (
             <div className="container mx-auto my-8 text-center">
               <p className="text-muted text-capitalize fs-4 fst-italic">
-                No Listings Added yet
+                You have not saved any listings yet
               </p>
             </div>
           )}
