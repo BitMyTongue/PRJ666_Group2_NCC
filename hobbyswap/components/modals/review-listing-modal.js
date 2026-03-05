@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Button, Col, Container, Form, Modal, Row } from "react-bootstrap";
 import ItemCard from "../item-card";
 import UserWithRating from "../user-with-rating";
+import {StarRating} from "../rating"
+import UserIcon from "../user-icon";
 
 const ReportUserType = {
   hate: 0,
@@ -10,15 +12,9 @@ const ReportUserType = {
   illegal: 3,
 };
 
-export default function ReviewListingModal({
-  listingId,
-  listingImg,
-  listingName,
-  saved,
-  userId,
-  userName,
-  userImg,
-  userRating,
+export default function ReviewUserModal({
+  reviewer,
+  user,
   show,
   setShow,
 }) {
@@ -27,6 +23,7 @@ export default function ReviewListingModal({
 
   // TODO: create submit logic
   const handleSubmit = () => {};
+
   return (
     <Modal
       show={show}
@@ -41,30 +38,20 @@ export default function ReviewListingModal({
     >
       <Modal.Header closeButton>
         <Modal.Title className="h1 text-uppercase color-primary">
-          Review
+          Tell us your experience with {user.username}
         </Modal.Title>
       </Modal.Header>
       <Form className="gap-5" onSubmit={handleSubmit}>
         <Modal.Body>
           <Container className="d-flex gap-5">
-            <div className="w-40">
-              <ItemCard
-                img={listingImg}
-                name={listingName}
-                desc={""}
-                saved={saved}
-                buttonLabel=""
-              />
-              <UserWithRating
-                userId={userId}
-                userImg={userImg}
-                userName={userName}
-                rating={userRating}
-              />
-            </div>
             <div className="w-100">
-              <Form.Group className="mt-4">
-                <Form.Label>Title</Form.Label>
+              <Form.Group>
+                <Form.Label className="text-muted text-capitalize mt-2">How do you rate this user?</Form.Label>
+                <div className="d-flex gap-3">
+                  <UserIcon user={user.username} img={user.avatar} size="50" />
+                  <StarRating />
+                </div>
+                <Form.Label className="text-muted text-capitalize mt-3">How is the experience with this user</Form.Label>
                 <Form.Control
                   type="text"
                   rows={5}
@@ -72,9 +59,7 @@ export default function ReviewListingModal({
                     setReviewTitle(e.target.value);
                   }}
                 />
-              </Form.Group>
-              <Form.Group className="mt-4">
-                <Form.Label>Description</Form.Label>
+                <Form.Label className="text-capitalize text-muted mt-3">More details</Form.Label>
                 <Form.Control
                   as="textarea"
                   rows={5}
@@ -87,8 +72,11 @@ export default function ReviewListingModal({
           </Container>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="primary" type="submit">
+          <Button variant="primary px-5" type="submit" >
             Submit
+          </Button>
+          <Button variant="light px-5"onClick={()=>setShow(!show)} >
+            Cancel
           </Button>
         </Modal.Footer>
       </Form>
