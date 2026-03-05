@@ -8,15 +8,13 @@ export default function ItemCard({
   img,
   name,
   desc,
-  saved=false,
+  saved = false,
   url,
   listingId,
   ownerId,
   currentUserId,
 }) {
   const router = useRouter();
-  const [error,setError]=useState("")
-  const [save,setSave]=useState(saved)
 
   const handleTradeNow = () => {
     if (!currentUserId) {
@@ -42,69 +40,6 @@ export default function ItemCard({
     );
   }
 
-  const bookmarkCallback = async (e) => {
-    e.preventDefault();
-    setSave(!save);
-    setError("");
-    if (!save) {
-      try {
-        const res = await fetch("/api/bookmarks", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            listingId: listingId,
-            userId: currentUserId,
-          }),
-        });
-
-        const data = await res.json();
-
-        // Fail
-        if (!res.ok) {
-          throw new Error(
-            data?.error || "Adding Bookmark on this listing failed",
-          );
-        }
-
-        // Success
-        console.log("Success Adding Bookmark");
-      } catch (err) {
-        setError(err.message);
-      }
-    } else {
-      try {
-        const res = await fetch("/api/bookmarks", {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            listingId: listingId,
-            userId: currentUserId,
-          }),
-        });
-
-        const data = await res.json();
-
-        // Fail
-        if (!res.ok) {
-          throw new Error(
-            data?.error || "REMOVE Bookmark on this listing failed",
-          );
-        }
-
-        // Success
-        res.status(201).json({
-          message:"Success Removed bookmark"
-        })
-      } catch (err) {
-        setError(err.message);
-      }
-    }
-  };
-
   return (
     <div style={{ width: 280 }}>
       <Image
@@ -123,14 +58,7 @@ export default function ItemCard({
           }}
         >
           <p className="fw-semibold text-primary h3">{name}</p>
-          <Button
-            variant="transparent"
-            onClick={(e) => {
-              bookmarkCallback(e);
-            }}
-          >
-            <BookmarkIcon fill={save} />
-          </Button>
+          <BookmarkIcon listingId={listingId} initialSaved={saved} />
         </div>
         <p className="text-primary">{desc}</p>
       </div>

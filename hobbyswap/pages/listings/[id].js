@@ -426,7 +426,7 @@ export default function Listing() {
                 </div>
               </div>
               <div className="d-flex justify-content-center align-items-center gap-2">
-                <BookmarkIcon size={25}></BookmarkIcon>
+                <BookmarkIcon listingId={listing._id} size={25} />
                 <p className="text-primary fw-light mb-0">Bookmark Listing</p>
               </div>{" "}
             </div>

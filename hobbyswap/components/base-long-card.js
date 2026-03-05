@@ -108,8 +108,6 @@ const BaseLongCard = function BaseLongCard({
   requestLabel = "REQUESTING",
 }) {
   const [showModal, setShowModal] = useState(false);
-  const [saved, setSaved] = useState(isBookmarked);
-  const [error,setError]=useState("")
   const router = useRouter();
 
   const { user: currUser } = useContext(UserContext);
@@ -118,75 +116,17 @@ const BaseLongCard = function BaseLongCard({
   const isSameReqUser =
     requestUser && currUser && requestUser._id === currUser._id;
   const hasMultiple = requestItem?.length > 1;
-if (!offerItem) {
-  return (
-    <div className="base-long-card-loading" style={{ minWidth: 550, height: 400 }}>
-      {/* placeholder or spinner could go here */}
-    </div>
-  );
-}
+  if (!offerItem) {
+    return (
+      <div
+        className="base-long-card-loading"
+        style={{ minWidth: 550, height: 400 }}
+      >
+        {/* placeholder or spinner could go here */}
+      </div>
+    );
+  }
 
-  const bookmarkCallback = async (e) => {
-    e.preventDefault();
-    setSaved(!saved);
-    setError("")
-    if(!offerItem) console.log(e)
-    if (!saved) {
-      try {
-        const res = await fetch("/api/bookmarks", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            listingId: offerItem?._id,
-            userId: currUser,
-          }),
-        });
-
-        const data = await res.json();
-
-        // Fail
-        if (!res.ok) {
-          throw new Error(
-            data?.error || "Adding Bookmark on this listing failed",
-          );
-        }
-
-        // Success
-        console.log("Success Adding Bookmark");
-      } catch (err) {
-        setError(err.message);
-      }
-    } else {
-      try {
-        const res = await fetch("/api/bookmarks", {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            listingId: offerItem._id,
-            userId: currUser,
-          }),
-        });
-
-        const data = await res.json();
-
-        // Fail
-        if (!res.ok) {
-          throw new Error(
-            data?.error || "REMOVE Bookmark on this listing failed",
-          );
-        }
-
-        // Success
-        console.log("Success Removed bookmark");
-      } catch (err) {
-        setError(err.message);
-      }
-    }
-  };
   return (
     <>
       <div
@@ -569,16 +509,13 @@ if (!offerItem) {
               {children}
             </div>
             <div className="w-100" style={{ float: "left" }}>
-              {showBookmark && (
-                <Button
-                  variant="none"
-                  style={{ position: "absolute", bottom: 5, right: 5 }}
-                  onClick={(e) => {
-                    bookmarkCallback(e);
-                  }}
-                >
-                  <BookmarkIcon fill={saved} />
-                </Button>
+              {showBookmark && currUser && offerItem?._id && (
+                <div style={{ position: "absolute", bottom: 5, right: 5 }}>
+                  <BookmarkIcon
+                    listingId={offerItem._id}
+                    initialSaved={isBookmarked}
+                  />
+                </div>
               )}
               {cancelCallback && (
                 <Button
