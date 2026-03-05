@@ -1,6 +1,6 @@
 import { useState } from "react";
 import UserIcon from "./user-icon";
-import Rating from "./rating";
+import {Rating} from "./rating";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faThumbsUp as solidThumbsUp,
