@@ -10,7 +10,7 @@ export default async function handler(req, res) {
     switch (method) {
       case "GET":
         let bookmarks = await BookmarkModel.find({}).exec();
-        return res.status(200).json({ bookmarks });
+        return res.status(200).json({ bm: bookmarks });
 
       case "POST":
         // validate required fields
@@ -23,10 +23,10 @@ export default async function handler(req, res) {
           userId,
           listingId,
         });
-        await newBookmark.save();
-        res
-          .status(201)
-          .json({ message: "Add Listing to Bookmark", bookmarks: newBookmark });
+          await newBookmark.save();
+          res
+            .status(201)
+            .json({ message: "Add Listing to Bookmark", bookmark: newBookmark });
         break;
       case "DELETE":
         // validate required fields
@@ -50,7 +50,7 @@ export default async function handler(req, res) {
         res.status(405).end(`Method ${method} Not Allowed`);
     }
   } catch (err) {
-    console.error("LISTINGS API ERROR:", err);
+    console.error("BOOKMARK API ERROR:", err);
     return res.status(500).json({
       error: err.message,
     });

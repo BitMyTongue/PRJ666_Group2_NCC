@@ -17,8 +17,11 @@ const bookmarkSchema = new mongoose.Schema({
   },
 });
 
+// Compound unique index: prevent same user from bookmarking same listing twice
+bookmarkSchema.index({ userId: 1, listingId: 1 }, { unique: true });
+
 mongoose.models = {};
-export const BookmarkModel = mongoose.model("bookmarks", bookmarkSchema);
+export const BookmarkModel = mongoose.model("bm", bookmarkSchema);
 
 export async function mongooseConnect() {
   if (mongoose.connections[0].readyState) {
