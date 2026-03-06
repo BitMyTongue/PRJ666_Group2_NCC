@@ -1,6 +1,9 @@
 import { mongooseConnect } from "@/lib/dbUtils";
 import { TradeOfferModel } from "@/lib/tradeOffer";
 import { ListingModel } from "@/lib/listing";
+import { Knock } from "@knocklabs/node";
+
+const knockClient = new Knock({ apiKey: process.env.KNOCK_API_KEY });
 
 /***********************************************************************************************************
  *                                              DA RULES
@@ -57,6 +60,24 @@ export default async function handler(req, res) {
         tradeOffer.offerStatus = "RETRACTED";
         tradeOffer.respondedAt = new Date();
         await tradeOffer.save();
+
+        try {
+          await knockClient.workflows.trigger("new-activity", {
+            data: {
+              tradeAction: "offer_retracted",
+              listingName: String(listing.itemName),
+              offerStatus: tradeOffer.offerStatus,
+              tradeStatus: tradeOffer.tradeStatus,
+              action_url: `${process.env.NEXT_PUBLIC_BASE_URL}/tradeOffers/${tradeOffer._id}`,
+            },
+            recipients: [listing.userId.toString()],
+            actor: actorId.toString(),
+          });
+          console.log("Knock Workflow Triggered for Offer Retracted");
+        } catch (knockErr) {
+          console.error("Knock Trigger Error:", knockErr.message);
+        }
+
         return res.status(200).json({ message: "Offer Retracted", tradeOffer });
       }
 
@@ -78,7 +99,25 @@ export default async function handler(req, res) {
         tradeOffer.offerStatus = "ACCEPTED";
         tradeOffer.tradeStatus = "ONGOING";
         tradeOffer.respondedAt = new Date();
+
         await tradeOffer.save();
+        
+        try {
+          await knockClient.workflows.trigger("new-activity", {
+            data: {
+              tradeAction: "offer_accepted",
+              listingName: String(listing.itemName),
+              offerStatus: tradeOffer.offerStatus,
+              tradeStatus: tradeOffer.tradeStatus,
+              action_url: `${process.env.NEXT_PUBLIC_BASE_URL}/tradeOffers/${tradeOffer._id}`,
+            },
+            recipients: [tradeOffer.requesterId.toString()],
+            actor: actorId.toString(),
+          });
+          console.log("Knock Workflow Triggered for Offer Accepted");
+        } catch (knockErr) {
+          console.error("Knock Trigger Error:", knockErr.message);
+        }
 
         return res.status(200).json({ message: "Offer Accepted", tradeOffer });
       }
@@ -94,6 +133,23 @@ export default async function handler(req, res) {
         tradeOffer.respondedAt = new Date();
         await tradeOffer.save();
 
+        try {
+          await knockClient.workflows.trigger("new-activity", {
+            data: {
+              tradeAction: "offer_declined",
+              listingName: String(listing.itemName),
+              offerStatus: tradeOffer.offerStatus,
+              tradeStatus: tradeOffer.tradeStatus,
+              action_url: `${process.env.NEXT_PUBLIC_BASE_URL}/tradeOffers/${tradeOffer._id}`,
+            },
+            recipients: [tradeOffer.requesterId.toString()],
+            actor: actorId.toString(),
+          });
+          console.log("Knock Workflow Triggered for Offer Declined");
+        } catch (knockErr) {
+          console.error("Knock Trigger Error:", knockErr.message);
+        }
+        
         return res.status(200).json({ message: "Offer Declined", tradeOffer });
       }
 
@@ -113,6 +169,23 @@ export default async function handler(req, res) {
         listing.status = "ACTIVE";
         await listing.save();
 
+        try {
+          await knockClient.workflows.trigger("new-activity", {
+            data: {
+              tradeAction: "trade_canceled",
+              listingName: String(listing.itemName),
+              offerStatus: tradeOffer.offerStatus,
+              tradeStatus: tradeOffer.tradeStatus,
+              action_url: `${process.env.NEXT_PUBLIC_BASE_URL}/tradeOffers/${tradeOffer._id}`,
+            },
+            recipients: [tradeOffer.requesterId.toString(), listing.userId.toString()],     // sending it to both users for simplicity..
+            actor: actorId.toString(),
+          });
+          console.log("Knock Workflow Triggered for Trade Canceled");
+        } catch (knockErr) {
+          console.error("Knock Trigger Error:", knockErr.message);
+        }
+        
         return res.status(200).json({ message: "Trade Canceled", tradeOffer });
       }
 
@@ -130,7 +203,24 @@ export default async function handler(req, res) {
         await tradeOffer.save();
         listing.status = "COMPLETE";
         await listing.save();
-
+        
+        try {
+          await knockClient.workflows.trigger("new-activity", {
+            data: {
+              tradeAction: "trade_completed",
+              listingName: String(listing.itemName),
+              offerStatus: tradeOffer.offerStatus,
+              tradeStatus: tradeOffer.tradeStatus,
+              action_url: `${process.env.NEXT_PUBLIC_BASE_URL}/tradeOffers/${tradeOffer._id}`,
+            },
+            recipients: [tradeOffer.requesterId.toString(), listing.userId.toString()],     // sending it to both users for simplicity..
+            actor: actorId.toString(),
+          });
+          console.log("Knock Workflow Triggered for Trade Completed");
+        } catch (knockErr) {
+          console.error("Knock Trigger Error:", knockErr.message);
+        }
+        
         return res.status(200).json({ message: "Trade Completed", tradeOffer });
       }
 
