@@ -169,9 +169,6 @@ export default function MessagePage() {
 
               const msg = state.localMessage;
               const other = composer.channel.data.created_by;
-
-              const online = await cli.queryUsers({ id: other.id });
-              console.log(online.users);
               if (!other) return forward();
               const data = msg.attachments.length > 0 ? "🖼️" : text;
 

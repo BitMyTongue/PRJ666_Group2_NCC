@@ -20,7 +20,6 @@ export default async function handler(req, res) {
   if (userReq.ok) {
     res.setHeader("Cache-Control", "no-store");
     const body = JSON.parse(req.body);
-    console.log(body);
     const unread = await streamClient.getUnreadCount(body.to);
     console.log(unread.channels);
     const channel = unread.channels.find((c) =>
