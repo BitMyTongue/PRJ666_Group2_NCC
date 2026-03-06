@@ -5,8 +5,6 @@ import {
   faListUl,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import Knock from "@knocklabs/client";
-import { useAuthenticatedKnockClient } from "@knocklabs/react";
 import { useRouter } from "next/router";
 import React from "react";
 import { useContext, useEffect, useState } from "react";
@@ -171,9 +169,13 @@ export default function MessagePage() {
 
               const msg = state.localMessage;
               const other = composer.channel.data.created_by;
+
+              const online = await cli.queryUsers({ id: other.id });
+              console.log(online.users);
               if (!other) return forward();
               const data = msg.attachments.length > 0 ? "🖼️" : text;
-              // Fire and forget
+
+              // Fie and forget
               fetch("/api/auth/message-notif", {
                 method: "POST",
                 headers: {
@@ -184,6 +186,8 @@ export default function MessagePage() {
                   to: other.id,
                   source: user._id,
                   message: data,
+                  channel_id: composer.channel.data.id,
+                  chat_token: chatToken,
                 }),
               });
 
@@ -227,7 +231,7 @@ export default function MessagePage() {
       const channel = client.channel("messaging", {
         members: [user._id, userQuery],
       });
-      const result = await channel.watch();
+      const result = await channel.watch({ presence: true });
       setActiveCh(result.channel.id);
     };
     effectAsync();
@@ -251,6 +255,7 @@ export default function MessagePage() {
               if (e.user_id === user._id) {
                 return;
               }
+
               if (e.channel_id === activeCh) return;
               setHasUnread(e.unread_count > 0);
               s((channels) => {
