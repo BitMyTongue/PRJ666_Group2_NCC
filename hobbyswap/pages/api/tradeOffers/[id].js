@@ -68,7 +68,7 @@ export default async function handler(req, res) {
               listingName: String(listing.itemName),
               offerStatus: tradeOffer.offerStatus,
               tradeStatus: tradeOffer.tradeStatus,
-              action_url: `${process.env.NEXT_PUBLIC_BASE_URL}/tradeOffers/${tradeOffer._id}`,
+              action_url: `${process.env.NEXT_PUBLIC_BASE_URL}/tradeOffers?listingId=${tradeOffer.listingId}`
             },
             recipients: [listing.userId.toString()],
             actor: actorId.toString(),
@@ -109,7 +109,7 @@ export default async function handler(req, res) {
               listingName: String(listing.itemName),
               offerStatus: tradeOffer.offerStatus,
               tradeStatus: tradeOffer.tradeStatus,
-              action_url: `${process.env.NEXT_PUBLIC_BASE_URL}/tradeOffers/${tradeOffer._id}`,
+              action_url: `${process.env.NEXT_PUBLIC_BASE_URL}/users/${tradeOffer.requesterId}/offers`
             },
             recipients: [tradeOffer.requesterId.toString()],
             actor: actorId.toString(),
@@ -140,7 +140,7 @@ export default async function handler(req, res) {
               listingName: String(listing.itemName),
               offerStatus: tradeOffer.offerStatus,
               tradeStatus: tradeOffer.tradeStatus,
-              action_url: `${process.env.NEXT_PUBLIC_BASE_URL}/tradeOffers/${tradeOffer._id}`,
+              action_url: `${process.env.NEXT_PUBLIC_BASE_URL}/users/${tradeOffer.requesterId}/offers`
             },
             recipients: [tradeOffer.requesterId.toString()],
             actor: actorId.toString(),
@@ -169,22 +169,36 @@ export default async function handler(req, res) {
         listing.status = "ACTIVE";
         await listing.save();
 
-        try {
-          await knockClient.workflows.trigger("new-activity", {
-            data: {
-              tradeAction: "trade_canceled",
-              listingName: String(listing.itemName),
-              offerStatus: tradeOffer.offerStatus,
-              tradeStatus: tradeOffer.tradeStatus,
-              action_url: `${process.env.NEXT_PUBLIC_BASE_URL}/tradeOffers/${tradeOffer._id}`,
-            },
-            recipients: [tradeOffer.requesterId.toString(), listing.userId.toString()],     // sending it to both users for simplicity..
-            actor: actorId.toString(),
-          });
-          console.log("Knock Workflow Triggered for Trade Canceled");
-        } catch (knockErr) {
-          console.error("Knock Trigger Error:", knockErr.message);
-        }
+
+      try {
+        await knockClient.workflows.trigger("new-activity", {
+          data: {
+            tradeAction: "trade_canceled",
+            listingName: listing.itemName,
+            offerStatus: tradeOffer.offerStatus,
+            tradeStatus: tradeOffer.tradeStatus,
+            action_url: `${process.env.NEXT_PUBLIC_BASE_URL}users/${tradeOffer.requesterId}/offers`,
+          },
+          recipients: [tradeOffer.requesterId.toString()],
+          actor: actorId.toString(),
+        });
+
+        await knockClient.workflows.trigger("new-activity", {
+          data: {
+            tradeAction: "trade_canceled",
+            listingName: listing.itemName,
+            offerStatus: tradeOffer.offerStatus,
+            tradeStatus: tradeOffer.tradeStatus,
+            action_url: `${process.env.NEXT_PUBLIC_BASE_URL}tradeOffers?listingId=${tradeOffer.listingId}`,
+          },
+          recipients: [listing.userId.toString()],
+          actor: actorId.toString(),
+        });
+
+        console.log("Knock Workflow Triggered for Trade Canceled");
+      } catch (knockErr) {
+        console.error("Knock Trigger Error:", knockErr.message);
+      }
         
         return res.status(200).json({ message: "Trade Canceled", tradeOffer });
       }
@@ -208,15 +222,28 @@ export default async function handler(req, res) {
           await knockClient.workflows.trigger("new-activity", {
             data: {
               tradeAction: "trade_completed",
-              listingName: String(listing.itemName),
+              listingName: listing.itemName,
               offerStatus: tradeOffer.offerStatus,
               tradeStatus: tradeOffer.tradeStatus,
-              action_url: `${process.env.NEXT_PUBLIC_BASE_URL}/tradeOffers/${tradeOffer._id}`,
+              action_url: `${process.env.NEXT_PUBLIC_BASE_URL}users/${tradeOffer.requesterId}/offers`,
             },
-            recipients: [tradeOffer.requesterId.toString(), listing.userId.toString()],     // sending it to both users for simplicity..
+            recipients: [tradeOffer.requesterId.toString()],
             actor: actorId.toString(),
           });
-          console.log("Knock Workflow Triggered for Trade Completed");
+
+          await knockClient.workflows.trigger("new-activity", {
+            data: {
+              tradeAction: "trade_canceled",
+              listingName: listing.itemName,
+              offerStatus: tradeOffer.offerStatus,
+              tradeStatus: tradeOffer.tradeStatus,
+              action_url: `${process.env.NEXT_PUBLIC_BASE_URL}tradeOffers?listingId=${tradeOffer.listingId}`,
+            },
+            recipients: [listing.userId.toString()],
+            actor: actorId.toString(),
+          });
+
+          console.log("Knock Workflow Triggered for Trade Canceled");
         } catch (knockErr) {
           console.error("Knock Trigger Error:", knockErr.message);
         }
