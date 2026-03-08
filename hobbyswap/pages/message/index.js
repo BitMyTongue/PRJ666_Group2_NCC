@@ -224,7 +224,7 @@ export default function MessagePage() {
   useEffect(() => {
     const effectAsync = async () => {
       if (!client) return;
-      if (!userQuery || user._id === userQuery) return;
+      if (!userQuery || user?._id === userQuery) return;
       const channel = client.channel("messaging", {
         members: [user._id, userQuery],
       });
@@ -289,7 +289,7 @@ export default function MessagePage() {
           />
           <Channel>
             <Window>
-              <CustomChannelHeader id={user._id} hasUnread={hasUnread} />
+              <CustomChannelHeader id={user?._id} hasUnread={hasUnread} />
               <MessageList
                 messageActions={actions}
                 customMessageActions={customActions}
