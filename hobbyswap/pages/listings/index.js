@@ -84,6 +84,39 @@ export default function DashboardHome() {
   const [showSearch, setShowSearch] = useState(false);
 
   const active = CATEGORY[activeCategory];
+  const [bookmarkedIds, setBookmarkedIds] = useState(new Set());
+
+  const refreshBookmarks = async (userId) => {
+  if (!userId) return;
+
+  try {
+    const res = await fetch(`/api/bookmarks?userId=${encodeURIComponent(userId)}`, {
+      cache: "no-store",
+    });
+
+    const contentType = res.headers.get("content-type") || "";
+    const data = contentType.includes("application/json")
+      ? await res.json()
+      : { raw: await res.text() };
+
+    if (!res.ok) {
+      console.error("Failed to fetch bookmarks:", res.status, data);
+      return;
+    }
+
+    const ids = new Set((data.bookmarks || []).map((b) => String(b.listingId)));
+    setBookmarkedIds(ids);
+  } catch (e) {
+    console.error("Failed to load bookmarks", e);
+  }
+};
+
+  useEffect(() => {
+    if (!user?._id) return;
+    refreshBookmarks(user._id);
+  }, [user?._id]);
+
+
 
   useEffect(() => {
     let ignore = false;
@@ -149,6 +182,7 @@ export default function DashboardHome() {
     }
 
     const mapped = items.map((x) => ({
+      ...x,
       id: x._id || x.id,
       ownerId: x.userId || x.ownerId,
       name: x.itemName || x.title || "Untitled",
@@ -217,7 +251,22 @@ export default function DashboardHome() {
               <div className="row justify-content-center g-5 p-6 pt-2">
                 {visibleItems.slice(0, 6).map((item) => (
                   <div key={item.id} className="col-12 col-sm-6 col-md-4 d-flex justify-content-center">
-                    <ItemCard img={item.img} name={item.name} desc={item.desc} saved={false} url={`/listings/${item.id}`} listingId={item.id} ownerId={item.ownerId} currentUserId={user?._id}/>
+                    {/* <ItemCard img={item.img} name={item.name} desc={item.desc} saved={false} url={`/listings/${item.id}`} listingId={item.id} ownerId={item.ownerId} currentUserId={user?._id}/> */}
+                    <ItemCard
+                      img={item.img}
+                      name={item.name}
+                      desc={item.desc}
+                      saved={bookmarkedIds.has(String(item.id))}
+                      url={`/listings/${item.id}`}
+                      listingId={item.id}
+                      ownerId={item.ownerId}
+                      currentUserId={user?._id}
+                      onBookmarkChanged={() => refreshBookmarks(user?._id)}
+                      category={item.category}
+                      brand={item.brand}
+                      condition={item.condition}
+                      images={item.images}
+                    />
                   </div>
                 ))}
               </div>
