@@ -6,6 +6,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useRouter } from "next/router";
+import React from "react";
 import { useContext, useEffect, useState } from "react";
 import { Spinner } from "react-bootstrap";
 import { StreamChat } from "stream-chat";
@@ -20,7 +21,6 @@ import {
   Avatar,
   ChannelPreviewMessenger,
   useChannelStateContext,
-  useChatContext,
 } from "stream-chat-react";
 const apiKey = process.env.NEXT_PUBLIC_STREAM_CHAT_KEY;
 const actions = ["delete", "mute", "pin", "quote"];
@@ -151,15 +151,60 @@ export default function MessagePage() {
       });
       if (tokenReq.ok && user) {
         const { token: chatToken } = await tokenReq.json();
-        const client = StreamChat.getInstance(apiKey);
-        client.connectUser(
+        const cli = StreamChat.getInstance(apiKey);
+        await cli.connectUser(
           {
             id: user._id,
             name: user.username,
           },
           chatToken,
         );
-        setClient(client);
+
+        const notifMiddleware = (composer) => ({
+          id: "message-composer/message-composer/relay-notification",
+          handlers: {
+            compose: async ({ state, next, forward }) => {
+              if (!composer.textComposer) return forward();
+              const { text } = composer.textComposer;
+
+              const msg = state.localMessage;
+              const other = composer.channel.data.created_by;
+              if (!other) return forward();
+              const data = msg.attachments.length > 0 ? "🖼️" : text;
+
+              // Fie and forget
+              fetch("/api/auth/message-notif", {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${userToken}`,
+                  "Cache-Control": "no-cache",
+                },
+                body: JSON.stringify({
+                  to: other.id,
+                  source: user._id,
+                  message: data,
+                  channel_id: composer.channel.data.id,
+                  chat_token: chatToken,
+                }),
+              });
+
+              return next({ ...state });
+            },
+          },
+        });
+        if (!client) {
+          cli.setMessageComposerSetupFunction(({ composer }) => {
+            console.log("setting");
+            composer.compositionMiddlewareExecutor.insert({
+              middleware: [notifMiddleware(composer)],
+              position: {
+                after: "stream-io/message-composer-middleware/data-cleanup",
+              },
+            });
+          });
+        }
+
+        setClient(cli);
         setLoading(false);
         setOptions({
           sort: { last_message_at: -1 },
@@ -183,8 +228,7 @@ export default function MessagePage() {
       const channel = client.channel("messaging", {
         members: [user._id, userQuery],
       });
-
-      const result = await channel.watch();
+      const result = await channel.watch({ presence: true });
       setActiveCh(result.channel.id);
     };
     effectAsync();
@@ -205,7 +249,10 @@ export default function MessagePage() {
             options={options.options}
             customActiveChannel={activeCh}
             onMessageNewHandler={(s, e) => {
-              if (e.user_id === user._id) return;
+              if (e.user_id === user._id) {
+                return;
+              }
+
               if (e.channel_id === activeCh) return;
               setHasUnread(e.unread_count > 0);
               s((channels) => {
