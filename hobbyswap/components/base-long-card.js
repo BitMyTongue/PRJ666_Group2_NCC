@@ -3,7 +3,7 @@ import Rating from "./rating";
 import Image from "next/image";
 import BookmarkIcon from "./bookmark-icon";
 import UserIcon from "./user-icon";
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { UserContext } from "@/contexts/UserContext";
 
@@ -88,7 +88,324 @@ const SubtractSVG = function SubtractSVG({
 };
 
 
-/// children is ONLY used to layout buttons
+
+const ItemLongCardInline = function ItemLongCardInline({
+  // Existing props you already pass:
+  img,
+  name,
+  desc,
+
+  // ✅ NEW: bookmark JSON props (optional)
+  bookmarkId,
+  userId,
+  listingId,
+  description,
+  category,
+  brand,
+  condition,
+  images = [],
+  dateBookmarked,
+  createdAt,
+  updatedAt,
+
+  // Bookmark UI
+  saved: savedProp = false,
+  showBookmark = true,
+  onBookmarkChange = null, // (next) => void
+  onViewOffers = null,
+  onCreateListing = null,
+
+  // Stats (optional)
+  monthTotal = 1000,
+  yearTotal = 1000,
+  allTimeTotal = 1000,
+}) {
+  const [saved, setSaved] = useState(savedProp);
+
+  useEffect(() => setSaved(savedProp), [savedProp]);
+
+  const toggleBookmark = () => {
+    const next = !saved;
+    setSaved(next);
+    onBookmarkChange?.(next);
+  };
+
+  const title = name ?? "Item Name";
+  const mainImg = img ?? images?.[0];
+  const mainDesc = description ?? desc ?? "";
+
+  const fmt = (d) => (d ? new Date(d).toLocaleString() : "—");
+
+  return (
+    <div
+      style={{
+        backgroundColor: "#D9D9D9",
+        borderRadius: 18,
+        width: "100%",
+        minWidth: "550px",
+        height: "400px",
+        boxShadow: "1px 1px 8px rgba(0,0,0,0.25)",
+        marginBlock: "10px",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+      }}
+    >
+      <div
+        style={{
+          paddingBlock: 14,
+          paddingInline: 28,
+          color: "white",
+          fontWeight: 800,
+          letterSpacing: "0.08em",
+          fontSize: 20,
+        }}
+      >
+        ITEM
+      </div>
+
+      <div
+        style={{
+          backgroundColor: "white",
+          borderRadius: 18,
+          padding: 22,
+          height: "340px",
+          display: "flex",
+          alignItems: "stretch",
+          gap: 18,
+        }}
+      >
+        <div
+          style={{
+            width: 210,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          {mainImg ? (
+            <Image
+              alt={title}
+              src={mainImg}
+              width={180}
+              height={240}
+              style={{ objectFit: "contain", borderRadius: 14 }}
+            />
+          ) : (
+            <div
+              style={{
+                width: 180,
+                height: 240,
+                borderRadius: 14,
+                background: "#EEF1F6",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#0B2A5B",
+                fontWeight: 700,
+              }}
+            >
+              No Image
+            </div>
+          )}
+        </div>
+
+        <div style={{ flex: 1, paddingTop: 6, minWidth: 280 }}>
+          <div
+            style={{
+              fontSize: 40,
+              fontWeight: 800,
+              lineHeight: 1.05,
+              color: "#0B2A5B",
+              marginBottom: 12,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+            title={title}
+          >
+            {title}
+          </div>
+
+          <div
+            style={{
+              fontSize: 18,
+              color: "#0B2A5B",
+              opacity: 0.9,
+              maxWidth: 520,
+              lineHeight: 1.4,
+              maxHeight: 52,
+              overflow: "hidden",
+            }}
+            title={mainDesc}
+          >
+            {mainDesc}
+          </div>
+
+          <div style={{ marginTop: 14 }}>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+              {category && <MetaPill label={`Category: ${category}`} />}
+              {condition && <MetaPill label={`Condition: ${condition}`} />}
+            </div>
+
+            <div style={{ marginTop: 10, fontSize: 12, color: "#0B2A5B", opacity: 0.85 }}>
+              {bookmarkId && (
+                <div>
+                  <strong>Bookmark ID:</strong> {bookmarkId}
+                </div>
+              )}
+              {userId && (
+                <div>
+                  <strong>User ID:</strong> {userId}
+                </div>
+              )}
+              {listingId && (
+                <div>
+                  <strong>Listing ID:</strong> {listingId}
+                </div>
+              )}
+              {(createdAt) && (
+                <>
+                  <div>
+                    <strong>Created At:</strong> {fmt(createdAt)}
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div
+          style={{
+            width: 260,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            gap: 22,
+          }}
+        >
+        </div>
+
+        <div style={{ width: 1, backgroundColor: "#BFC8D8", marginBlock: 6 }} />
+
+        <div
+          style={{
+            width: 220,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+            alignItems: "flex-end",
+          }}
+        >
+          <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 12 }}>
+            <Button
+              onClick={onViewOffers}
+              style={{
+                width: 180,
+                alignSelf: "flex-end",
+                borderRadius: 999,
+                padding: "10px 16px",
+                fontWeight: 700,
+                backgroundColor: "#0B2A5B",
+                border: "1px solid #0B2A5B",
+              }}
+            >
+              View Offers
+            </Button>
+
+            <Button
+              onClick={onCreateListing}
+              style={{
+                width: 180,
+                alignSelf: "flex-end",
+                borderRadius: 999,
+                padding: "10px 16px",
+                fontWeight: 700,
+                backgroundColor: "#EEF1F6",
+                border: "1px solid #0B2A5B",
+                color: "#0B2A5B",
+              }}
+            >
+              Create Listing
+            </Button>
+          </div>
+
+          {showBookmark && (
+            <button
+              type="button"
+              onClick={toggleBookmark}
+              aria-pressed={saved}
+              style={{
+                background: "transparent",
+                border: 0,
+                padding: 0,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+                cursor: "pointer",
+                color: "#0B2A5B",
+                fontWeight: 600,
+                marginTop: 10,
+              }}
+            >
+              <BookmarkIcon fill={!saved} size="lg" />
+              <span>Remove</span>
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+function StatBlock({ label, value }) {
+  return (
+    <div>
+      <div
+        style={{
+          fontSize: 12,
+          fontWeight: 700,
+          letterSpacing: "0.08em",
+          color: "#8B8B8B",
+          marginBottom: 4,
+        }}
+      >
+        {label}
+      </div>
+      <div
+        style={{
+          fontSize: 28,
+          fontWeight: 800,
+          color: "#0B2A5B",
+          lineHeight: 1,
+        }}
+      >
+        {value}
+      </div>
+    </div>
+  );
+}
+
+function MetaPill({ label }) {
+  return (
+    <span
+      style={{
+        background: "#EEF1F6",
+        border: "1px solid #E6E9EE",
+        borderRadius: 999,
+        padding: "4px 10px",
+        fontSize: 12,
+        fontWeight: 700,
+        color: "#0B2A5B",
+        lineHeight: 1.2,
+      }}
+    >
+      {label}
+    </span>
+  );
+}
+
+
+
 const BaseLongCard = function BaseLongCard({
   children,
   user,
@@ -110,11 +427,16 @@ const BaseLongCard = function BaseLongCard({
   const [showModal, setShowModal] = useState(false);
   const [saved, setSaved] = useState(isBookmarked);
   const router = useRouter();
-  const bookmarkCallback = () => {
-    setSaved(!saved);
-  };
+  
 
   const { user: currUser } = useContext(UserContext);
+
+  useEffect(() => {
+    setSaved(isBookmarked);
+  }, [isBookmarked]);
+  const bookmarkCallback = (next) => {
+    setSaved(next);
+  };
 
   const isSameUser = user && currUser && user._id === currUser._id;
   const isSameReqUser =
@@ -502,17 +824,14 @@ const BaseLongCard = function BaseLongCard({
               {children}
             </div>
             <div className="w-100" style={{ float: "left" }}>
-              {showBookmark && (
-                <Button
-                  variant="none"
-                  style={{ position: "absolute", bottom: 5, right: 5 }}
-                  onClick={() => {
-                    bookmarkCallback();
-                  }}
-                >
-                  <BookmarkIcon fill={saved} />
-                </Button>
-              )}
+              {/* {showBookmark && (
+                <div style={{ position: "absolute", bottom: 5, right: 5 }}>
+                  <BookmarkIcon
+                    fill={saved}
+                    onChange={(next) => bookmarkCallback(next)}
+                  />
+                </div>
+              )} */}
               {cancelCallback && (
                 <Button
                   className="w-100 text-white rounded-pill"
@@ -619,6 +938,22 @@ const TradeCard = function TradeCard({
   );
 };
 
+const ItemCard = function ItemCard({ img, name, desc, saved = false, url, listingId, ownerId, currentUserId }) {
+  return (
+    <ItemLongCardInline
+      offerItem={{ itemName: name, description: desc, images: [img], _id: listingId }}
+      user={{ username: "Seller", _id: ownerId }}
+      isBookmarked={saved}
+      url={url}
+    >
+      <Button variant="primary rounded-pill" href={url}>
+        View Offers
+      </Button>
+      <Button variant="light rounded-pill text-primary">Create Listing</Button>
+    </ItemLongCardInline>
+  );
+}
+
 /// buttons below are meant for StatusCard, mostly for organizing
 
 const OfferButton = function OfferButton({ variant, link }) {
@@ -628,6 +963,7 @@ const OfferButton = function OfferButton({ variant, link }) {
     </Button>
   );
 };
+
 
 const DeleteButton = function DeleteButton({ variant, onClick }) {
   return (
@@ -818,6 +1154,7 @@ const StatusCard = function StatusCard({
         >
           View All Offers
         </Button>
+        
         <DeleteButton
           variant="danger text-light border border-primary border-2 rounded-pill"
           onClick={handleDeleteButton}
@@ -972,4 +1309,5 @@ const StatusCard = function StatusCard({
   );
 };
 
-export { TradeCard, StatusCard, StatusType };
+export { TradeCard, StatusCard, StatusType, ItemLongCardInline};
+

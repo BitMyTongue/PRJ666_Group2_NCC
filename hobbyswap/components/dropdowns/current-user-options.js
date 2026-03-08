@@ -72,7 +72,7 @@ export default function CurrentUserDropdown({ user, handleLogout }) {
         >
           View Your Proposals
         </Dropdown.Item>
-        <Dropdown.Item className="btn btn-primary" href="#">
+        <Dropdown.Item className="btn btn-primary" href={`/users/${user._id}/bookmarks`}>
           View Your Bookmarks
         </Dropdown.Item>
         <Dropdown.Item
