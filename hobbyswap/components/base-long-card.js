@@ -357,33 +357,6 @@ const ItemLongCardInline = function ItemLongCardInline({
   );
 };
 
-function StatBlock({ label, value }) {
-  return (
-    <div>
-      <div
-        style={{
-          fontSize: 12,
-          fontWeight: 700,
-          letterSpacing: "0.08em",
-          color: "#8B8B8B",
-          marginBottom: 4,
-        }}
-      >
-        {label}
-      </div>
-      <div
-        style={{
-          fontSize: 28,
-          fontWeight: 800,
-          color: "#0B2A5B",
-          lineHeight: 1,
-        }}
-      >
-        {value}
-      </div>
-    </div>
-  );
-}
 
 function MetaPill({ label }) {
   return (

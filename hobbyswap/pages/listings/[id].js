@@ -1,3 +1,4 @@
+"use client";
 import UserIcon from "@/components/user-icon";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Link from "next/link";
@@ -65,6 +66,7 @@ const smallMapStyle = {
   border: "1px solid #dee2e6",
   overflow: "hidden",
 };
+
 const center = {
   lat: 43.6548,
   lng: -79.3884,
@@ -73,6 +75,7 @@ const center = {
 export default function Listing() {
   const router = useRouter();
   const { id } = router.query;
+
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [map, setMap] = useState(null);
   const [user, setUser] = useState(null);
@@ -83,43 +86,93 @@ export default function Listing() {
   const [loadError, setLoadError] = useState("");
 
   const [showRequests, setShowRequests] = useState(false);
+  const [selectedImage, setSelectedImage] = useState("");
+  const [bookmarkedIds, setBookmarkedIds] = useState(new Set());
+
+  const refreshBookmarks = async (userId) => {
+    if (!userId) return;
+
+    try {
+      const res = await fetch(`/api/bookmarks?userId=${encodeURIComponent(userId)}`, {
+        cache: "no-store",
+      });
+
+      const contentType = res.headers.get("content-type") || "";
+      const data = contentType.includes("application/json")
+        ? await res.json()
+        : { raw: await res.text() };
+
+      if (!res.ok) {
+        console.error("Failed to fetch bookmarks:", res.status, data);
+        return;
+      }
+
+      const ids = new Set((data.bookmarks || []).map((b) => String(b.listingId)));
+      setBookmarkedIds(ids);
+    } catch (e) {
+      console.error("Failed to load bookmarks", e);
+    }
+  };
 
   useEffect(() => {
-    if (!router.isReady || !id) return; // undefined on first render
+    if (!user?._id) return;
+    refreshBookmarks(user._id);
+  }, [user?._id]);
 
-    // Get User
-    const token = localStorage.getItem("token");
-    if (token) {
-      fetch("/api/auth/protect", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then((res) => res.json())
-      .then((data) => setUser(data.user))
-    }
+  useEffect(() => {
+    if (!router.isReady || !id) return;
+
+    let ignore = false;
 
     const load = async () => {
       try {
         setLoading(true);
         setLoadError("");
 
+        const token = localStorage.getItem("token");
+
+        if (token) {
+          const userRes = await fetch("/api/auth/protect", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          const userData = await userRes.json();
+
+          if (!ignore && userRes.ok) {
+            setUser(userData.user);
+          }
+        }
+
         const res = await fetch(`/api/listings/${id}`);
         const data = await res.json();
 
         if (!res.ok) throw new Error(data?.error || "Failed to load listing");
 
-        setListing(data.listing);
-        setOwner(data.listing.userId);
+        if (!ignore) {
+          setListing(data.listing);
+          setOwner(data.listing.userId);
+        }
       } catch (e) {
-        setLoadError(e.message);
+        if (!ignore) setLoadError(e.message || "Failed to load listing");
       } finally {
-        setLoading(false);
+        if (!ignore) setLoading(false);
       }
     };
 
     load();
+
+    return () => {
+      ignore = true;
+    };
   }, [router.isReady, id]);
+
+  useEffect(() => {
+    if (listing?.images?.length > 0) {
+      setSelectedImage(listing.images[0]);
+    }
+  }, [listing]);
 
   const handleProposeTrade = () => {
     const currentUserId = user?._id;
@@ -128,7 +181,7 @@ export default function Listing() {
       return;
     }
 
-    if (owner._id === currentUserId) {
+    if (owner?._id === currentUserId) {
       alert("You can’t propose an offer on your own listing.");
       return;
     }
@@ -136,12 +189,64 @@ export default function Listing() {
     router.push(`/tradeOffers/create?listingId=${id}`);
   };
 
+  const handleBookmarkToggle = async () => {
+    const currentUserId = user?._id;
+    const listingId = listing?._id || id;
+
+    if (!currentUserId) {
+      alert("You need to be logged in to bookmark a listing.");
+      return;
+    }
+
+    if (!listingId) return;
+
+    const isSaved = bookmarkedIds.has(String(listingId));
+
+    try {
+      let res;
+
+      if (isSaved) {
+        res = await fetch(
+          `/api/bookmarks?userId=${encodeURIComponent(currentUserId)}&listingId=${encodeURIComponent(listingId)}`,
+          {
+            method: "DELETE",
+          }
+        );
+      } else {
+        res = await fetch("/api/bookmarks", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId: currentUserId,
+            listingId,
+          }),
+        });
+      }
+
+      const contentType = res.headers.get("content-type") || "";
+      const data = contentType.includes("application/json")
+        ? await res.json()
+        : { raw: await res.text() };
+
+      if (!res.ok) {
+        console.error("Bookmark action failed:", res.status, data);
+        throw new Error(data?.error || "Bookmark action failed");
+      }
+
+      await refreshBookmarks(currentUserId);
+    } catch (e) {
+      console.error("Failed to update bookmark", e);
+      alert(e.message || "Failed to update bookmark");
+    }
+  };
+
   const onLoad = useCallback(function callback(map) {
-    const bounds = new window.google.maps.LatLngBounds(center);
     setMap(map);
   }, []);
 
-  const onUnmount = useCallback(function callback(map) {
+  const onUnmount = useCallback(function callback() {
     setMap(null);
   }, []);
 
@@ -151,8 +256,9 @@ export default function Listing() {
   });
 
   const meetUpLocation = pickUpLocations.find(
-    (loc) => loc.name === listing?.location,
+    (loc) => loc.name === listing?.location
   );
+
   const getCityProvince = (address) => {
     if (!address) return "";
     const parts = address.split(",");
@@ -162,15 +268,9 @@ export default function Listing() {
     const province = parts[parts.length - 1].trim().split(" ")[0];
     return `${city}, ${province}`;
   };
-  const [selectedImage, setSelectedImage] = useState("");
-
-  useEffect(() => {
-    if (listing?.images?.length > 0) {
-      setSelectedImage(listing.images[0]);
-    }
-  }, [listing]);
 
   const avatar = owner?.profilePicture || "/images/default-avatar.png";
+  const isSaved = bookmarkedIds.has(String(listing?._id || id));
 
   if (loading) return <h1>Loading the listing...</h1>;
   if (loadError) return <h1 className="text-danger">{loadError}</h1>;
@@ -178,7 +278,6 @@ export default function Listing() {
 
   return (
     <>
-      {/* Category Section */}
       <div className="bg-light">
         <div className="container py-5">
           <div className="row">
@@ -241,9 +340,8 @@ export default function Listing() {
           </div>
         </div>
       </div>
-      {/* Listing Section */}
+
       <div className="container-sm my-6">
-        {/* Product general details */}
         <div className="row d-flex flex-column flex-md-row mt-5 gap-3">
           <div className="col-12 col-md-7 border border-gray rounded-5 shadow d-flex flex-column">
             <div className="px-4 pt-4 d-flex justify-content-center">
@@ -256,7 +354,7 @@ export default function Listing() {
                 />
               </div>
             </div>
-            {/* Carousel */}
+
             <div className="row mt-3">
               <Carousel
                 responsive={responsive}
@@ -270,15 +368,13 @@ export default function Listing() {
                   <div
                     key={index}
                     className={`text-center rounded-3 p-2 ${
-                      selectedImage === img
-                        ? "border border-primary border-3"
-                        : ""
+                      selectedImage === img ? "border border-primary border-3" : ""
                     }`}
                   >
                     <Image
                       src={img}
                       alt={`thumb-${index}`}
-                      className={`img-thumbnail w-50 thumbnail-img `}
+                      className="img-thumbnail w-50 thumbnail-img"
                       style={{ cursor: "pointer" }}
                       onClick={() => setSelectedImage(img)}
                     />
@@ -286,13 +382,13 @@ export default function Listing() {
                 ))}
               </Carousel>
             </div>
-
-            {/* End Carousel */}
           </div>
-          <div className=" py-6 col-12 col-md-4 rounded-5 border border-gray shadow d-flex flex-column justify-content-center align-items-center mx-auto">
+
+          <div className="py-6 col-12 col-md-4 rounded-5 border border-gray shadow d-flex flex-column justify-content-center align-items-center mx-auto">
             <p className="fw-semibold fs-2 text-primary text-uppercase mb-4 text-center">
               {listing.itemName}
             </p>
+
             <div className="col-8 d-flex flex-column gap-3">
               {listing.requestItems.length !== 0 && (
                 <div className="d-flex justify-content-between align-items-center col-12">
@@ -311,6 +407,7 @@ export default function Listing() {
                   </Link>
                 </div>
               )}
+
               {listing.requestMoney !== 0 && (
                 <div className="d-flex justify-content-between align-items-center col-12">
                   <p className="rounded-pill bg-danger text-center px-4 py-2 text-white fw-semibold col-4 mb-0">
@@ -321,6 +418,7 @@ export default function Listing() {
                   </p>
                 </div>
               )}
+
               <div className="d-grid my-3">
                 <div className="row">
                   <div className="col-5">
@@ -334,6 +432,7 @@ export default function Listing() {
                     </p>
                   </div>
                 </div>
+
                 <div className="row">
                   <div className="col-5">
                     <p className="text-primary text-capitalize fw-semibold">
@@ -346,6 +445,7 @@ export default function Listing() {
                     </p>
                   </div>
                 </div>
+
                 <div className="row mb-4">
                   <div className="col-5">
                     <p className="text-primary text-capitalize fw-semibold">
@@ -379,21 +479,31 @@ export default function Listing() {
                   </div>
                 </div>
               </div>
+
               <div className="d-flex flex-column gap-3 border-bottom border-primary pb-4">
                 {listing.requestItems.length !== 0 && (
-                  <button className="btn btn-primary text-white fw-semibold rounded-pill py-2" onClick={handleProposeTrade}>
+                  <button
+                    className="btn btn-primary text-white fw-semibold rounded-pill py-2"
+                    onClick={handleProposeTrade}
+                  >
                     Propose Trade
                   </button>
                 )}
+
                 {listing.requestMoney !== 0 && (
-                  <Button className="btn btn-primary text-white fw-semibold rounded-pill py-2" href={`/checkout/pay/${id}?step=payment info`}>
+                  <Button
+                    className="btn btn-primary text-white fw-semibold rounded-pill py-2"
+                    href={`/checkout/pay/${id}?step=payment info`}
+                  >
                     Pay Now
                   </Button>
                 )}
+
                 <button className="btn btn-white text-primary fw-semibold rounded-pill py-2 border border-primary border-2">
                   Message Owner
                 </button>
               </div>
+
               <div className="d-flex flex-column gap-1 border-bottom border-primary pb-4">
                 {listing.meetUp && (
                   <div className="d-flex justify-content-start align-items-center gap-2 mt-2">
@@ -414,25 +524,32 @@ export default function Listing() {
                     </p>
                   </div>
                 )}
+
                 <div className="d-flex justify-content-start align-items-center gap-2">
                   <FontAwesomeIcon
                     icon={faTruck}
                     className="text-primary opacity-75"
                   />
                   <p className="text-primary fw-light mb-0 custom-sm-text opacity-75">
-                    Free Delivery, Arrives{" "}
-                    <span className="fw-bold">Tomorrow</span>
+                    Free Delivery, Arrives <span className="fw-bold">Tomorrow</span>
                   </p>
                 </div>
               </div>
-              <div className="d-flex justify-content-center align-items-center gap-2">
-                <BookmarkIcon size={25}></BookmarkIcon>
-                <p className="text-primary fw-light mb-0">Bookmark Listing</p>
-              </div>{" "}
+
+              <div
+                type="button"
+                onClick={handleBookmarkToggle}
+                className="d-flex justify-content-center align-items-center gap-2 bg-transparent border-0"
+              >
+                <BookmarkIcon size="xl" fill={isSaved} />
+                <p className="text-primary fw-light mb-0">
+                  {isSaved ? "Bookmarked" : "Non-Bookmark"}
+                </p>
+              </div>
             </div>
           </div>
         </div>
-        {/* More details and pickup info */}
+
         <div className="row d-flex flex-column flex-md-row mt-5 gap-3">
           <div className="col-12 col-md-7">
             <p className="text-primary text-capitalize fw-semibold mb-1">
@@ -441,33 +558,32 @@ export default function Listing() {
             <p className="text-primary text-capitalize fw-regular">
               {listing.description}
             </p>
+
             <p className="text-primary text-capitalize fw-semibold mb-1">
               Owner Details
             </p>
+
             <div className="d-grid">
               <div className="row">
-                <p className="col-5 text-primary ">User Account</p>
+                <p className="col-5 text-primary">User Account</p>
                 <div className="col-7 d-flex gap-3 align-items-center">
-                  {" "}
-                  <UserIcon
-                    user={owner.username}
-                    img={avatar}
-                    size={30}
-                  />
+                  <UserIcon user={owner.username} img={avatar} size={30} />
                   <Link
                     href={`/users/${owner._id}`}
-                    className="align-self-center  mb-0 text-primary fw-semibold"
+                    className="align-self-center mb-0 text-primary fw-semibold"
                   >
                     {owner.username}
                   </Link>
                 </div>
               </div>
+
               <div className="row">
                 <p className="col-5 text-primary">Success Trade</p>
                 <p className="col-7 text-primary">10</p>
               </div>
             </div>
           </div>
+
           <div className="col-12 col-md-4 d-flex flex-column justify-content-start mx-auto">
             <p className="fw-semibold fs-5 text-primary">Meet up location</p>
 
@@ -515,7 +631,6 @@ export default function Listing() {
           </div>
         </div>
 
-        {/*  Review Section*/}
         <div className="">Review Section Implement later</div>
       </div>
 

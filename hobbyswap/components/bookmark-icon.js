@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBookmark as solidBookmark } from "@fortawesome/free-solid-svg-icons";
-import { faBookmark as outlineBookmark } from "@fortawesome/free-regular-svg-icons";
+import { faBookmark as regularBookmark } from "@fortawesome/free-regular-svg-icons";
 
 export default function BookmarkIcon({
   fill = false,                 
@@ -42,7 +42,7 @@ export default function BookmarkIcon({
       }}
     >
       <FontAwesomeIcon
-        icon={fill ? solidBookmark : outlineBookmark}
+        icon={fill ? solidBookmark : regularBookmark}
         size={size}
         color={fill ? colorFilled : colorOutline}
         {...props}
