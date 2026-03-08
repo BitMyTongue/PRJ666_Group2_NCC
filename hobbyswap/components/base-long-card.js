@@ -248,21 +248,6 @@ const ItemLongCardInline = function ItemLongCardInline({
             </div>
 
             <div style={{ marginTop: 10, fontSize: 12, color: "#0B2A5B", opacity: 0.85 }}>
-              {bookmarkId && (
-                <div>
-                  <strong>Bookmark ID:</strong> {bookmarkId}
-                </div>
-              )}
-              {userId && (
-                <div>
-                  <strong>User ID:</strong> {userId}
-                </div>
-              )}
-              {listingId && (
-                <div>
-                  <strong>Listing ID:</strong> {listingId}
-                </div>
-              )}
               {(createdAt) && (
                 <>
                   <div>
