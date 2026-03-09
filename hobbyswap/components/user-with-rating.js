@@ -1,5 +1,5 @@
 import { useRouter } from "next/router";
-import Rating from "./rating";
+import {Rating} from "./rating";
 import UserIcon from "./user-icon";
 
 export default function UserWithRating({ userId, userName, userImg, rating }) {

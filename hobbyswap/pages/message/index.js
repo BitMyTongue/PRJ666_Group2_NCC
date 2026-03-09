@@ -117,7 +117,8 @@ const CustomChannelHeader = (props) => { //Pass the Members -> Users
             router.push("/users/" + id);
           }}
         >
-          <Avatar name={title ?? members[id].user.name} image={props.profile.profilePicture} />
+          {/* <Avatar name={title ?? members[id].user.name} image={props.profile.profilePicture} /> */}
+          <Avatar name={title ?? members[id].user.name}/>
           <div>{title || members[id].user.name}</div>
         </div>
       </div>
@@ -160,7 +161,7 @@ export default function MessagePage() {
           {
             id: user._id,
             name: user.username,
-            image: user.profilePicture,
+            // image: user.profilePicture,
           },
           chatToken,
         );
