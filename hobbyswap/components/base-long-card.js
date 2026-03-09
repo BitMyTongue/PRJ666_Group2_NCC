@@ -1,11 +1,12 @@
-import { Button, Modal, Stack} from "react-bootstrap";
-import Rating from "./rating";
+import { Button, Modal, Stack } from "react-bootstrap";
+import { Rating } from "./rating";
 import Image from "next/image";
 import BookmarkIcon from "./bookmark-icon";
 import UserIcon from "./user-icon";
 import { useContext, useState } from "react";
 import { useRouter } from "next/router";
 import { UserContext } from "@/contexts/UserContext";
+import ReviewUserModal from "./modals/review-listing-modal";
 
 const StatusType = {
   DECLINED: 1,
@@ -87,7 +88,6 @@ const SubtractSVG = function SubtractSVG({
   );
 };
 
-
 /// children is ONLY used to layout buttons
 const BaseLongCard = function BaseLongCard({
   children,
@@ -168,7 +168,23 @@ const BaseLongCard = function BaseLongCard({
             )}
             <div>{isSameUser ? "YOU" : user.username}</div>
           </div>
-          {rating > -1 && <Rating rating={rating} />}
+          {status.toUpperCase() === "TRADE COMPLETED" && (
+            <>
+              <Button
+                className="btn-light rounded-pill text-primary"
+                onClick={() => setShowModal(true)}
+              >
+                How was the trade with {user.username}
+              </Button>
+              <ReviewUserModal
+                show={showModal}
+                setShow={setShowModal}
+                user={user}
+                reviewer={currUser}
+              />
+            </>
+          )}
+          
           {status && (
             <strong style={{ textTransform: "uppercase" }}>{status}</strong>
           )}
@@ -570,7 +586,6 @@ const TradeCard = function TradeCard({
   rating = 0,
   url,
 }) {
-
   const router = useRouter();
   const { user: currUser } = useContext(UserContext);
 
@@ -604,7 +619,12 @@ const TradeCard = function TradeCard({
         View
       </Button>
       {requestItem !== null && (
-        <Button variant="light rounded-pill text-primary" onClick={handleTradeNow}>Trade Now</Button>
+        <Button
+          variant="light rounded-pill text-primary"
+          onClick={handleTradeNow}
+        >
+          Trade Now
+        </Button>
       )}
       {requestMoney && (
         <Button variant="light rounded-pill text-primary">Buy Now</Button>
@@ -693,6 +713,7 @@ const StatusCard = function StatusCard({
 }) {
   const { user: currUser } = useContext(UserContext);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
 
@@ -702,21 +723,21 @@ const StatusCard = function StatusCard({
   const handleDeleteButton = () => {
     setShowDeleteModal(true);
   };
-  
+
   const confirmDelete = async () => {
     setIsDeleting(true);
     try {
       const response = await fetch(`/api/listings/${offerItem._id}`, {
         method: "DELETE",
       });
-      
+
       if (!response.ok) {
         const error = await response.json();
         alert(`Error deleting listing: ${error.error}`);
         setIsDeleting(false);
         return;
       }
-      
+
       setShowDeleteModal(false);
       alert("Listing deleted successfully");
       router.reload();
@@ -726,7 +747,7 @@ const StatusCard = function StatusCard({
       setIsDeleting(false);
     }
   };
-  
+
   const handleViewTrade = () => {};
   const handleMessage = () => {};
 
@@ -778,7 +799,7 @@ const StatusCard = function StatusCard({
           }
           link={`/listings/${offerItem._id}`}
         />
-        <MsgButton user={user} onClick={handleMessage}/>
+        <MsgButton user={user} onClick={handleMessage} />
       </>
     ),
     MAIN_LAYOUT2: (
@@ -787,7 +808,7 @@ const StatusCard = function StatusCard({
           variant={"primary rounded-pill"}
           link={`/listings/${offerItem._id}`}
         />
-        <MsgButton user={user} onClick={handleMessage}/>
+        <MsgButton user={user} onClick={handleMessage} />
       </>
     ),
 
@@ -799,7 +820,7 @@ const StatusCard = function StatusCard({
           variant={"light rounded-pill border border-primary text-primary"}
           onClick={handleViewOffer}
         />
-        <MsgButton user={user} onClick={handleMessage}/>
+        <MsgButton user={user} onClick={handleMessage} />
       </>
     ),
     EDIT_OFFER: (
@@ -821,26 +842,24 @@ const StatusCard = function StatusCard({
         <DeleteButton
           variant="danger text-light border border-primary border-2 rounded-pill"
           onClick={handleDeleteButton}
-          
         />
       </>
     ),
     IN_PROGRESS_LAYOUT: (
-    <>
-      <Button
-        variant="success rounded-pill"
-        onClick={handleCompleteTrade}
-      >
-        Complete Trade
-      </Button>
+      <>
+        <Button variant="success rounded-pill" onClick={handleCompleteTrade}>
+          Complete Trade
+        </Button>
 
-      <OfferButton
-        variant={"light text-primary border border-primary border-2 rounded-pill"}
-        link={`/listings/${offerItem._id}`}
-      />
-      <MsgButton user={user} onClick={handleMessage}/>
-    </>
-  ),
+        <OfferButton
+          variant={
+            "light text-primary border border-primary border-2 rounded-pill"
+          }
+          link={`/listings/${offerItem._id}`}
+        />
+        <MsgButton user={user} onClick={handleMessage} />
+      </>
+    ),
   };
 
   const StatusLayout = [
@@ -916,7 +935,7 @@ const StatusCard = function StatusCard({
       layout: ButtonLayout.MAIN_LAYOUT2,
       cancel: null,
       cancelLabel: "Dismiss",
-    }
+    },
   ];
 
   const currType = StatusLayout.find((obj) => statusType === obj.id);
@@ -932,7 +951,7 @@ const StatusCard = function StatusCard({
         requestMoney={requestMoney}
         showBookmark={false}
         cancelCallback={cancelCallback ?? currType.cancel}
-      cancelBtnLabel={currType.cancelLabel}
+        cancelBtnLabel={currType.cancelLabel}
         requestUser={requestUser}
       >
         {currType.layout}
@@ -948,19 +967,24 @@ const StatusCard = function StatusCard({
           <Modal.Title>Confirm Deletion</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <p>Are you sure you want to delete this listing? This action cannot be undone.</p>
-          <p><strong>Listing:</strong> {offerItem?.itemName}</p>
+          <p>
+            Are you sure you want to delete this listing? This action cannot be
+            undone.
+          </p>
+          <p>
+            <strong>Listing:</strong> {offerItem?.itemName}
+          </p>
         </Modal.Body>
         <Modal.Footer>
-          <Button 
-            variant="secondary" 
+          <Button
+            variant="secondary"
             onClick={() => setShowDeleteModal(false)}
             disabled={isDeleting}
           >
             Cancel
           </Button>
-          <Button 
-            variant="danger" 
+          <Button
+            variant="danger"
             onClick={confirmDelete}
             disabled={isDeleting}
           >
