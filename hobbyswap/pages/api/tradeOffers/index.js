@@ -3,7 +3,7 @@ import { TradeOfferModel } from "@/lib/tradeOffer";
 import { ListingModel } from "@/lib/listing";
 import { UserModel } from "@/lib/dbUtils";
 import { Knock } from "@knocklabs/node";
-
+ 
 const knockClient = new Knock({ apiKey: process.env.KNOCK_API_KEY });
 
 export default async function handler(req, res) {
@@ -96,13 +96,14 @@ export default async function handler(req, res) {
         try {
           await knockClient.workflows.trigger("new-activity", {
             data: {
-              listingId: String(tradeListing.itemName),
+              tradeAction: "offer_created",
+              listingName: String(tradeListing.itemName),
               proposedItems: newTradeOffer.proposedItems, 
               proposedMoney: newTradeOffer.proposedMoney,
               meetUp: newTradeOffer.meetUp, 
               offerStatus: newTradeOffer.offerStatus,
               tradeStatus: newTradeOffer.tradeStatus,
-              action_url: `${process.env.NEXT_PUBLIC_BASE_URL}/tradeOffers/${newTradeOffer._id}`
+              action_url: `${process.env.NEXT_PUBLIC_BASE_URL}/tradeOffers?listingId=${newTradeOffer.listingId}`
             },
             recipients: [listing.userId.toString()], 
             actor: requesterId.toString(),
