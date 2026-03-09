@@ -64,7 +64,7 @@ const CustomChannelList = ({ children }) => {
   );
 };
 
-const CustomChannelHeader = (props) => {
+const CustomChannelHeader = (props) => { //Pass the Members -> Users
   let id = null;
   const { title } = props;
 
@@ -117,7 +117,7 @@ const CustomChannelHeader = (props) => {
             router.push("/users/" + id);
           }}
         >
-          <Avatar name={title ?? members[id].user.name} />
+          <Avatar name={title ?? members[id].user.name} image={props.profile.profilePicture} />
           <div>{title || members[id].user.name}</div>
         </div>
       </div>
@@ -127,6 +127,8 @@ const CustomChannelHeader = (props) => {
 
 export default function MessagePage() {
   const { user } = useContext(UserContext);
+
+
 
   const router = useRouter();
   const { user: userQuery } = router.query;
@@ -152,13 +154,23 @@ export default function MessagePage() {
       if (tokenReq.ok && user) {
         const { token: chatToken } = await tokenReq.json();
         const client = StreamChat.getInstance(apiKey);
+        console.log("Chat Token:", user.profilePicture);
+        const profileImage = user.profilePicture;
         client.connectUser(
           {
             id: user._id,
             name: user.username,
+            image: user.profilePicture,
           },
           chatToken,
         );
+
+
+        await client.partialUpdateUser({
+          id: user._id,
+          set: { image: profileImage },
+        });
+
         setClient(client);
         setLoading(false);
         setOptions({
@@ -225,7 +237,7 @@ export default function MessagePage() {
                     members: { $in: [user._id] },
                     hasUnread: true,
                   });
-                  setHasUnread(result.length > 0);
+                  setHasUnread(result.length > 0); // If there are any channels with unread messages, set hasUnread to true
                   const list = document.getElementsByClassName(
                     "str-chat__channel-list",
                   );
@@ -242,7 +254,7 @@ export default function MessagePage() {
           />
           <Channel>
             <Window>
-              <CustomChannelHeader id={user._id} hasUnread={hasUnread} />
+              <CustomChannelHeader id={user._id} profile={user} hasUnread={hasUnread} />
               <MessageList
                 messageActions={actions}
                 customMessageActions={customActions}

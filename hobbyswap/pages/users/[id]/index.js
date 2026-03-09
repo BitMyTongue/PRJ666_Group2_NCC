@@ -123,6 +123,8 @@ export default function User() {
       alert("An error occurred while updating the profile");
     } finally {
       setIsSaving(false);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      window.location.reload(); // Refresh the page to reflect changes
     }
   };
 
