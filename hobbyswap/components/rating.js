@@ -49,7 +49,7 @@ export function Rating({ rating = 0, size = 24 }) {
   );
 }
 
-export function StarRating () {
+export function StarRating ({ onRatingChange = null }) {
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
 
@@ -64,7 +64,11 @@ export function StarRating () {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const isLeftHalf = x < rect.width / 2;
-    setRating(isLeftHalf ? starValue - 0.5 : starValue);
+    const newRating = isLeftHalf ? starValue - 0.5 : starValue;
+    setRating(newRating);
+    if (onRatingChange) {
+      onRatingChange(newRating);
+    }
   };
 
   const getStarIcon = (starValue, currentRating) => {

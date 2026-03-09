@@ -1,4 +1,5 @@
 import UserIcon from "@/components/user-icon";
+import ReviewCard from "@/components/review-card";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -516,7 +517,28 @@ export default function Listing() {
         </div>
 
         {/*  Review Section*/}
-        <div className="">Review Section Implement later</div>
+        <div className="mt-5">
+          <h3 className="fw-semibold text-primary mb-4">
+            Reviews for {owner?.firstName} {owner?.lastName}
+          </h3>
+          {owner?.reviews && owner.reviews.length > 0 ? (
+            <div>
+              {owner.reviews.map((review, index) => (
+                <ReviewCard
+                  key={index}
+                  reviewerId={review.reviewerId}
+                  rating={review.rating}
+                  title={review.title}
+                  description={review.description}
+                  createdAt={review.createdAt}
+                />
+              ))}
+            </div>
+          ) : (
+            <p className="text-muted">No reviews yet for this user.</p>
+          )}
+        </div>
+        
       </div>
 
       <Modal show={showRequests} onHide={() => setShowRequests(false)} centered>

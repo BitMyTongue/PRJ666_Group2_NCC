@@ -46,6 +46,38 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
+    reviews: {
+      type: [{
+        reviewerId: {
+          type: String,
+          ref: "User",
+          required: true,
+        },
+        rating: {
+          type: Number,
+          min: 1,
+          max: 5,
+          required: true,
+        },
+        title: {
+          type: String,
+          required: true,
+        },
+        description: {
+          type: String,
+          required: true,
+        },
+        tradeOfferId: {
+          type: String,
+          ref: "tradeOffers",
+        },
+        createdAt: {
+          type: Date,
+          default: Date.now,
+        },
+      }],
+      default: [],
+    },
   },
   { timestamps: true }
 );

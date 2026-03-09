@@ -17,12 +17,70 @@ export default function ReviewUserModal({
   user,
   show,
   setShow,
+  tradeOfferId = null,
 }) {
   const [reportTitle, setReviewTitle] = useState("");
   const [reportDesc, setReviewDesc] = useState("");
+  const [rating, setRating] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // TODO: create submit logic
-  const handleSubmit = () => {};
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Validate inputs
+    if (!rating || rating === 0) {
+      alert("Please select a rating");
+      return;
+    }
+    if (!reportTitle.trim()) {
+      alert("Please enter a review title");
+      return;
+    }
+    if (!reportDesc.trim()) {
+      alert("Please enter review details");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const reviewData = {
+        reviewerId: reviewer?._id,
+        rating: rating,
+        title: reportTitle,
+        description: reportDesc,
+        tradeOfferId: tradeOfferId,
+      };
+
+      // Submit review to the API
+      const response = await fetch(`/api/users/${user._id}/reviews`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(reviewData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to submit review");
+      }
+
+      const result = await response.json();
+      console.log("Review submitted successfully", result);
+
+      // Reset form and close modal
+      setReviewTitle("");
+      setReviewDesc("");
+      setRating(0);
+      setShow(false);
+      alert("Review submitted successfully!");
+    } catch (error) {
+      console.error("Error submitting review:", error);
+      alert("Error submitting review. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <Modal
@@ -49,7 +107,7 @@ export default function ReviewUserModal({
                 <Form.Label className="text-muted text-capitalize mt-2">How do you rate this user?</Form.Label>
                 <div className="d-flex gap-3">
                   <UserIcon user={user.username} img={user.avatar} size="50" />
-                  <StarRating />
+                  <StarRating onRatingChange={setRating} />
                 </div>
                 <Form.Label className="text-muted text-capitalize mt-3">How is the experience with this user</Form.Label>
                 <Form.Control
@@ -72,10 +130,10 @@ export default function ReviewUserModal({
           </Container>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="primary px-5" type="submit" >
-            Submit
+          <Button variant="primary px-5" type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Submitting..." : "Submit"}
           </Button>
-          <Button variant="light px-5"onClick={()=>setShow(!show)} >
+          <Button variant="light px-5" onClick={() => setShow(false)} disabled={isSubmitting}>
             Cancel
           </Button>
         </Modal.Footer>
