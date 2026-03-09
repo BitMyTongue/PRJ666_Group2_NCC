@@ -6,6 +6,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useRouter } from "next/router";
+import React from "react";
 import { useContext, useEffect, useState } from "react";
 import { Spinner } from "react-bootstrap";
 import { StreamChat } from "stream-chat";
@@ -20,7 +21,6 @@ import {
   Avatar,
   ChannelPreviewMessenger,
   useChannelStateContext,
-  useChatContext,
 } from "stream-chat-react";
 const apiKey = process.env.NEXT_PUBLIC_STREAM_CHAT_KEY;
 const actions = ["delete", "mute", "pin", "quote"];
@@ -191,12 +191,11 @@ export default function MessagePage() {
   useEffect(() => {
     const effectAsync = async () => {
       if (!client) return;
-      if (!userQuery || user._id === userQuery) return;
+      if (!userQuery || user?._id === userQuery) return;
       const channel = client.channel("messaging", {
         members: [user._id, userQuery],
       });
-
-      const result = await channel.watch();
+      const result = await channel.watch({ presence: true });
       setActiveCh(result.channel.id);
     };
     effectAsync();
@@ -217,7 +216,10 @@ export default function MessagePage() {
             options={options.options}
             customActiveChannel={activeCh}
             onMessageNewHandler={(s, e) => {
-              if (e.user_id === user._id) return;
+              if (e.user_id === user._id) {
+                return;
+              }
+
               if (e.channel_id === activeCh) return;
               setHasUnread(e.unread_count > 0);
               s((channels) => {
