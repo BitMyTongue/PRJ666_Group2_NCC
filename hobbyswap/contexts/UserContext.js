@@ -21,6 +21,8 @@ export const UserProvider = ({ children }) => {
     fetch("/api/auth/protect", { headers: { Authorization: `Bearer ${token}`,"Cache-Control":"no-cache"},cache:"no-store" })
       .then((res) => {
         if (!res.ok) throw new Error("Token invalid");
+
+        console.log("Token valid, response status:", res);
         return res.json();
       })
       .then((data) => setUser(data.user))
@@ -29,7 +31,7 @@ export const UserProvider = ({ children }) => {
   }, []);
 
   return (
-    <UserContext.Provider value={{ user, setUser, logout, loading }}>
+    <UserContext.Provider value={{ user, setUser, logout, loading}}>
       {children}
     </UserContext.Provider>
   );

@@ -68,6 +68,36 @@ const tradeOfferSchema = new mongoose.Schema({
   canceledAt: {
     type: Date,
   },
+
+  // REVIEWS
+  reviews: {
+    type: [{
+      reviewerId: {
+        type: String,
+        ref: "User",
+        required: true,
+      },
+      rating: {
+        type: Number,
+        min: 1,
+        max: 5,
+        required: true,
+      },
+      title: {
+        type: String,
+        required: true,
+      },
+      description: {
+        type: String,
+        required: true,
+      },
+      createdAt: {
+        type: Date,
+        default: Date.now,
+      },
+    }],
+    default: [],
+  },
 });
 
 mongoose.models = {};

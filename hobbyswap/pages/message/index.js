@@ -64,7 +64,7 @@ const CustomChannelList = ({ children }) => {
   );
 };
 
-const CustomChannelHeader = (props) => {
+const CustomChannelHeader = (props) => { //Pass the Members -> Users
   let id = null;
   const { title } = props;
 
@@ -117,7 +117,8 @@ const CustomChannelHeader = (props) => {
             router.push("/users/" + id);
           }}
         >
-          <Avatar name={title ?? members[id].user.name} />
+          {/* <Avatar name={title ?? members[id].user.name} image={props.profile.profilePicture} /> */}
+          <Avatar name={title ?? members[id].user.name}/>
           <div>{title || members[id].user.name}</div>
         </div>
       </div>
@@ -127,6 +128,8 @@ const CustomChannelHeader = (props) => {
 
 export default function MessagePage() {
   const { user } = useContext(UserContext);
+
+
 
   const router = useRouter();
   const { user: userQuery } = router.query;
@@ -151,60 +154,25 @@ export default function MessagePage() {
       });
       if (tokenReq.ok && user) {
         const { token: chatToken } = await tokenReq.json();
-        const cli = StreamChat.getInstance(apiKey);
-        await cli.connectUser(
+        const client = StreamChat.getInstance(apiKey);
+        console.log("Chat Token:", user.profilePicture);
+        const profileImage = user.profilePicture;
+        client.connectUser(
           {
             id: user._id,
             name: user.username,
+            // image: user.profilePicture,
           },
           chatToken,
         );
 
-        const notifMiddleware = (composer) => ({
-          id: "message-composer/message-composer/relay-notification",
-          handlers: {
-            compose: async ({ state, next, forward }) => {
-              if (!composer.textComposer) return forward();
-              const { text } = composer.textComposer;
 
-              const msg = state.localMessage;
-              const other = composer.channel.data.created_by;
-              if (!other) return forward();
-              const data = msg.attachments.length > 0 ? "🖼️" : text;
-
-              // Fie and forget
-              fetch("/api/auth/message-notif", {
-                method: "POST",
-                headers: {
-                  Authorization: `Bearer ${userToken}`,
-                  "Cache-Control": "no-cache",
-                },
-                body: JSON.stringify({
-                  to: other.id,
-                  source: user._id,
-                  message: data,
-                  channel_id: composer.channel.data.id,
-                  chat_token: chatToken,
-                }),
-              });
-
-              return next({ ...state });
-            },
-          },
+        await client.partialUpdateUser({
+          id: user._id,
+          set: { image: profileImage },
         });
-        if (!client) {
-          cli.setMessageComposerSetupFunction(({ composer }) => {
-            console.log("setting");
-            composer.compositionMiddlewareExecutor.insert({
-              middleware: [notifMiddleware(composer)],
-              position: {
-                after: "stream-io/message-composer-middleware/data-cleanup",
-              },
-            });
-          });
-        }
 
-        setClient(cli);
+        setClient(client);
         setLoading(false);
         setOptions({
           sort: { last_message_at: -1 },
@@ -272,7 +240,7 @@ export default function MessagePage() {
                     members: { $in: [user._id] },
                     hasUnread: true,
                   });
-                  setHasUnread(result.length > 0);
+                  setHasUnread(result.length > 0); // If there are any channels with unread messages, set hasUnread to true
                   const list = document.getElementsByClassName(
                     "str-chat__channel-list",
                   );
@@ -289,7 +257,7 @@ export default function MessagePage() {
           />
           <Channel>
             <Window>
-              <CustomChannelHeader id={user?._id} hasUnread={hasUnread} />
+              <CustomChannelHeader id={user._id} profile={user} hasUnread={hasUnread} />
               <MessageList
                 messageActions={actions}
                 customMessageActions={customActions}

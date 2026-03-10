@@ -13,6 +13,7 @@ import Link from "next/link";
 import { UserContext } from "@/contexts/UserContext";
 import UserNavbar from "@/components/user-navbar";
 import Image from "next/image";
+import ReviewCard from "@/components/review-card";
 export default function User() {
   const { user: viewer } = useContext(UserContext);
   const [profile, setProfile] = useState(null);
@@ -33,6 +34,7 @@ export default function User() {
         setProfile(data);
         setFormData(data); // Pre-filled form data for editting
         setProfileImageUrl(data.profilePicture || null); // Set profile image
+        console.log("profile = "+ profile);
       });
   }, [router.isReady, router.query.id]);
 
@@ -43,6 +45,51 @@ export default function User() {
   const handleCancel = () => {
     setFormData(profile);
     setIsEditing(false);
+  };
+
+  const calculateAverageRating = () => {
+    if (!profile?.reviews || profile.reviews.length === 0) {
+      return 0;
+    }
+    const sum = profile.reviews.reduce((acc, review) => acc + review.rating, 0);
+    return (sum / profile.reviews.length).toFixed(1);
+  };
+
+  const getRatingStars = (rating) => {
+    const stars = [];
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.5;
+
+    for (let i = 0; i < 5; i++) {
+      if (i < fullStars) {
+        stars.push(
+          <FontAwesomeIcon
+            key={i}
+            icon={faStar}
+            className="text-secondary"
+          />
+        );
+      } else if (i === fullStars && hasHalfStar) {
+        stars.push(
+          <FontAwesomeIcon
+            key={i}
+            icon={faStar}
+            className="text-secondary"
+            style={{ opacity: 0.5 }}
+          />
+        );
+      } else {
+        stars.push(
+          <FontAwesomeIcon
+            key={i}
+            icon={faStar}
+            className="text-secondary"
+            style={{ opacity: 0.2 }}
+          />
+        );
+      }
+    }
+    return stars;
   };
 
   const handleChange = (e) => {
@@ -123,6 +170,8 @@ export default function User() {
       alert("An error occurred while updating the profile");
     } finally {
       setIsSaving(false);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      window.location.reload(); // Refresh the page to reflect changes
     }
   };
 
@@ -135,6 +184,7 @@ export default function User() {
         {/* User Information Section */}
         <div className="container-ls my-5">
           <div className="row justify-content-center align-items-stretch gap-5">
+            {/* Right column */}
             <div className="col-12 col-md-4 border border-gray rounded rounded-4 shadow py-8 d-flex flex-column justify-content-center align-items-center gap-3">
               {console.log("profile", profile)}
             {
@@ -202,7 +252,8 @@ export default function User() {
                   )}
                 </>
               )}
-                <div className="d-flex flex-column align-items-center gap-2 w-50 w-md-100 text-center mt-3 mx-auto">
+                {/* Left column */}
+                <div className="d-flex flex-column align-items-center gap-2 w-50 w-md-100 text-center mt-3 mx-auto"> 
                   <Link
                     href={`${router.asPath}/listings`}
                     className="btn btn-primary rounded-pill py-2 fw-semibold w-100 border border-primary border-3"
@@ -222,6 +273,7 @@ export default function User() {
                 </div>
               </div>
             </div>
+            {/* Left column */}
             <div className="col-11 col-md-6 border border-gray rounded rounded-4 shadow p-4 d-flex flex-column justify-content-center align-items-center ">
               {!isEditing ? (
               <>
@@ -240,17 +292,15 @@ export default function User() {
                       Rankings
                     </p>
                     <div className="d-flex justify-content-start align-items-center gap-3 mt-0">
-                      {/* Hard code for now, implement dynamically later */}
-                      <p className="fw-semibold fs-3 text-primary mb-0">5.0</p>
+                      <p className="fw-semibold fs-3 text-primary mb-0">
+                        {calculateAverageRating() > 0 ? calculateAverageRating() : "No ratings"}
+                      </p>
                       <div className="d-flex">
-                        {[...Array(5)].map((_, i) => (
-                          <FontAwesomeIcon
-                            key={i}
-                            icon={faStar}
-                            className="text-secondary"
-                          />
-                        ))}
+                        {getRatingStars(calculateAverageRating())}
                       </div>
+                      <p className="text-muted mb-0">
+                        ({profile?.reviews?.length || 0} {profile?.reviews?.length === 1 ? "review" : "reviews"})
+                      </p>
                     </div>
                   </div>
                   <div className="row pb-3 w-100 mb-3">
@@ -511,7 +561,32 @@ export default function User() {
             )}
           </div>
           </div>
+          <div className="row justify-content-center w-100">
+            {/*  Review Section*/}
+        <div className="col-12  col-md-10 border border-gray rounded rounded-4 shadow py-5 px-5  d-flex flex-column justify-content-center  mt-4">
+          <h3 className="fw-semibold text-primary ">
+            Your Reviews
+          </h3>
+          {profile?.reviews && profile.reviews.length > 0 ? (
+            <div>
+              {profile.reviews.map((review, index) => (
+                <ReviewCard
+                  key={index}
+                  reviewerId={review.reviewerId}
+                  rating={review.rating}
+                  title={review.title}
+                  description={review.description}
+                  createdAt={review.createdAt}
+                />
+              ))}
+            </div>
+          ) : (
+            <p className="text-muted">No reviews yet for this user.</p>
+          )}
         </div>
+          </div>
+        </div>
+        
       </UserNavbar>
     </>
   );

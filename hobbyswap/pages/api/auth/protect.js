@@ -21,8 +21,9 @@ export default async function handler(req, res) {
     const hello=await knockClient.users.update(user._id,{
       name: user.username,
       email: user.email,
+      image: user.profilePicture || undefined,
     })
-    console.log("Knock User:", hello);
+    // console.log("Knock User:", hello);
 
     res.status(200).json({ user });
   } catch (err) {
