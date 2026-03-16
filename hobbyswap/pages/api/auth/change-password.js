@@ -40,7 +40,10 @@ export default async function handler(req, res) {
       );
 
       if (putUser.ok) {
-        res.setHeader("Set-Cookie", `fPW=0; Max-Age=0`);
+        res.setHeader(
+          "Set-Cookie",
+          `fPW=${callback}; Max-Age=0;Path="/"; SameSite=Strict; HttpOnly`,
+        );
         return res.status(200).json(await putUser.json());
       }
     }
