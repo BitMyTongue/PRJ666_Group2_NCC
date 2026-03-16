@@ -120,6 +120,17 @@ const BaseLongCard = function BaseLongCard({
   const isSameReqUser =
     requestUser && currUser && requestUser._id === currUser._id;
   const hasMultiple = requestItem?.length > 1;
+  if (!offerItem) {
+    return (
+      <div
+        className="base-long-card-loading"
+        style={{ minWidth: 550, height: 400 }}
+      >
+        {/* placeholder or spinner could go here */}
+      </div>
+    );
+  }
+
   return (
     <>
       <div
@@ -168,6 +179,7 @@ const BaseLongCard = function BaseLongCard({
             )}
             <div>{isSameUser ? "YOU" : user.username}</div>
           </div>
+          {rating > -1 && <Rating rating={rating} />}
           {status.toUpperCase() === "TRADE COMPLETED" && (
             <>
               <Button
@@ -518,16 +530,22 @@ const BaseLongCard = function BaseLongCard({
               {children}
             </div>
             <div className="w-100" style={{ float: "left" }}>
-              {showBookmark && (
-                <Button
-                  variant="none"
-                  style={{ position: "absolute", bottom: 5, right: 5 }}
-                  onClick={() => {
-                    bookmarkCallback();
-                  }}
-                >
-                  <BookmarkIcon fill={saved} />
-                </Button>
+              {showBookmark && currUser && offerItem?._id && (
+                // <Button
+                //   variant="none"
+                //   style={{ position: "absolute", bottom: 5, right: 5 }}
+                //   onClick={() => {
+                //     bookmarkCallback();
+                //   }}
+                // >
+                //   <BookmarkIcon fill={saved} />
+                // </Button>
+                <div style={{ position: "absolute", bottom: 5, right: 5 }}>
+                  <BookmarkIcon
+                    listingId={offerItem._id}
+                    initialSaved={isBookmarked}
+                  />
+                </div>
               )}
               {cancelCallback && (
                 <Button
