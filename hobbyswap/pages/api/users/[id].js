@@ -1,11 +1,26 @@
 import { UserModel, mongooseConnect } from "@/lib/dbUtils";
+import bcrypt from "bcrypt";
 
 export default async function handler(req, res) {
   const { id } = req.query;
-  const { firstName, lastName, username, email, password, address, site, gender, dateOfBirth, profilePicture } = req.body;
+  const {
+    firstName,
+    lastName,
+    username,
+    email,
+    password,
+    address,
+    site,
+    gender,
+    dateOfBirth,
+    profilePicture,
+  } = req.body;
   const { method } = req;
 
-  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+  res.setHeader(
+    "Cache-Control",
+    "no-store, no-cache, must-revalidate, proxy-revalidate",
+  );
   res.setHeader("Pragma", "no-cache");
   res.setHeader("Expires", "0");
   res.setHeader("Surrogate-Control", "no-store");
@@ -31,17 +46,20 @@ export default async function handler(req, res) {
         if (lastName) updateData.lastName = lastName;
         if (username) updateData.username = username;
         if (email) updateData.email = email;
-        if (password) updateData.password = password;
+        if (password) updateData.password = await bcrypt.hash(password, 10);
         if (address !== undefined) updateData.address = address;
         if (site !== undefined) updateData.site = site;
         if (gender) updateData.gender = gender;
         if (dateOfBirth !== undefined) updateData.dateOfBirth = dateOfBirth;
-        if (profilePicture !== undefined) updateData.profilePicture = profilePicture;
+        if (profilePicture !== undefined)
+          updateData.profilePicture = profilePicture;
 
         await UserModel.updateOne({ _id: id }, { $set: updateData }).exec();
         // return updated user so client can refresh state
         const updatedUser = await UserModel.findById(id).select("-password");
-        res.status(200).json({ message: `User with id: ${id} updated`, user: updatedUser });
+        res
+          .status(200)
+          .json({ message: `User with id: ${id} updated`, user: updatedUser });
         break;
       case "DELETE":
         await UserModel.deleteOne({ _id: id }).exec();

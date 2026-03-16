@@ -1,5 +1,4 @@
 import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
 
 export default async function handler(req, res) {
   if (req.method !== "PUT") {
@@ -28,14 +27,13 @@ export default async function handler(req, res) {
     const user = users.find((u) => u.email == email);
 
     if (user) {
-      const hashed = await bcrypt.hash(password, 10);
       console.log(hashed);
       const putUser = await fetch(
         process.env.NEXT_PUBLIC_API_URL + "/api/users/" + user._id,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ password: hashed }),
+          body: JSON.stringify({ password: password }),
         },
       );
 
