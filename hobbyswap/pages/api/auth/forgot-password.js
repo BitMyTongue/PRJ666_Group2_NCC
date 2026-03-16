@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 
+// use test account for now
 const nodemailer = require("nodemailer");
 const testAccount = await nodemailer.createTestAccount();
 const transporter = nodemailer.createTransport({
@@ -12,7 +13,6 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// Output: https://ethereal.email/message/...
 export default async function handler(req, res) {
   res.setHeader("Cache-Control", "no-store");
   const userReq = await fetch(process.env.NEXT_PUBLIC_API_URL + "/api/users", {
@@ -36,17 +36,16 @@ export default async function handler(req, res) {
           "Set-Cookie",
           `fPW=${token}; Max-Age=${15 * 60};Path="/"; SameSite=Strict; HttpOnly`,
         );
+
+        // Fake email for now, sends it to a test mailing site
         const info = await transporter.sendMail({
           from: '"Test Sender" <test@example.com>',
           to: email,
           subject: "Forgot Password",
-          text: "Click here to reset your password",
-          html: `<a href='${process.env.NEXT_PUBLIC_API_URL}/forgot?token=${token}'>Click here to reset your password</a>`,
+          text: "Click here to reset your password (Link expires in 15 mins)",
+          html: `<a href='${process.env.NEXT_PUBLIC_API_URL}/forgot?token=${token}'>Click here to reset your password (Link expires in 15 mins)</a>`,
         });
-
         console.log("Message sent: %s", info.messageId);
-
-        // Get the Ethereal URL to preview this email
         const previewUrl = nodemailer.getTestMessageUrl(info);
         console.log("Preview URL: %s", previewUrl);
 
