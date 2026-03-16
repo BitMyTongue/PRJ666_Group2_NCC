@@ -8,7 +8,6 @@ export default function BookmarkIcon({ listingId, size = "xl", ...props }) {
   const { user } = useContext(UserContext);
   const [saved, setSaved] = useState(false);
 
-  // Check if bookmarked
   useEffect(() => {
     if (!user || !listingId) return;
 
