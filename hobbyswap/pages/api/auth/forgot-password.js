@@ -56,7 +56,6 @@ export default async function handler(req, res) {
     case "GET": {
       const { callback } = req.query;
       const cookie = req.headers["cookie"];
-      console.log(req.headers);
       if (cookie && cookie.includes("fPW=")) {
         const values = cookie.split(";");
         const emailToken = values

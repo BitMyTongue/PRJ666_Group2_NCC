@@ -9,7 +9,6 @@ export default async function handler(req, res) {
   let email = "";
 
   const cookie = req.headers["cookie"];
-  console.log(cookie);
   if (cookie && cookie.includes("fPW=")) {
     const values = cookie.split(";");
     const emailToken = values.find((v) => v.startsWith("fPW="))?.split("=")[1];
