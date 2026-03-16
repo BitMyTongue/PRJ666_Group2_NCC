@@ -3,20 +3,22 @@ import { Image } from "react-bootstrap";
 import { useContext, useState } from "react";
 import { useRouter } from "next/router";
 import { UserContext } from "@/contexts/UserContext";
+import ForgotPasswordModal from "@/components/modals/forgot-password-modal";
 
 export default function Login() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+  const [showForgot, setShowForgot] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const {setUser}=useContext(UserContext)
+  const { setUser } = useContext(UserContext);
 
   const handleChange = (e) => {
-    const {id, value} = e.target;
-    setFormData((prev) => ({...prev, [id]: value}));
+    const { id, value } = e.target;
+    setFormData((prev) => ({ ...prev, [id]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -31,7 +33,7 @@ export default function Login() {
     try {
       const response = await fetch("api/login", {
         method: "POST",
-        headers: {"Content-Type": "application/json"},
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: formData.email,
           password: formData.password,
@@ -47,8 +49,8 @@ export default function Login() {
 
       // Store user data and redirect to home
       localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user)); 
-      setUser(data.user)
+      localStorage.setItem("user", JSON.stringify(data.user));
+      setUser(data.user);
       router.push("/");
     } catch (err) {
       setError("An error occurred. Please try again.");
@@ -76,7 +78,10 @@ export default function Login() {
             />
           </div>
           <div className="col-md-5 col-12 d-flex flex-column border-bottom ">
-            <form className="d-grid gap-4 px-2 px-sm-3 px-md-5 py-4" onSubmit={handleSubmit}>
+            <form
+              className="d-grid gap-4 px-2 px-sm-3 px-md-5 py-4"
+              onSubmit={handleSubmit}
+            >
               {error && <div className="alert alert-danger">{error}</div>}
               <input
                 type="text"
@@ -86,14 +91,25 @@ export default function Login() {
                 value={formData.email}
                 onChange={handleChange}
               />
-              <input
-                type="password"
-                className="form-control bg-light p-2"
-                id="password"
-                placeholder="password"
-                value={formData.password}
-                onChange={handleChange}
-              />
+              <div>
+                <input
+                  type="password"
+                  className="form-control bg-light p-2 mb-3"
+                  id="password"
+                  placeholder="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                />
+                <span
+                  onClick={() => {
+                    setShowForgot(true);
+                  }}
+                  role="button"
+                >
+                  Forgot password?
+                </span>
+              </div>
+
               <button
                 type="submit"
                 disabled={loading}
@@ -161,6 +177,7 @@ export default function Login() {
           </div>
         </div>
       </div>
+      <ForgotPasswordModal show={showForgot} setShow={setShowForgot} />
     </div>
   );
 }
