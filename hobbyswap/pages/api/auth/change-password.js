@@ -10,9 +10,9 @@ export default async function handler(req, res) {
 
   const cookie = req.headers["cookie"];
   console.log(cookie);
-  if (cookie && cookie.startsWith("fPW=")) {
+  if (cookie && cookie.includes("fPW=")) {
     const values = cookie.split(";");
-    const emailToken = values[0].split("=")[1];
+    const emailToken = values.find((v) => v.startsWith("fPW="))?.split("=")[1];
     if (emailToken !== callback) return res.status(400).end();
     email = jwt.verify(emailToken, process.env.JWT_SECRET);
   }
@@ -27,7 +27,6 @@ export default async function handler(req, res) {
     const user = users.find((u) => u.email == email);
 
     if (user) {
-      console.log(hashed);
       const putUser = await fetch(
         process.env.NEXT_PUBLIC_API_URL + "/api/users/" + user._id,
         {

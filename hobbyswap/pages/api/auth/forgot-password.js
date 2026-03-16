@@ -59,7 +59,9 @@ export default async function handler(req, res) {
       console.log(req.headers);
       if (cookie && cookie.includes("fPW=")) {
         const values = cookie.split(";");
-        const emailToken = values[0].split("=")[1];
+        const emailToken = values
+          .find((v) => v.startsWith("fPW="))
+          ?.split("=")[1];
         if (emailToken !== callback) return res.status(400).end();
         const email = jwt.verify(emailToken, process.env.JWT_SECRET);
         if (email) {
