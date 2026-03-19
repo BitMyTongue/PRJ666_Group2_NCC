@@ -64,74 +64,74 @@ const CustomChannelList = ({ children }) => {
   );
 };
 
-const CustomChannelHeader = (props) => { //Pass the Members -> Users
-  let id = null;
-  const { title } = props;
-
-  const { members } = useChannelStateContext();
-
-  if (members[props.id]) id = Object.keys(members).find((v) => v !== props.id);
-
-  return (
-    id && (
-      <div className="str-chat__channel-header">
-        <div
-          className="position-relative p-1 str-chat__header-hamburger"
-          onClick={() => {
-            const list = document.getElementsByClassName(
-              "str-chat__channel-list",
-            );
-            if (list.length > 0) {
-              if (list[0].classList.contains("--open")) {
-                list[0].classList.remove("--open");
-              } else {
-                list[0].classList.add("--open");
-              }
-            }
-          }}
-        >
-          <FontAwesomeIcon
-            className=""
-            role="button"
-            icon={faListUl}
-            size="ms"
-          />
-          {props.hasUnread && (
-            <FontAwesomeIcon
-              className="position-absolute"
-              style={{
-                top: 0,
-                right: 0,
-              }}
-              icon={faCircle}
-              color="red"
-              size="sm"
-            />
-          )}
-        </div>
-
-        <div
-          className="d-flex gap-2 align-items-center"
-          role="button"
-          onClick={() => {
-            router.push("/users/" + id);
-          }}
-        >
-          {/* <Avatar name={title ?? members[id].user.name} image={props.profile.profilePicture} /> */}
-          <Avatar name={title ?? members[id].user.name}/>
-          <div>{title || members[id].user.name}</div>
-        </div>
-      </div>
-    )
-  );
-};
-
 export default function MessagePage() {
   const { user } = useContext(UserContext);
-
-
-
   const router = useRouter();
+
+  const CustomChannelHeader = (props) => {
+    //Pass the Members -> Users
+    let id = null;
+    const { title } = props;
+
+    const { members } = useChannelStateContext();
+
+    if (members[props.id])
+      id = Object.keys(members).find((v) => v !== props.id);
+
+    return (
+      id && (
+        <div className="str-chat__channel-header">
+          <div
+            className="position-relative p-1 str-chat__header-hamburger"
+            onClick={() => {
+              const list = document.getElementsByClassName(
+                "str-chat__channel-list",
+              );
+              if (list.length > 0) {
+                if (list[0].classList.contains("--open")) {
+                  list[0].classList.remove("--open");
+                } else {
+                  list[0].classList.add("--open");
+                }
+              }
+            }}
+          >
+            <FontAwesomeIcon
+              className=""
+              role="button"
+              icon={faListUl}
+              size="ms"
+            />
+            {props.hasUnread && (
+              <FontAwesomeIcon
+                className="position-absolute"
+                style={{
+                  top: 0,
+                  right: 0,
+                }}
+                icon={faCircle}
+                color="red"
+                size="sm"
+              />
+            )}
+          </div>
+
+          <div
+            className="d-flex gap-2 align-items-center"
+            role="button"
+            onClick={() => {
+              router.push("/users/" + id);
+            }}
+          >
+            {/* <Avatar name={title ?? members[id].user.name} image={props.profile.profilePicture} /> */}
+            <Avatar name={title ?? members[id].user.name} />
+            <div>{title || members[id].user.name}</div>
+          </div>
+        </div>
+      )
+    );
+  };
+
   const { user: userQuery } = router.query;
   const [hasUnread, setHasUnread] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -165,7 +165,6 @@ export default function MessagePage() {
           },
           chatToken,
         );
-
 
         await client.partialUpdateUser({
           id: user._id,
@@ -257,7 +256,11 @@ export default function MessagePage() {
           />
           <Channel>
             <Window>
-              <CustomChannelHeader id={user._id} profile={user} hasUnread={hasUnread} />
+              <CustomChannelHeader
+                id={user._id}
+                profile={user}
+                hasUnread={hasUnread}
+              />
               <MessageList
                 messageActions={actions}
                 customMessageActions={customActions}
