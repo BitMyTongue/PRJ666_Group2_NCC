@@ -157,32 +157,35 @@ export default function MessagePage() {
         const client = StreamChat.getInstance(apiKey);
         console.log("Chat Token:", user.profilePicture);
         const profileImage = user.profilePicture;
-        client.connectUser(
-          {
+        try {
+          client.connectUser(
+            {
+              id: user._id,
+              name: user.username,
+              // image: user.profilePicture,
+            },
+            chatToken,
+          );
+          await client.partialUpdateUser({
             id: user._id,
-            name: user.username,
-            // image: user.profilePicture,
-          },
-          chatToken,
-        );
+            set: { image: profileImage },
+          });
 
-        await client.partialUpdateUser({
-          id: user._id,
-          set: { image: profileImage },
-        });
-
-        setClient(client);
-        setLoading(false);
-        setOptions({
-          sort: { last_message_at: -1 },
-          filters: {
-            type: "messaging",
-            members: { $in: [user._id] },
-          },
-          options: {
-            limit: 10,
-          },
-        });
+          setClient(client);
+          setLoading(false);
+          setOptions({
+            sort: { last_message_at: -1 },
+            filters: {
+              type: "messaging",
+              members: { $in: [user._id] },
+            },
+            options: {
+              limit: 10,
+            },
+          });
+        } catch {
+          router.push("/");
+        }
       } else setLoading(false);
     };
 
@@ -207,6 +210,7 @@ export default function MessagePage() {
         <Spinner />
       ) : client &&
         options &&
+        user &&
         (!userQuery || user._id === userQuery || activeCh) ? (
         <Chat client={client} initialNavOpen={false}>
           <ChannelList
