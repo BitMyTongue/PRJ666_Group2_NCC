@@ -435,7 +435,13 @@ export default function CardPayment() {
     }
 
     if (step === "make a payment") {
-      router.push(`/checkout/pay/${id}?step=confirmation`);
+      fetch(`/api/listings/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "COMPLETE" }),
+      }).finally(() => {
+        router.push(`/checkout/pay/${id}?step=confirmation`);
+      });
     }
   };
 
@@ -512,7 +518,10 @@ export default function CardPayment() {
               {step === "confirmation" && (
                 <div className="m-5">
                   <p className="alert alert-success">Your order successfully placed</p>
-                  <Button variant="primary" href="/">Go back homepage</Button>
+                  <div className="d-flex gap-2">
+                    <Button variant="primary" href={`/checkout/tracking/${id}`}>Track Shipment</Button>
+                    <Button variant="outline-secondary" href="/">Go back homepage</Button>
+                  </div>
                 </div>
               )}
             </div>
