@@ -25,10 +25,16 @@ export default function UserListing() {
   const [profile, setProfile] = useState(null);
 
   const [query, setQuery] = useState("");
-  const [sortKey, setSortKey] = useState("popular");
+  const [sortKey, setSortKey] = useState("most-recent");
   const [showSearch, setShowSearch] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [selectedCondition, setSelectedCondition] = useState(null);
+  const [selectedStatus, setSelectedStatus] = useState(null);
+
+  const listingStatusOptions = [
+    { key: "ACTIVE",    label: "Active" },
+    { key: "IN TRADE",  label: "In Trade" },
+    { key: "COMPLETE",  label: "Completed" },
+  ];
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -73,19 +79,15 @@ export default function UserListing() {
 
     // Step 1: Apply Category Filter
     if (selectedCategory) {
-      filtered = filtered.filter(
-        (listing) => listing.category === selectedCategory,
-      );
+      filtered = filtered.filter((listing) => listing.category === selectedCategory);
     }
 
-    // Step 2: Apply Condition Filter
-    if (selectedCondition) {
-      filtered = filtered.filter(
-        (listing) => listing.condition === selectedCondition,
-      );
+    // Step 2: Apply Status Filter
+    if (selectedStatus) {
+      filtered = filtered.filter((listing) => listing.status === selectedStatus);
     }
 
-    // Step 3: Apply Search Filter (by title or description)
+    // Step 4: Apply Search Filter
     if (query.trim()) {
       const lowerQuery = query.toLowerCase();
       filtered = filtered.filter(
@@ -95,20 +97,24 @@ export default function UserListing() {
       );
     }
 
-    // Step 4: Apply Sort
-    if (sortKey === "az") {
+    // Step 5: Apply Sort
+    if (sortKey === "most-recent") {
+      filtered.sort((a, b) => new Date(b.datePosted || 0) - new Date(a.datePosted || 0));
+    } else if (sortKey === "popular") {
+      filtered.sort((a, b) => new Date(a.datePosted || 0) - new Date(b.datePosted || 0));
+    } else if (sortKey === "az") {
       filtered.sort((a, b) => a.itemName.localeCompare(b.itemName));
     } else if (sortKey === "za") {
       filtered.sort((a, b) => b.itemName.localeCompare(a.itemName));
     }
-    // "popular" is the default - no sorting needed
+    // "none" — no sort applied
 
-    // Step 5: Reset pagination to page 0 when filters change
+    // Step 6: Reset pagination
     setCurrP(0);
 
-    // Step 6: Set filtered results for pagination
+    // Step 7: Set filtered results
     setFilteredListings(filtered);
-  }, [listings, query, sortKey, selectedCategory, selectedCondition]);
+  }, [listings, query, sortKey, selectedCategory, selectedStatus]);
 
   // Handle Pagination - Slice filtered results
   useEffect(() => {
@@ -127,6 +133,9 @@ export default function UserListing() {
 
             <SortFilter
               isFilterVisible={true}
+              isConditionVisible={false}
+              isStatusVisible={true}
+              statusOptions={listingStatusOptions}
               sortKey={sortKey}
               setSortKey={setSortKey}
               query={query}
@@ -135,8 +144,8 @@ export default function UserListing() {
               setShowSearch={setShowSearch}
               selectedCategory={selectedCategory}
               setSelectedCategory={setSelectedCategory}
-              selectedCondition={selectedCondition}
-              setSelectedCondition={setSelectedCondition}
+              selectedStatus={selectedStatus}
+              setSelectedStatus={setSelectedStatus}
             />
 
             {/* Card Section */}

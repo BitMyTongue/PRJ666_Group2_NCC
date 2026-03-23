@@ -28,7 +28,7 @@ export default function UserBookmark() {
   }, []);
 
   const [query, setQuery] = useState("");
-  const [sortKey, setSortKey] = useState("popular");
+  const [sortKey, setSortKey] = useState("most-recent");
   const [showSearch, setShowSearch] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedCondition, setSelectedCondition] = useState(null);
@@ -120,12 +120,16 @@ export default function UserBookmark() {
     }
 
     // Step 4: Apply Sort
-    if (sortKey === "az") {
+    if (sortKey === "most-recent") {
+      filtered.sort((a, b) => new Date(b.datePosted || 0) - new Date(a.datePosted || 0));
+    } else if (sortKey === "popular") {
+      filtered.sort((a, b) => new Date(a.datePosted || 0) - new Date(b.datePosted || 0));
+    } else if (sortKey === "az") {
       filtered.sort((a, b) => a.itemName.localeCompare(b.itemName));
     } else if (sortKey === "za") {
       filtered.sort((a, b) => b.itemName.localeCompare(a.itemName));
     }
-    // "popular" is the default - no sorting needed
+    // "none" — no sort applied
 
     // Step 5: Reset pagination to page 0 when filters change
     setCurrP(0);

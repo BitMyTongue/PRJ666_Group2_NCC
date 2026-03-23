@@ -63,11 +63,11 @@ const getImageSrc = (images) => {
 
 const sortItems = (items, sortKey) => {
   const arr = [...items];
-  if (sortKey === "az") arr.sort((a, b) => a.name.localeCompare(b.name));
-  if (sortKey === "za") arr.sort((a, b) => b.name.localeCompare(a.name));
-  if (sortKey === "popular") {
-    arr.sort((a, b) => new Date(b.datePosted || 0) - new Date(a.datePosted || 0));
-  }
+  if (sortKey === "most-recent") arr.sort((a, b) => new Date(b.datePosted || 0) - new Date(a.datePosted || 0));
+  if (sortKey === "popular")     arr.sort((a, b) => new Date(a.datePosted || 0) - new Date(b.datePosted || 0));
+  if (sortKey === "az")          arr.sort((a, b) => a.name.localeCompare(b.name));
+  if (sortKey === "za")          arr.sort((a, b) => b.name.localeCompare(a.name));
+  // "none" — no sort, return as-is
   return arr;
 };
 
@@ -81,8 +81,9 @@ export default function DashboardHome() {
   const [visibleCount, setVisibleCount] = useState(6);
   const [showFilters, setShowFilters] = useState(false);
   const [query, setQuery] = useState("");
-  const [sortKey, setSortKey] = useState("popular");
+  const [sortKey, setSortKey] = useState("most-recent");
   const [showSearch, setShowSearch] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState(null);
 
   const active = CATEGORY[activeCategory];
 
@@ -136,12 +137,17 @@ export default function DashboardHome() {
 
   useEffect(() => {
     setVisibleCount(6);
-  }, [activeCategory, query, sortKey]);
+  }, [activeCategory, query, sortKey, selectedStatus]);
 
   const visibleItems = useMemo(() => {
     let items = listings.filter((x) => categoryMatches(x.category, active.aliases));
 
-    items = items.filter((x) => isActiveStatus(x.status));
+
+    if (selectedStatus) {
+      items = items.filter((x) => (x.status || "ACTIVE") === selectedStatus);
+    } else {
+      items = items.filter((x) => isActiveStatus(x.status));
+    }
 
     if (query.trim()) {
       const q = query.trim().toLowerCase();
@@ -163,7 +169,7 @@ export default function DashboardHome() {
     }));
 
     return sortItems(mapped, sortKey);
-  }, [listings, active.aliases, query, sortKey]);
+  }, [listings, active.aliases, query, sortKey, selectedStatus]);
 
 
   return (
@@ -204,14 +210,17 @@ export default function DashboardHome() {
             aria-hidden="true"
           />
 
-          <SortFilter 
-            sortKey={sortKey} 
+          <SortFilter
+            sortKey={sortKey}
             setSortKey={setSortKey}
             query={query}
             setQuery={setQuery}
             showSearch={showSearch}
             setShowSearch={setShowSearch}
             isFilterVisible={false}
+            selectedStatus={selectedStatus}
+            setSelectedStatus={setSelectedStatus}
+            isStatusVisible={false}
           />
 
           {loading && <p className="text-center">Loading listings...</p>}
