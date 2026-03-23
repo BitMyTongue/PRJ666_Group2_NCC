@@ -19,6 +19,7 @@ export default function ItemCard({
   const router = useRouter();
   const { user } = useContext(UserContext);
   const [saved, setSaved] = useState(false);
+  const [imgSrc, setImgSrc] = useState(img || "/images/no-image-available-default.jpg");
 
   useEffect(() => {
     if (!user || !listingId) return;
@@ -80,10 +81,11 @@ export default function ItemCard({
       <Image
         className="drop-shadow"
         alt={name}
-        src={img}
+        src={imgSrc}
         width={278}
         height={385}
         style={{ objectFit: "contain" }}
+        onError={() => setImgSrc("/images/no-image-available-default.jpg")}
       />
 
       <div>

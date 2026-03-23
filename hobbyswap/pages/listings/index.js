@@ -78,6 +78,7 @@ export default function DashboardHome() {
   const [errorMsg, setErrorMsg] = useState("");
   const [user, setUser] = useState(null);
 
+  const [visibleCount, setVisibleCount] = useState(6);
   const [showFilters, setShowFilters] = useState(false);
   const [query, setQuery] = useState("");
   const [sortKey, setSortKey] = useState("popular");
@@ -132,6 +133,10 @@ export default function DashboardHome() {
       ignore = true;
     };
   }, []);
+
+  useEffect(() => {
+    setVisibleCount(6);
+  }, [activeCategory, query, sortKey]);
 
   const visibleItems = useMemo(() => {
     let items = listings.filter((x) => categoryMatches(x.category, active.aliases));
@@ -215,7 +220,7 @@ export default function DashboardHome() {
           {!loading && !errorMsg && (
             <>
               <div className="row justify-content-center g-5 p-6 pt-2">
-                {visibleItems.slice(0, 6).map((item) => (
+                {visibleItems.slice(0, visibleCount).map((item) => (
                   <div key={item.id} className="col-12 col-sm-6 col-md-4 d-flex justify-content-center">
                     <ItemCard img={item.img} name={item.name} desc={item.desc} saved={false} url={`/listings/${item.id}`} listingId={item.id} ownerId={item.ownerId} currentUserId={user?._id}/>
                   </div>
@@ -233,11 +238,17 @@ export default function DashboardHome() {
           aria-hidden="true"
         />
 
-        <div className="d-flex justify-content-center mb-5">
-          <Button variant="primary" className="px-4 py-2 fw-semibold">
-            View More
-          </Button>
-        </div>
+        {visibleCount < visibleItems.length && (
+          <div className="d-flex justify-content-center mb-5">
+            <Button
+              variant="primary"
+              className="px-4 py-2 fw-semibold"
+              onClick={() => setVisibleCount((c) => c + 6)}
+            >
+              View More
+            </Button>
+          </div>
+        )}
         </div>
       </section>
     </>
