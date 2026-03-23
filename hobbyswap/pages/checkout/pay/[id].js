@@ -438,7 +438,7 @@ export default function CardPayment() {
       fetch(`/api/listings/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: "COMPLETE" }),
+        body: JSON.stringify({ status: "COMPLETE", images: listing.images }),
       }).finally(() => {
         router.push(`/checkout/pay/${id}?step=confirmation`);
       });

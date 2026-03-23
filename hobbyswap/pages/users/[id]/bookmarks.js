@@ -5,6 +5,7 @@ import { TradeCard } from "@/components/base-long-card";
 import Pagination from "@/components/pagination";
 import SortFilter from "@/components/sort_filter";
 import UserNavbar from "@/components/user-navbar";
+import styles from "@/styles/bookmarks.module.css";
 export default function UserBookmark() {
   const router = useRouter();
   const { id } = router.query;
@@ -173,8 +174,8 @@ export default function UserBookmark() {
                     {pageListings.map((listing, idx) => {
                       const unavailable = listing.status === "COMPLETE" || listing.status === "IN TRADE";
                       return (
-                        <div key={idx} className="my-4" style={{ position: "relative" }}>
-                          <div style={{ filter: unavailable ? "grayscale(1) opacity(0.5)" : "none", pointerEvents: unavailable ? "none" : "auto" }}>
+                        <div key={idx} className="my-4 position-relative">
+                          <div className={unavailable ? styles.bookmarkCardDimmed : ""}>
                             <TradeCard
                               user={listing.owner}
                               offerItem={listing}
@@ -184,28 +185,12 @@ export default function UserBookmark() {
                             />
                           </div>
                           {unavailable && (
-                            <div style={{
-                              position: "absolute",
-                              inset: 0,
-                              display: "flex",
-                              flexDirection: "column",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              gap: 12,
-                              borderRadius: 18,
-                            }}>
-                              <span style={{
-                                backgroundColor: "rgba(90,90,90,0.82)",
-                                color: "white",
-                                fontWeight: 600,
-                                fontSize: "1.1rem",
-                                padding: "10px 28px",
-                                borderRadius: 30,
-                                letterSpacing: "0.03em",
-                              }}>
+                            <div className={`${styles.bookmarkOverlay} d-flex flex-column align-items-center justify-content-center`}>
+                              <span className={`${styles.bookmarkUnavailableLabel} fw-semibold text-white`}>
                                 Item no longer available
                               </span>
                               <button
+                                className={`${styles.bookmarkRemoveBtn} btn bg-white text-secondary border-0 fw-medium`}
                                 onClick={async () => {
                                   await fetch("/api/bookmarks", {
                                     method: "DELETE",
@@ -213,16 +198,6 @@ export default function UserBookmark() {
                                     body: JSON.stringify({ userId: user._id, listingId: listing._id }),
                                   });
                                   setListings((prev) => prev.filter((l) => l._id !== listing._id));
-                                }}
-                                style={{
-                                  backgroundColor: "white",
-                                  color: "#555",
-                                  border: "none",
-                                  borderRadius: 30,
-                                  padding: "6px 22px",
-                                  fontWeight: 500,
-                                  cursor: "pointer",
-                                  fontSize: "0.9rem",
                                 }}
                               >
                                 Remove from bookmarks
