@@ -272,9 +272,9 @@ export default function Home() {
         />
         <div className="d-flex flex-column justify-content-center align-items-start">
           <p className="fw-bold fs-4">Check out more feature collections</p>
-          <button className="btn btn-primary text-white rounded-5 fw-bold mt-0 px-4 fs-5">
+          <a className="btn btn-primary text-white rounded-5 fw-bold mt-0 px-4 fs-5" href="/listings">
             Explore the market
-          </button>
+          </a>
         </div>
         <Image
           src="/images/smiski-speaker.png"
