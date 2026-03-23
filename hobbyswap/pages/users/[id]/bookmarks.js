@@ -18,6 +18,14 @@ export default function UserBookmark() {
   const [filteredListings, setFilteredListings] = useState([]);
   let [isOwner, setIsOwner] = useState(false);
 
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  useEffect(() => {
+    const handleRemoved = () => setRefreshKey((k) => k + 1);
+    window.addEventListener("bookmarkRemoved", handleRemoved);
+    return () => window.removeEventListener("bookmarkRemoved", handleRemoved);
+  }, []);
+
   const [query, setQuery] = useState("");
   const [sortKey, setSortKey] = useState("popular");
   const [showSearch, setShowSearch] = useState(false);
@@ -79,7 +87,7 @@ export default function UserBookmark() {
     };
 
     load();
-  }, [router.isReady, id, user]);
+  }, [router.isReady, id, user, refreshKey]);
   console.log(isOwner);
 
   // Filter and Sort Listings

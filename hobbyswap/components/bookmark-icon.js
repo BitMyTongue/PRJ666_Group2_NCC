@@ -46,6 +46,9 @@ export default function BookmarkIcon({ listingId, size = "xl", ...props }) {
 
     if (res.ok) {
       setSaved(!saved);
+      if (method === "DELETE") {
+        window.dispatchEvent(new CustomEvent("bookmarkRemoved", { detail: { listingId } }));
+      }
     }
   };
 
