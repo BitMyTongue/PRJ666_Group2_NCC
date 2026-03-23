@@ -17,7 +17,7 @@ export default function UserOffers() {
   const [offers, setoffers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
-  const resultsPerPage = 1;
+  const resultsPerPage = 3;
   const [currP, setCurrP] = useState(0);
   const [pageoffers, setPageoffers] = useState([]);
   const [filteredoffers, setFilteredoffers] = useState([]);

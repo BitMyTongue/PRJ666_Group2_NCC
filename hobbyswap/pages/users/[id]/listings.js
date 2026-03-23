@@ -17,7 +17,7 @@ export default function UserListing() {
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
-  const resultsPerPage = 1;
+  const resultsPerPage = 3;
   const [currP, setCurrP] = useState(0);
   const [pageListings, setPageListings] = useState([]);
   const [filteredListings, setFilteredListings] = useState([]);
