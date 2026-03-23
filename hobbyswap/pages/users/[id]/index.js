@@ -61,7 +61,7 @@ export default function User() {
         setProfile(data);
         setFormData(data); // Pre-filled form data for editting
         setProfileImageUrl(data.profilePicture || null); // Set profile image
-        console.log("profile = "+ profile);
+        console.log("profile = " + profile);
       });
   }, [router.isReady, router.query.id]);
 
@@ -90,11 +90,7 @@ export default function User() {
     for (let i = 0; i < 5; i++) {
       if (i < fullStars) {
         stars.push(
-          <FontAwesomeIcon
-            key={i}
-            icon={faStar}
-            className="text-secondary"
-          />
+          <FontAwesomeIcon key={i} icon={faStar} className="text-secondary" />,
         );
       } else if (i === fullStars && hasHalfStar) {
         stars.push(
@@ -103,7 +99,7 @@ export default function User() {
             icon={faStar}
             className="text-secondary"
             style={{ opacity: 0.5 }}
-          />
+          />,
         );
       } else {
         stars.push(
@@ -112,7 +108,7 @@ export default function User() {
             icon={faStar}
             className="text-secondary"
             style={{ opacity: 0.2 }}
-          />
+          />,
         );
       }
     }
@@ -125,7 +121,7 @@ export default function User() {
   };
 
   const handleProfileImageChange = (e) => {
-    console.log('Profile image changed:', e.target.files?.[0]);
+    console.log("Profile image changed:", e.target.files?.[0]);
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -138,9 +134,17 @@ export default function User() {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("userId", profile._id);
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Image upload failed: Your session has expired");
+        return;
+      }
 
       const response = await fetch("/api/users/upload", {
         method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
         body: formData,
       });
 
@@ -167,10 +171,19 @@ export default function User() {
   const handleSubmit = async () => {
     setIsSaving(true);
     try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Update failed: your session has expired");
+        return;
+      }
 
       const response = await fetch(`/api/users/${profile._id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({
           firstName: formData.firstName,
           lastName: formData.lastName,
@@ -186,7 +199,9 @@ export default function User() {
       if (response.ok) {
         const data = await response.json();
         // data.user contains the fresh document from the database
-        setProfile(data.user || { ...formData, profilePicture: profileImageUrl });
+        setProfile(
+          data.user || { ...formData, profilePicture: profileImageUrl },
+        );
         setIsEditing(false);
         alert("Profile updated successfully!");
       } else {
@@ -214,73 +229,77 @@ export default function User() {
             {/* Right column */}
             <div className="col-12 col-md-4 border border-gray rounded rounded-4 shadow py-8 d-flex flex-column justify-content-center align-items-center gap-3">
               {console.log("profile", profile)}
-            {
-              !isEditing ? (
-              profile?.profilePicture ? (
-                <Image
-                  src={profile.profilePicture}
-                  alt="Profile Picture"
-                  width={120}
-                  height={120}
-                  className="rounded-circle"
-                  style={{ objectFit: "cover" }}
-                />
-              ) : (
-                <UserIcon img="/images/default-avatar.png" size={120} />
-                
-              )
-            ) : (
-              <div style={{ position: "relative", display: "inline-block" }}>
-                {profileImageUrl ? (
-                  <>
-                    <Image
-                      src={profileImageUrl}
-                      alt="Profile Picture Preview"
-                      width={120}
-                      height={120}
-                      className="rounded-circle"
-                      style={{ objectFit: "cover" }}
-                    />
-                    <button
-                      type="button"
-                      aria-label="Remove image"
-                      className="btn btn-danger btn-sm position-absolute"
-                      style={{ top: -8, right: -8, zIndex: 2, borderRadius: 20, padding: '0 6px' }}
-                      onClick={handleRemoveProfileImage}
-                    >
-                      ×
-                    </button>
-                  </>
+              {!isEditing ? (
+                profile?.profilePicture ? (
+                  <Image
+                    src={profile.profilePicture}
+                    alt="Profile Picture"
+                    width={120}
+                    height={120}
+                    className="rounded-circle"
+                    style={{ objectFit: "cover" }}
+                  />
                 ) : (
                   <UserIcon img="/images/default-avatar.png" size={120} />
+                )
+              ) : (
+                <div style={{ position: "relative", display: "inline-block" }}>
+                  {profileImageUrl ? (
+                    <>
+                      <Image
+                        src={profileImageUrl}
+                        alt="Profile Picture Preview"
+                        width={120}
+                        height={120}
+                        className="rounded-circle"
+                        style={{ objectFit: "cover" }}
+                      />
+                      <button
+                        type="button"
+                        aria-label="Remove image"
+                        className="btn btn-danger btn-sm position-absolute"
+                        style={{
+                          top: -8,
+                          right: -8,
+                          zIndex: 2,
+                          borderRadius: 20,
+                          padding: "0 6px",
+                        }}
+                        onClick={handleRemoveProfileImage}
+                      >
+                        ×
+                      </button>
+                    </>
+                  ) : (
+                    <UserIcon img="/images/default-avatar.png" size={120} />
                   )}
-              </div>
-            )}
-            <p className="fw-semibold fs-2 text-primary">{`${profile?.firstName} ${profile?.lastName}`}</p>
+                </div>
+              )}
+              <p className="fw-semibold fs-2 text-primary">{`${profile?.firstName} ${profile?.lastName}`}</p>
               <div className="w-100 text-center align-self-center">
                 {isOwnerOfProfile && (
                   <>
-                  {!isEditing ? (
-                    <button 
-                      onClick={handleEditClick}
-                      className="btn btn-light text-primary border-primary border rounded-pill py-2 fw-semibold w-50 w-md-100"
-                    >
+                    {!isEditing ? (
+                      <button
+                        onClick={handleEditClick}
+                        className="btn btn-light text-primary border-primary border rounded-pill py-2 fw-semibold w-50 w-md-100"
+                      >
                         Edit Profile
                       </button>
                     ) : (
-                    <div className="d-flex gap-2 justify-content-center mb-3">
-                      <button 
-                        onClick={handleCancel}
-                        className="btn btn-light text-primary border-primary border rounded-pill py-2 fw-semibold"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  )}
-                </>
-              )}
+                      <div className="d-flex gap-2 justify-content-center mb-3">
+                        <button
+                          onClick={handleCancel}
+                          className="btn btn-light text-primary border-primary border rounded-pill py-2 fw-semibold"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
                 {/* Left column */}
-                <div className="d-flex flex-column align-items-center gap-2 w-50 w-md-100 text-center mt-3 mx-auto"> 
+                <div className="d-flex flex-column align-items-center gap-2 w-50 w-md-100 text-center mt-3 mx-auto">
                   <Link
                     href={`${router.asPath}/listings`}
                     className="btn btn-primary rounded-pill py-2 fw-semibold w-100 border border-primary border-3"
@@ -310,8 +329,8 @@ export default function User() {
             {/* Left column */}
             <div className="col-11 col-md-6 border border-gray rounded rounded-4 shadow p-4 d-flex flex-column justify-content-center align-items-center ">
               {!isEditing ? (
-              <>
-                <div className="row border-bottom border-gray pb-3 w-100 mb-3">
+                <>
+                  <div className="row border-bottom border-gray pb-3 w-100 mb-3">
                     <div className="d-flex  justify-content-start align-items-center gap-5 my-3">
                       <p className="fw-semibold fs-4 text-primary mb-0">{`${profile?.firstName} ${profile?.lastName}`}</p>
                       <div className="d-flex justify-content-start align-items-center gap-2 my-0">
@@ -319,7 +338,9 @@ export default function User() {
                           icon={faLocationPin}
                           className="text-muted"
                         ></FontAwesomeIcon>
-                        <p className="fs-6 text-mutedd mb-0">{profile?.address ? profile.address : "Location"}</p>
+                        <p className="fs-6 text-mutedd mb-0">
+                          {profile?.address ? profile.address : "Location"}
+                        </p>
                       </div>
                     </div>
                     <p className="fs-6 text-muted fw-semibold text-uppercase mb-0">
@@ -327,13 +348,16 @@ export default function User() {
                     </p>
                     <div className="d-flex justify-content-start align-items-center gap-3 mt-0">
                       <p className="fw-semibold fs-3 text-primary mb-0">
-                        {calculateAverageRating() > 0 ? calculateAverageRating() : "No ratings"}
+                        {calculateAverageRating() > 0
+                          ? calculateAverageRating()
+                          : "No ratings"}
                       </p>
                       <div className="d-flex">
                         {getRatingStars(calculateAverageRating())}
                       </div>
                       <p className="text-muted mb-0">
-                        ({profile?.reviews?.length || 0} {profile?.reviews?.length === 1 ? "review" : "reviews"})
+                        ({profile?.reviews?.length || 0}{" "}
+                        {profile?.reviews?.length === 1 ? "review" : "reviews"})
                       </p>
                     </div>
                   </div>
@@ -346,7 +370,9 @@ export default function User() {
                         <p className="fs-6 text-primary fw-semibold mb-0 col-4">
                           Email
                         </p>
-                        <p className="text-primary mb-0 col-8">{profile?.email}</p>
+                        <p className="text-primary mb-0 col-8">
+                          {profile?.email}
+                        </p>
                       </div>
                       <div className="row mb-2">
                         <p className="fs-6 text-primary fw-semibold mb-0 col-4">
@@ -390,7 +416,16 @@ export default function User() {
                           Date of birth
                         </p>
                         <p className="text-primary mb-0 col-8">
-                          {profile?.dateOfBirth ? new Date(profile.dateOfBirth).toLocaleDateString("en-US", { month: "long", day: "2-digit", year: "numeric" }) : "N/A"}
+                          {profile?.dateOfBirth
+                            ? new Date(profile.dateOfBirth).toLocaleDateString(
+                                "en-US",
+                                {
+                                  month: "long",
+                                  day: "2-digit",
+                                  year: "numeric",
+                                },
+                              )
+                            : "N/A"}
                         </p>
                       </div>
                     </div>
@@ -420,7 +455,7 @@ export default function User() {
                           <p className="fs-6 text-primary fw-semibold mb-0 col-4 align-self-center">
                             Password
                           </p>
-                            <button className="btn btn-light text-muted rounded-pill p-3 fw-semibold col-4">
+                          <button className="btn btn-light text-muted rounded-pill p-3 fw-semibold col-4">
                             Change Password
                           </button>
                         </div>
@@ -428,71 +463,88 @@ export default function User() {
                     </div>
                   </div>
                 </>
-            ) : (
-              // Edit Mode
-              <div className="row pb-3 w-100 mb-3">
-                <p className="fs-6 text-muted fw-semibold text-uppercase mb-2">
-                  Edit Profile
-                </p>
-                
-                {/* Profile Picture Upload Section */}
-                <div className="container mb-4 mx-3 text-center">
+              ) : (
+                // Edit Mode
+                <div className="row pb-3 w-100 mb-3">
                   <p className="fs-6 text-muted fw-semibold text-uppercase mb-2">
-                    Profile Picture
+                    Edit Profile
                   </p>
-                  <div style={{ position: "relative", display: "inline-block", marginBottom: "1rem" }}>
-                    {profileImageUrl ? (
-                      <>
-                        <Image
-                          src={profileImageUrl}
-                          alt="Profile Picture Preview"
-                          width={150}
-                          height={150}
-                          className="rounded-circle border border-gray shadow"
-                          style={{ objectFit: "cover" }}
-                        />
+
+                  {/* Profile Picture Upload Section */}
+                  <div className="container mb-4 mx-3 text-center">
+                    <p className="fs-6 text-muted fw-semibold text-uppercase mb-2">
+                      Profile Picture
+                    </p>
+                    <div
+                      style={{
+                        position: "relative",
+                        display: "inline-block",
+                        marginBottom: "1rem",
+                      }}
+                    >
+                      {profileImageUrl ? (
+                        <>
+                          <Image
+                            src={profileImageUrl}
+                            alt="Profile Picture Preview"
+                            width={150}
+                            height={150}
+                            className="rounded-circle border border-gray shadow"
+                            style={{ objectFit: "cover" }}
+                          />
+                          <button
+                            type="button"
+                            aria-label="Remove image"
+                            className="btn btn-danger btn-sm position-absolute"
+                            style={{
+                              top: -8,
+                              right: -8,
+                              zIndex: 2,
+                              borderRadius: 20,
+                              padding: "0 6px",
+                            }}
+                            onClick={handleRemoveProfileImage}
+                          >
+                            ×
+                          </button>
+                        </>
+                      ) : (
+                        <UserIcon img="/images/default-avatar.png" size={150} />
+                      )}
+                    </div>
+                    <div>
+                      <input
+                        type="file"
+                        id="profile-pic-upload"
+                        accept="image/*"
+                        onChange={handleProfileImageChange}
+                        disabled={isUploadingImage}
+                        style={{ display: "none" }}
+                      />
+                      <label
+                        htmlFor="profile-pic-upload"
+                        className="cursor-pointer"
+                      >
                         <button
                           type="button"
-                          aria-label="Remove image"
-                          className="btn btn-danger btn-sm position-absolute"
-                          style={{ top: -8, right: -8, zIndex: 2, borderRadius: 20, padding: '0 6px' }}
-                          onClick={handleRemoveProfileImage}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            document
+                              .getElementById("profile-pic-upload")
+                              .click();
+                          }}
+                          disabled={isUploadingImage}
+                          className="btn btn-light text-primary border-primary border rounded-pill py-2 fw-semibold"
                         >
-                          ×
+                          {isUploadingImage ? "Uploading..." : "Upload Picture"}
                         </button>
-                      </>
-                    ) : (
-                      <UserIcon img="/images/default-avatar.png" size={150} />
-                    )}
+                      </label>
+                    </div>
                   </div>
-                  <div>
-                    <input
-                      type="file"
-                      id="profile-pic-upload"
-                      accept="image/*"
-                      onChange={handleProfileImageChange}
-                      disabled={isUploadingImage}
-                      style={{ display: "none" }}
-                    />
-                    <label htmlFor="profile-pic-upload" className="cursor-pointer">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          document.getElementById("profile-pic-upload").click();
-                        }}
-                        disabled={isUploadingImage}
-                        className="btn btn-light text-primary border-primary border rounded-pill py-2 fw-semibold"
-                      >
-                        {isUploadingImage ? "Uploading..." : "Upload Picture"}
-                      </button>
-                    </label>
-                  </div>
-                </div>
 
-                <hr className="w-100 my-4" />
+                  <hr className="w-100 my-4" />
 
-                {/* Other Form Fields */}
+                  {/* Other Form Fields */}
                   <div className="mb-3">
                     <label className="fs-6 text-primary fw-semibold mb-1">
                       First Name
@@ -577,13 +629,17 @@ export default function User() {
                     <input
                       type="date"
                       name="dateOfBirth"
-                      value={formData.dateOfBirth ? formData.dateOfBirth.split('T')[0] : ""}
+                      value={
+                        formData.dateOfBirth
+                          ? formData.dateOfBirth.split("T")[0]
+                          : ""
+                      }
                       onChange={handleChange}
                       className="form-control bg-light p-2"
                     />
                   </div>
                   <div className="d-flex gap-2 mt-4">
-                    <button 
+                    <button
                       onClick={handleSubmit}
                       disabled={isSaving}
                       className="btn btn-primary rounded-pill py-2 fw-semibold flex-grow-1"
@@ -591,36 +647,33 @@ export default function User() {
                       {isSaving ? "Saving..." : "Submit Changes"}
                     </button>
                   </div>
-              </div>
-            )}
-          </div>
+                </div>
+              )}
+            </div>
           </div>
           <div className="row justify-content-center w-100">
             {/*  Review Section*/}
-        <div className="col-12  col-md-10 border border-gray rounded rounded-4 shadow py-5 px-5  d-flex flex-column justify-content-center  mt-4">
-          <h3 className="fw-semibold text-primary ">
-            Your Reviews
-          </h3>
-          {profile?.reviews && profile.reviews.length > 0 ? (
-            <div>
-              {profile.reviews.map((review, index) => (
-                <ReviewCard
-                  key={index}
-                  reviewerId={review.reviewerId}
-                  rating={review.rating}
-                  title={review.title}
-                  description={review.description}
-                  createdAt={review.createdAt}
-                />
-              ))}
+            <div className="col-12  col-md-10 border border-gray rounded rounded-4 shadow py-5 px-5  d-flex flex-column justify-content-center  mt-4">
+              <h3 className="fw-semibold text-primary ">Your Reviews</h3>
+              {profile?.reviews && profile.reviews.length > 0 ? (
+                <div>
+                  {profile.reviews.map((review, index) => (
+                    <ReviewCard
+                      key={index}
+                      reviewerId={review.reviewerId}
+                      rating={review.rating}
+                      title={review.title}
+                      description={review.description}
+                      createdAt={review.createdAt}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <p className="text-muted">No reviews yet for this user.</p>
+              )}
             </div>
-          ) : (
-            <p className="text-muted">No reviews yet for this user.</p>
-          )}
-        </div>
           </div>
         </div>
-        
       </UserNavbar>
 
       <Modal show={showReportModal} onHide={handleReportClose} centered>

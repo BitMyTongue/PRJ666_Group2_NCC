@@ -30,12 +30,17 @@ export default async function handler(req, res) {
         process.env.NEXT_PUBLIC_API_URL + "/api/users/" + user._id,
         {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${jwt.sign(user._id, process.env.JWT_SECRET)}`,
+            "Cache-Control": "no-cache",
+          },
           body: JSON.stringify({ password: password }),
         },
       );
 
       if (putUser.ok) {
+        s;
         res.setHeader(
           "Set-Cookie",
           `fPW=${callback}; Max-Age=0;Path="/"; SameSite=Strict; HttpOnly`,

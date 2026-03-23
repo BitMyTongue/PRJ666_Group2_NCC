@@ -16,6 +16,16 @@ export default async function handler(req, res) {
     if (!userId || !reviewerId || !rating || !title || !description) {
       return res.status(400).json({ message: "Missing required fields" });
     }
+    const auth = await fetch(
+      process.env.NEXT_PUBLIC_API_URL + "/api/auth/protect",
+      {
+        headers: req.headers,
+        cache: "no-store",
+      },
+    );
+    if (!auth.ok) return res.status(auth.status).json(auth.statusText);
+    const authUser = await auth.json();
+    if (reviewerId !== authUser._id) return res.status(403).end();
 
     // Create review object
     const newReview = {
@@ -31,7 +41,7 @@ export default async function handler(req, res) {
     const updatedUser = await UserModel.findByIdAndUpdate(
       userId,
       { $push: { reviews: newReview } },
-      { new: true }
+      { new: true },
     );
 
     if (!updatedUser) {
@@ -51,7 +61,7 @@ export default async function handler(req, res) {
       await TradeOfferModel.findByIdAndUpdate(
         tradeOfferId,
         { $push: { reviews: tradeOfferReview } },
-        { new: true }
+        { new: true },
       );
     }
 

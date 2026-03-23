@@ -435,9 +435,17 @@ export default function CardPayment() {
     }
 
     if (step === "make a payment") {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setError("Your session has expired.");
+        return;
+      }
       fetch(`/api/listings/${id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ status: "COMPLETE", images: listing.images }),
       }).finally(() => {
         router.push(`/checkout/pay/${id}?step=confirmation`);
@@ -517,10 +525,16 @@ export default function CardPayment() {
               {step === "make a payment" && summary()}
               {step === "confirmation" && (
                 <div className="m-5">
-                  <p className="alert alert-success">Your order successfully placed</p>
+                  <p className="alert alert-success">
+                    Your order successfully placed
+                  </p>
                   <div className="d-flex gap-2">
-                    <Button variant="primary" href={`/checkout/tracking/${id}`}>Track Shipment</Button>
-                    <Button variant="outline-secondary" href="/">Go back homepage</Button>
+                    <Button variant="primary" href={`/checkout/tracking/${id}`}>
+                      Track Shipment
+                    </Button>
+                    <Button variant="outline-secondary" href="/">
+                      Go back homepage
+                    </Button>
                   </div>
                 </div>
               )}
@@ -608,7 +622,13 @@ export default function CardPayment() {
           </div>
         </div>
 
-        <button className="btn btn-transparent text-primary fw-semibold mb-6 mx-5" onClick={handleOnClickBack}> &#60; Back</button>
+        <button
+          className="btn btn-transparent text-primary fw-semibold mb-6 mx-5"
+          onClick={handleOnClickBack}
+        >
+          {" "}
+          &#60; Back
+        </button>
       </>
     );
   }
