@@ -190,7 +190,6 @@ const BaseLongCard = function BaseLongCard({
             )}
             <div>{isSameUser ? "YOU" : user.username}</div>
           </div>
-          {console.log(calculateAverageRating())}
           {calculateAverageRating() > -1 && calculateAverageRating() != 0 && <Rating rating={calculateAverageRating()} />}
           {status.toUpperCase() === "TRADE COMPLETED" && (
             <>

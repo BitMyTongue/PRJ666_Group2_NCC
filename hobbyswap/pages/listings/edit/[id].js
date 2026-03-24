@@ -14,7 +14,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPeopleLine,
   faTruck,
-  faStar as solidStar,
+  faStar,
 } from "@fortawesome/free-solid-svg-icons";
 import { faStar as emptyStar } from "@fortawesome/free-regular-svg-icons";
 import UserIcon from "@/components/user-icon";
@@ -71,6 +71,51 @@ export default function UpdateListing() {
   
   const [user, setUser] = useState(null);
   const [createdListing, setCreatedListing] = useState(null);
+
+    const calculateAverageRating = () => {
+    if (!user?.reviews || user.reviews.length === 0) {
+      return 0;
+    }
+    const sum = user.reviews.reduce((acc, review) => acc + review.rating, 0);
+    return (sum / user.reviews.length).toFixed(1);
+  };
+
+  const getRatingStars = (rating) => {
+    const stars = [];
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.5;
+
+    for (let i = 0; i < 5; i++) {
+      if (i < fullStars) {
+        stars.push(
+          <FontAwesomeIcon
+            key={i}
+            icon={faStar}
+            className="text-secondary"
+          />
+        );
+      } else if (i === fullStars && hasHalfStar) {
+        stars.push(
+          <FontAwesomeIcon
+            key={i}
+            icon={faStar}
+            className="text-secondary"
+            style={{ opacity: 0.5 }}
+          />
+        );
+      } else {
+        stars.push(
+          <FontAwesomeIcon
+            key={i}
+            icon={faStar}
+            className="text-secondary"
+            style={{ opacity: 0.2 }}
+          />
+        );
+      }
+    }
+    return stars;
+  };
 
   // 1. DATA RETRIEVAL: Load existing listing data to edit
   useEffect(() => {
@@ -335,15 +380,7 @@ export default function UpdateListing() {
                         <div>
                           <p className="mb-1">{user.username}</p>
                           <div className="d-flex">
-                            {Array.from({ length: 5 }, (_, i) => (
-                              <FontAwesomeIcon
-                                key={i}
-                                icon={
-                                  i < user.rating ? solidStar : emptyStar
-                                }
-                                className="text-secondary"
-                              />
-                            ))}
+                            {calculateAverageRating() > 0 ? getRatingStars(calculateAverageRating()) : "No ratings"}
                           </div>
                         </div>
                       </div>
