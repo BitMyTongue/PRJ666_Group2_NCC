@@ -7,6 +7,7 @@ import { useContext, useState } from "react";
 import { useRouter } from "next/router";
 import { UserContext } from "@/contexts/UserContext";
 import ReviewUserModal from "./modals/review-listing-modal";
+import { calculateLevenshtein } from "stream-chat";
 
 const StatusType = {
   DECLINED: 1,
@@ -121,6 +122,15 @@ const BaseLongCard = function BaseLongCard({
   const isSameReqUser =
     requestUser && currUser && requestUser._id === currUser._id;
   const hasMultiple = requestItem?.length > 1;
+
+  const calculateAverageRating = () => {
+  if (!user?.reviews || user.reviews.length === 0) {
+    return 0;
+  }
+  const sum = user.reviews.reduce((acc, review) => acc + review.rating, 0);
+  return (sum / user.reviews.length).toFixed(1);
+};
+  
   if (!offerItem) {
     return (
       <div
@@ -180,15 +190,17 @@ const BaseLongCard = function BaseLongCard({
             )}
             <div>{isSameUser ? "YOU" : user.username}</div>
           </div>
-          {rating > -1 && <Rating rating={rating} />}
+          {console.log(calculateAverageRating())}
+          {calculateAverageRating() > -1 && calculateAverageRating() != 0 && <Rating rating={calculateAverageRating()} />}
           {status.toUpperCase() === "TRADE COMPLETED" && (
             <>
               <Button
                 className="btn-light rounded-pill text-primary"
                 onClick={() => setShowModal(true)}
-              >
-                How was the trade with {user.username}
+              > 
+                How was the trade with {user.username} 
               </Button>
+              {/* Work on How was the trade with (after it had been done.) */}
               <ReviewUserModal
                 show={showModal}
                 setShow={setShowModal}
