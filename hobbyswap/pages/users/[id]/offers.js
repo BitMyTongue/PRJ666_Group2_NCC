@@ -17,7 +17,7 @@ export default function UserOffers() {
   const [offers, setoffers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
-  const resultsPerPage = 1;
+  const resultsPerPage = 3;
   const [currP, setCurrP] = useState(0);
   const [pageoffers, setPageoffers] = useState([]);
   const [filteredoffers, setFilteredoffers] = useState([]);
@@ -25,10 +25,19 @@ export default function UserOffers() {
   const [profile, setProfile] = useState(null);
 
   const [query, setQuery] = useState("");
-  const [sortKey, setSortKey] = useState("popular");
+  const [sortKey, setSortKey] = useState("most-recent");
   const [showSearch, setShowSearch] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [selectedCondition, setSelectedCondition] = useState(null);
+  const [selectedStatus, setSelectedStatus] = useState(null);
+
+  const offerStatusOptions = [
+    { key: "PENDING",     label: "Pending" },
+    { key: "IN_PROGRESS", label: "In Progress" },
+    { key: "DECLINED",    label: "Declined" },
+    { key: "RETRACTED",   label: "Retracted" },
+    { key: "CANCELED",    label: "Canceled" },
+    { key: "COMPLETED",   label: "Completed" },
+  ];
 
   useEffect(() => {
     setLoading(true);
@@ -87,16 +96,20 @@ export default function UserOffers() {
 
     // Step 1: Apply Category Filter
     if (selectedCategory) {
-      filtered = filtered.filter(
-        (offer) => offer.category === selectedCategory,
-      );
+      filtered = filtered.filter((offer) => offer.listing?.category === selectedCategory);
     }
 
-    // Step 2: Apply Condition Filter
-    if (selectedCondition) {
-      filtered = filtered.filter(
-        (offer) => offer.condition === selectedCondition,
-      );
+    // Step 2: Apply Status Filter
+    if (selectedStatus) {
+      filtered = filtered.filter((offer) => {
+        if (selectedStatus === "COMPLETED")   return offer.tradeStatus === "COMPLETED";
+        if (selectedStatus === "IN_PROGRESS") return offer.offerStatus === "ACCEPTED" && offer.tradeStatus === "ONGOING";
+        if (selectedStatus === "CANCELED")    return offer.offerStatus === "CANCELED" || offer.tradeStatus === "CANCELED";
+        if (selectedStatus === "PENDING")     return offer.offerStatus === "PENDING" && offer.tradeStatus === "NONE";
+        if (selectedStatus === "DECLINED")    return offer.offerStatus === "DECLINED";
+        if (selectedStatus === "RETRACTED")   return offer.offerStatus === "RETRACTED";
+        return true;
+      });
     }
 
     // Step 3: Apply Search Filter (by title or description)
@@ -110,19 +123,23 @@ export default function UserOffers() {
     }
 
     // Step 4: Apply Sort
-    if (sortKey === "az") {
-      filtered.sort((a, b) => a.itemName.localeCompare(b.itemName));
+    if (sortKey === "most-recent") {
+      filtered.sort((a, b) => new Date(b.listing?.datePosted || 0) - new Date(a.listing?.datePosted || 0));
+    } else if (sortKey === "popular") {
+      filtered.sort((a, b) => new Date(a.listing?.datePosted || 0) - new Date(b.listing?.datePosted || 0));
+    } else if (sortKey === "az") {
+      filtered.sort((a, b) => (a.listing?.itemName || "").localeCompare(b.listing?.itemName || ""));
     } else if (sortKey === "za") {
-      filtered.sort((a, b) => b.itemName.localeCompare(a.itemName));
+      filtered.sort((a, b) => (b.listing?.itemName || "").localeCompare(a.listing?.itemName || ""));
     }
-    // "popular" is the default - no sorting needed
+    // "none" — no sort applied
 
     // Step 5: Reset pagination to page 0 when filters change
     setCurrP(0);
 
     // Step 6: Set filtered results for pagination
     setFilteredoffers(filtered);
-  }, [offers, query, sortKey, selectedCategory, selectedCondition]);
+  }, [offers, query, sortKey, selectedCategory, selectedStatus]);
 
   // Handle Pagination - Slice filtered results
   useEffect(() => {
@@ -142,6 +159,9 @@ export default function UserOffers() {
 
               <SortFilter
                 isFilterVisible={true}
+                isConditionVisible={false}
+                isStatusVisible={true}
+                statusOptions={offerStatusOptions}
                 sortKey={sortKey}
                 setSortKey={setSortKey}
                 query={query}
@@ -150,8 +170,8 @@ export default function UserOffers() {
                 setShowSearch={setShowSearch}
                 selectedCategory={selectedCategory}
                 setSelectedCategory={setSelectedCategory}
-                selectedCondition={selectedCondition}
-                setSelectedCondition={setSelectedCondition}
+                selectedStatus={selectedStatus}
+                setSelectedStatus={setSelectedStatus}
               />
 
               {/* Card Section */}

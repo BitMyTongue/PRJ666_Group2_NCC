@@ -14,6 +14,7 @@ import { UserContext } from "@/contexts/UserContext";
 import UserNavbar from "@/components/user-navbar";
 import Image from "next/image";
 import ReviewCard from "@/components/review-card";
+import { Modal, Button } from "react-bootstrap";
 export default function User() {
   const { user: viewer } = useContext(UserContext);
   const [profile, setProfile] = useState(null);
@@ -23,6 +24,32 @@ export default function User() {
   const [profileImageUrl, setProfileImageUrl] = useState(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const router = useRouter();
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportReason, setReportReason] = useState("");
+  const [reportDetails, setReportDetails] = useState("");
+  const [reportSubmitted, setReportSubmitted] = useState(false);
+
+  const REPORT_REASONS = [
+    "Fake or misleading listings",
+    "Scam or fraudulent activity",
+    "Harassment or abusive behavior",
+    "Spam",
+    "Inappropriate content",
+    "Selling counterfeit items",
+    "Other",
+  ];
+
+  const handleReportSubmit = () => {
+    if (!reportReason) return;
+    setReportSubmitted(true);
+  };
+
+  const handleReportClose = () => {
+    setShowReportModal(false);
+    setReportReason("");
+    setReportDetails("");
+    setReportSubmitted(false);
+  };
 
   useEffect(() => {
     if (!router.isReady) return;
@@ -260,7 +287,7 @@ export default function User() {
                   >
                     View {isOwnerOfProfile ? "Your" : "All"} Listings
                   </Link>
-                  {isOwnerOfProfile && (
+                  {isOwnerOfProfile ? (
                     <button className="btn btn-light text-primary border-primary rounded-pill py-2 fw-semibold w-100">
                       <Link
                         className="link-offset-1 link-offset-1-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover fw-semibold"
@@ -268,6 +295,13 @@ export default function User() {
                       >
                         List An Item
                       </Link>
+                    </button>
+                  ) : (
+                    <button
+                      className="btn btn-outline-danger rounded-pill py-2 fw-semibold w-100"
+                      onClick={() => setShowReportModal(true)}
+                    >
+                      Report User
                     </button>
                   )}
                 </div>
@@ -588,6 +622,68 @@ export default function User() {
         </div>
         
       </UserNavbar>
+
+      <Modal show={showReportModal} onHide={handleReportClose} centered>
+        <Modal.Header closeButton>
+          <Modal.Title className="text-primary fw-semibold">
+            Report {profile?.firstName} {profile?.lastName}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {reportSubmitted ? (
+            <div className="text-center py-3">
+              <p className="fs-5 fw-semibold text-success mb-1">Report submitted</p>
+              <p className="text-muted">Thank you. We will review this report and take appropriate action.</p>
+            </div>
+          ) : (
+            <>
+              <p className="text-muted mb-3">Why are you reporting this user?</p>
+              <div className="d-flex flex-column gap-2 mb-3">
+                {REPORT_REASONS.map((reason) => (
+                  <label key={reason} className="d-flex align-items-center gap-2" style={{ cursor: "pointer" }}>
+                    <input
+                      type="radio"
+                      name="reportReason"
+                      value={reason}
+                      checked={reportReason === reason}
+                      onChange={(e) => setReportReason(e.target.value)}
+                    />
+                    <span className="text-primary">{reason}</span>
+                  </label>
+                ))}
+              </div>
+              <textarea
+                className="form-control"
+                rows={3}
+                placeholder="Additional details (optional)"
+                value={reportDetails}
+                onChange={(e) => setReportDetails(e.target.value)}
+              />
+            </>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          {reportSubmitted ? (
+            <Button variant="primary" className="rounded-pill px-4" onClick={handleReportClose}>
+              Done
+            </Button>
+          ) : (
+            <>
+              <Button variant="outline-secondary" className="rounded-pill px-4" onClick={handleReportClose}>
+                Cancel
+              </Button>
+              <Button
+                variant="danger"
+                className="rounded-pill px-4"
+                onClick={handleReportSubmit}
+                disabled={!reportReason}
+              >
+                Submit Report
+              </Button>
+            </>
+          )}
+        </Modal.Footer>
+      </Modal>
     </>
   );
 }

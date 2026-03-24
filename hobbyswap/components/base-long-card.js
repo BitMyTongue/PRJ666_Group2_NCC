@@ -109,6 +109,7 @@ const BaseLongCard = function BaseLongCard({
 }) {
   const [showModal, setShowModal] = useState(false);
   const [saved, setSaved] = useState(isBookmarked);
+  const [imgSrc, setImgSrc] = useState(offerItem?.images?.[0] || "/images/no-image-available-default.jpg");
   const router = useRouter();
   const bookmarkCallback = () => {
     setSaved(!saved);
@@ -120,6 +121,17 @@ const BaseLongCard = function BaseLongCard({
   const isSameReqUser =
     requestUser && currUser && requestUser._id === currUser._id;
   const hasMultiple = requestItem?.length > 1;
+  if (!offerItem) {
+    return (
+      <div
+        className="base-long-card-loading"
+        style={{ minWidth: 550, height: 400 }}
+      >
+        {/* placeholder or spinner could go here */}
+      </div>
+    );
+  }
+
   return (
     <>
       <div
@@ -168,6 +180,7 @@ const BaseLongCard = function BaseLongCard({
             )}
             <div>{isSameUser ? "YOU" : user.username}</div>
           </div>
+          {rating > -1 && <Rating rating={rating} />}
           {status.toUpperCase() === "TRADE COMPLETED" && (
             <>
               <Button
@@ -218,15 +231,14 @@ const BaseLongCard = function BaseLongCard({
                   margin: 0,
                 }}
               >
-                {offerItem.images && (
-                  <Image
+                <Image
                     className="object-fit-contain"
                     alt={offerItem.itemName}
-                    src={offerItem.images[0]}
+                    src={imgSrc}
                     width={69}
                     height={96}
+                    onError={() => setImgSrc("/images/no-image-available-default.jpg")}
                   />
-                )}
                 <div>
                   <p className="h4">{offerItem.itemName}</p>
                   <p style={{ height: "50px", overflowY: "auto" }}>
@@ -356,15 +368,14 @@ const BaseLongCard = function BaseLongCard({
                   margin: 0,
                 }}
               >
-                {offerItem.images && (
-                  <Image
+                <Image
                     className="object-fit-contain"
                     alt={offerItem.itemName}
-                    src={offerItem.images[0]}
+                    src={imgSrc}
                     width={149}
                     height={196}
+                    onError={() => setImgSrc("/images/no-image-available-default.jpg")}
                   />
-                )}
                 <div>
                   <p className="fw-semibold fs-4 text-primary text-capitalize">
                     {offerItem.itemName}
@@ -518,16 +529,22 @@ const BaseLongCard = function BaseLongCard({
               {children}
             </div>
             <div className="w-100" style={{ float: "left" }}>
-              {showBookmark && (
-                <Button
-                  variant="none"
-                  style={{ position: "absolute", bottom: 5, right: 5 }}
-                  onClick={() => {
-                    bookmarkCallback();
-                  }}
-                >
-                  <BookmarkIcon fill={saved} />
-                </Button>
+              {showBookmark && currUser && offerItem?._id && (
+                // <Button
+                //   variant="none"
+                //   style={{ position: "absolute", bottom: 5, right: 5 }}
+                //   onClick={() => {
+                //     bookmarkCallback();
+                //   }}
+                // >
+                //   <BookmarkIcon fill={saved} />
+                // </Button>
+                <div style={{ position: "absolute", bottom: 5, right: 5 }}>
+                  <BookmarkIcon
+                    listingId={offerItem._id}
+                    initialSaved={isBookmarked}
+                  />
+                </div>
               )}
               {cancelCallback && (
                 <Button

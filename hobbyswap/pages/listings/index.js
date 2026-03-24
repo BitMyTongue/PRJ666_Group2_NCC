@@ -63,11 +63,11 @@ const getImageSrc = (images) => {
 
 const sortItems = (items, sortKey) => {
   const arr = [...items];
-  if (sortKey === "az") arr.sort((a, b) => a.name.localeCompare(b.name));
-  if (sortKey === "za") arr.sort((a, b) => b.name.localeCompare(a.name));
-  if (sortKey === "popular") {
-    arr.sort((a, b) => new Date(b.datePosted || 0) - new Date(a.datePosted || 0));
-  }
+  if (sortKey === "most-recent") arr.sort((a, b) => new Date(b.datePosted || 0) - new Date(a.datePosted || 0));
+  if (sortKey === "popular")     arr.sort((a, b) => new Date(a.datePosted || 0) - new Date(b.datePosted || 0));
+  if (sortKey === "az")          arr.sort((a, b) => a.name.localeCompare(b.name));
+  if (sortKey === "za")          arr.sort((a, b) => b.name.localeCompare(a.name));
+  // "none" — no sort, return as-is
   return arr;
 };
 
@@ -78,10 +78,12 @@ export default function DashboardHome() {
   const [errorMsg, setErrorMsg] = useState("");
   const [user, setUser] = useState(null);
 
+  const [visibleCount, setVisibleCount] = useState(6);
   const [showFilters, setShowFilters] = useState(false);
   const [query, setQuery] = useState("");
-  const [sortKey, setSortKey] = useState("popular");
+  const [sortKey, setSortKey] = useState("most-recent");
   const [showSearch, setShowSearch] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState(null);
 
   const active = CATEGORY[activeCategory];
 
@@ -133,10 +135,19 @@ export default function DashboardHome() {
     };
   }, []);
 
+  useEffect(() => {
+    setVisibleCount(6);
+  }, [activeCategory, query, sortKey, selectedStatus]);
+
   const visibleItems = useMemo(() => {
     let items = listings.filter((x) => categoryMatches(x.category, active.aliases));
 
-    items = items.filter((x) => isActiveStatus(x.status));
+
+    if (selectedStatus) {
+      items = items.filter((x) => (x.status || "ACTIVE") === selectedStatus);
+    } else {
+      items = items.filter((x) => isActiveStatus(x.status));
+    }
 
     if (query.trim()) {
       const q = query.trim().toLowerCase();
@@ -158,7 +169,7 @@ export default function DashboardHome() {
     }));
 
     return sortItems(mapped, sortKey);
-  }, [listings, active.aliases, query, sortKey]);
+  }, [listings, active.aliases, query, sortKey, selectedStatus]);
 
 
   return (
@@ -199,14 +210,17 @@ export default function DashboardHome() {
             aria-hidden="true"
           />
 
-          <SortFilter 
-            sortKey={sortKey} 
+          <SortFilter
+            sortKey={sortKey}
             setSortKey={setSortKey}
             query={query}
             setQuery={setQuery}
             showSearch={showSearch}
             setShowSearch={setShowSearch}
             isFilterVisible={false}
+            selectedStatus={selectedStatus}
+            setSelectedStatus={setSelectedStatus}
+            isStatusVisible={false}
           />
 
           {loading && <p className="text-center">Loading listings...</p>}
@@ -215,7 +229,7 @@ export default function DashboardHome() {
           {!loading && !errorMsg && (
             <>
               <div className="row justify-content-center g-5 p-6 pt-2">
-                {visibleItems.slice(0, 6).map((item) => (
+                {visibleItems.slice(0, visibleCount).map((item) => (
                   <div key={item.id} className="col-12 col-sm-6 col-md-4 d-flex justify-content-center">
                     <ItemCard img={item.img} name={item.name} desc={item.desc} saved={false} url={`/listings/${item.id}`} listingId={item.id} ownerId={item.ownerId} currentUserId={user?._id}/>
                   </div>
@@ -233,11 +247,17 @@ export default function DashboardHome() {
           aria-hidden="true"
         />
 
-        <div className="d-flex justify-content-center mb-5">
-          <Button variant="primary" className="px-4 py-2 fw-semibold">
-            View More
-          </Button>
-        </div>
+        {visibleCount < visibleItems.length && (
+          <div className="d-flex justify-content-center mb-5">
+            <Button
+              variant="primary"
+              className="px-4 py-2 fw-semibold"
+              onClick={() => setVisibleCount((c) => c + 6)}
+            >
+              View More
+            </Button>
+          </div>
+        )}
         </div>
       </section>
     </>
