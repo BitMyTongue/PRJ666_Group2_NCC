@@ -828,7 +828,11 @@ const StatusCard = function StatusCard({
         <MsgButton user={user} onClick={handleMessage} />
       </>
     ),
-
+    COMPLETED_LAYOUT: (
+      <>
+        <MsgButton user={user} onClick={handleMessage} />
+      </>
+    ),
     CHOICE_LAYOUT: (
       <>
         <AcceptButton onClick={handleAccept} />
@@ -902,7 +906,7 @@ const StatusCard = function StatusCard({
       id: StatusType.COMPLETED,
       msg: "trade completed",
       color: "#3A8402",
-      layout: ButtonLayout.MAIN_LAYOUT1,
+      layout: ButtonLayout.COMPLETED_LAYOUT,
       cancel: null,
       cancelLabel: "Dismiss",
     },

@@ -10,6 +10,13 @@ import { Button } from "react-bootstrap";
 import Pagination from "@/components/pagination";
 import SortFilter from "@/components/sort_filter";
 import UserNavbar from "@/components/user-navbar";
+
+const getStatusType = (status) => {
+  if (status === "IN TRADE") return StatusType.IN_PROGRESS;
+  if (status === "COMPLETE") return StatusType.COMPLETED;
+  return StatusType.AWAIT_PROPOSAL;
+};
+
 export default function UserListing() {
   const router = useRouter();
   const { id } = router.query;
@@ -162,7 +169,7 @@ export default function UserListing() {
                     <div key={idx} className="my-4">
                       {isOwner ? (
                         <StatusCard
-                          statusType={StatusType.AWAIT_PROPOSAL}
+                          statusType={getStatusType(listing.status)}
                           user={profile}
                           offerItem={listing}
                           requestItem={listing.requestItems}
