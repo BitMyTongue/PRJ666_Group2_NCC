@@ -31,7 +31,7 @@ export default function BookmarkIcon({ listingId, size = "xl", ...props }) {
       return;
     }
 
-    const token = localStorage.getItems("token");
+    const token = localStorage.getItem("token");
     if (!token) {
       alert("Bookmark failed: Session expired");
       return;

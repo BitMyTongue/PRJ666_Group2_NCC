@@ -45,7 +45,7 @@ export default function ItemCard({
       alert("Please login to bookmark listings");
       return;
     }
-    const token = localStorage.getItems("token");
+    const token = localStorage.getItem("token");
     if (!token) {
       alert("Bookmark failed: Session expired");
       return;
