@@ -168,7 +168,7 @@ export default function CreateListing() {
     selectedFile.forEach((file) => formData.append("files", file));
     formData.append("userId", userId); // Added for file Creation (TO BE: corrected.)
 
-    const token = localStorage.getItem(token);
+    const token = localStorage.getItem("token");
     if (!token) {
       setError("Session has expired");
       return;
