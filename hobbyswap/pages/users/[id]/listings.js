@@ -30,6 +30,7 @@ export default function UserListing() {
   const [filteredListings, setFilteredListings] = useState([]);
   let [isOwner, setIsOwner] = useState(false);
   const [profile, setProfile] = useState(null);
+  const [tradePartners, setTradePartners] = useState({});
 
   const [query, setQuery] = useState("");
   const [sortKey, setSortKey] = useState("most-recent");
@@ -68,7 +69,27 @@ export default function UserListing() {
           (listing) => listing.userId === id,
         );
         setListings(userListing);
-        console.log(userListing);
+
+        // Fetch trade offers to resolve buyer/seller for reviews
+        const tradeRes = await fetch(`/api/tradeOffers`);
+        const tradeData = await tradeRes.json();
+        const allTrades = tradeData.tradeOffers || [];
+
+        // For owner's completed listings: find the buyer
+        const partnerMap = {};
+        const completedOwned = userListing.filter(l => l.status === "COMPLETE");
+        await Promise.all(completedOwned.map(async (listing) => {
+          const trade = allTrades.find(
+            t => t.listingId === String(listing._id) && t.tradeStatus === "COMPLETED"
+          );
+          if (trade) {
+            const buyerRes = await fetch(`/api/users/${trade.requesterId}`);
+            const buyerData = await buyerRes.json();
+            partnerMap[String(listing._id)] = buyerData;
+          }
+        }));
+        setTradePartners(partnerMap);
+
       } catch (e) {
         setLoadError(e.message);
       } finally {
@@ -175,6 +196,7 @@ export default function UserListing() {
                           requestItem={listing.requestItems}
                           requestMoney={listing.requestMoney}
                           url={`/users/${id}`}
+                          tradePartner={tradePartners[String(listing._id)] || null}
                         />
                       ) : (
                         <TradeCard
@@ -209,6 +231,7 @@ export default function UserListing() {
             </p>
           </div>
         )}
+
       </UserNavbar>
     </>
   );

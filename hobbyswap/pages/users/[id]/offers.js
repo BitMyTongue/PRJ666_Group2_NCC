@@ -5,7 +5,7 @@ import { useContext, useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBookmark, faUser } from "@fortawesome/free-regular-svg-icons";
 import { faLayerGroup, faShoppingBag } from "@fortawesome/free-solid-svg-icons";
-import { StatusCard, StatusType, TradeCard } from "@/components/base-long-card";
+import { StatusCard, StatusType } from "@/components/base-long-card";
 import { Button, Spinner } from "react-bootstrap";
 import Pagination from "@/components/pagination";
 import SortFilter from "@/components/sort_filter";
@@ -211,6 +211,7 @@ export default function UserOffers() {
                               requestMoney={offer.requestMoney}
                               requestUser={profile}
                               url={`/users/${id}`}
+                              tradePartner={status === StatusType.COMPLETED ? offer.owner : null}
                             />
                           )}
                         </div>
