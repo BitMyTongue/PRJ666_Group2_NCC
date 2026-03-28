@@ -42,7 +42,6 @@ export default async function handler(req, res) {
 
     switch (method) {
       case "GET":
-        s;
         const user = await UserModel.findById(id).exec();
 
         if (!user) {
