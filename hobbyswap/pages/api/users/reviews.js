@@ -25,7 +25,7 @@ export default async function handler(req, res) {
     );
     if (!auth.ok) return res.status(auth.status).json(auth.statusText);
     const authUser = await auth.json();
-    if (reviewerId !== authUser._id) return res.status(403).end();
+    if (reviewerId !== authUser.user._id) return res.status(403).end();
 
     // Create review object
     const newReview = {

@@ -37,7 +37,7 @@ export default async function handler(req, res) {
         );
         if (!auth.ok) return res.status(auth.status).json(auth.statusText);
         const authUser = await auth.json();
-        if (userId !== authUser._id) return res.status(403).end();
+        if (userId !== authUser.user._id) return res.status(403).end();
         if (!itemName)
           return res.status(400).json({ error: "Missing Item Name" });
         if (!description)

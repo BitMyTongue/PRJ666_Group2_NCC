@@ -34,7 +34,7 @@ export default async function handler(req, res) {
         );
         if (!auth.ok) return res.status(auth.status).json(auth.statusText);
         const authUser = await auth.json();
-        if (requesterId !== authUser._id) return res.status(403).end();
+        if (requesterId !== authUser.user._id) return res.status(403).end();
         if (!listingId)
           return res.status(400).json({ error: "Missing ListingId" });
 

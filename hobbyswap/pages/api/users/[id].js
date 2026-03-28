@@ -37,7 +37,7 @@ export default async function handler(req, res) {
       );
       if (!auth.ok) return res.status(auth.status).json(auth.statusText);
       const authUser = await auth.json();
-      if (id !== authUser._id) return res.status(403).end();
+      if (id !== authUser.user._id) return res.status(403).end();
     }
 
     switch (method) {
@@ -66,7 +66,6 @@ export default async function handler(req, res) {
         if (dateOfBirth !== undefined) updateData.dateOfBirth = dateOfBirth;
         if (profilePicture !== undefined)
           updateData.profilePicture = profilePicture;
-
         await UserModel.updateOne({ _id: id }, { $set: updateData }).exec();
         // return updated user so client can refresh state
         const updatedUser = await UserModel.findById(id).select("-password");

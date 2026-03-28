@@ -40,7 +40,6 @@ export default async function handler(req, res) {
       );
 
       if (putUser.ok) {
-        s;
         res.setHeader(
           "Set-Cookie",
           `fPW=${callback}; Max-Age=0;Path="/"; SameSite=Strict; HttpOnly`,

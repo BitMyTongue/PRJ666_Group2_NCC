@@ -32,7 +32,7 @@ export default async function handler(req, res) {
       );
       if (!auth.ok) return res.status(auth.status).json(auth.statusText);
       const authUser = await auth.json();
-      if (listing.userId !== authUser._id) return res.status(403).end();
+      if (listing.userId !== authUser.user._id) return res.status(403).end();
     }
     if (method === "DELETE") {
       if (!listing) {
