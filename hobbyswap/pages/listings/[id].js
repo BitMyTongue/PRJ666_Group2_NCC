@@ -96,8 +96,8 @@ export default function Listing() {
           Authorization: `Bearer ${token}`,
         },
       })
-      .then((res) => res.json())
-      .then((data) => setUser(data.user))
+        .then((res) => res.json())
+        .then((data) => setUser(data.user));
     }
 
     const load = async () => {
@@ -382,18 +382,28 @@ export default function Listing() {
               </div>
               <div className="d-flex flex-column gap-3 border-bottom border-primary pb-4">
                 {listing.requestItems.length !== 0 && (
-                  <button className="btn btn-primary text-white fw-semibold rounded-pill py-2" onClick={handleProposeTrade}>
+                  <button
+                    className="btn btn-primary text-white fw-semibold rounded-pill py-2"
+                    onClick={handleProposeTrade}
+                  >
                     Propose Trade
                   </button>
                 )}
                 {listing.requestMoney !== 0 && (
-                  <Button className="btn btn-primary text-white fw-semibold rounded-pill py-2" href={`/checkout/pay/${id}?step=payment info`}>
+                  <Button
+                    className="btn btn-primary text-white fw-semibold rounded-pill py-2"
+                    href={`/checkout/pay/${id}?step=payment info`}
+                  >
                     Pay Now
                   </Button>
                 )}
-                <button className="btn btn-white text-primary fw-semibold rounded-pill py-2 border border-primary border-2">
+                <Button
+                  variant="white"
+                  href={"/message?user=" + owner?._id}
+                  className="btn btn-white text-primary fw-semibold rounded-pill py-2 border border-primary border-2"
+                >
                   Message Owner
-                </button>
+                </Button>
               </div>
               <div className="d-flex flex-column gap-1 border-bottom border-primary pb-4">
                 {listing.meetUp && (
@@ -450,11 +460,7 @@ export default function Listing() {
                 <p className="col-5 text-primary ">User Account</p>
                 <div className="col-7 d-flex gap-3 align-items-center">
                   {" "}
-                  <UserIcon
-                    user={owner.username}
-                    img={avatar}
-                    size={30}
-                  />
+                  <UserIcon user={owner.username} img={avatar} size={30} />
                   <Link
                     href={`/users/${owner._id}`}
                     className="align-self-center  mb-0 text-primary fw-semibold"
@@ -538,7 +544,6 @@ export default function Listing() {
             <p className="text-muted">No reviews yet for this user.</p>
           )}
         </div>
-        
       </div>
 
       <Modal show={showRequests} onHide={() => setShowRequests(false)} centered>
