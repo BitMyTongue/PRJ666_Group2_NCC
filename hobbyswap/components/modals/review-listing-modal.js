@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button, Col, Container, Form, Modal, Row } from "react-bootstrap";
 import ItemCard from "../item-card";
 import UserWithRating from "../user-with-rating";
-import {StarRating} from "../rating"
+import { StarRating } from "../rating";
 import UserIcon from "../user-icon";
 
 const ReportUserType = {
@@ -53,10 +53,15 @@ export default function ReviewUserModal({
       };
 
       // Submit review to the API
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("Failed to submit review: Session expired");
+      }
       const response = await fetch(`/api/users/${user._id}/reviews`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(reviewData),
       });
@@ -104,12 +109,16 @@ export default function ReviewUserModal({
           <Container className="d-flex gap-5">
             <div className="w-100">
               <Form.Group>
-                <Form.Label className="text-muted text-capitalize mt-2">How do you rate this user?</Form.Label>
+                <Form.Label className="text-muted text-capitalize mt-2">
+                  How do you rate this user?
+                </Form.Label>
                 <div className="d-flex gap-3">
                   <UserIcon user={user.username} img={user.avatar} size="50" />
                   <StarRating onRatingChange={setRating} />
                 </div>
-                <Form.Label className="text-muted text-capitalize mt-3">How is the experience with this user</Form.Label>
+                <Form.Label className="text-muted text-capitalize mt-3">
+                  How is the experience with this user
+                </Form.Label>
                 <Form.Control
                   type="text"
                   rows={5}
@@ -117,7 +126,9 @@ export default function ReviewUserModal({
                     setReviewTitle(e.target.value);
                   }}
                 />
-                <Form.Label className="text-capitalize text-muted mt-3">More details</Form.Label>
+                <Form.Label className="text-capitalize text-muted mt-3">
+                  More details
+                </Form.Label>
                 <Form.Control
                   as="textarea"
                   rows={5}
@@ -133,7 +144,11 @@ export default function ReviewUserModal({
           <Button variant="primary px-5" type="submit" disabled={isSubmitting}>
             {isSubmitting ? "Submitting..." : "Submit"}
           </Button>
-          <Button variant="light px-5" onClick={() => setShow(false)} disabled={isSubmitting}>
+          <Button
+            variant="light px-5"
+            onClick={() => setShow(false)}
+            disabled={isSubmitting}
+          >
             Cancel
           </Button>
         </Modal.Footer>

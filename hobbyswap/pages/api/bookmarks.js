@@ -7,6 +7,19 @@ export default async function handler(req, res) {
 
   try {
     await mongooseConnect();
+
+    if (method !== "GET") {
+      const auth = await fetch(
+        process.env.NEXT_PUBLIC_API_URL + "/api/auth/protect",
+        {
+          headers: req.headers,
+          cache: "no-store",
+        },
+      );
+      if (!auth.ok) return res.status(auth.status).json(auth.statusText);
+      const authUser = await auth.json();
+      if (userId !== authUser.user._id) return res.status(403).end();
+    }
     switch (method) {
       case "GET":
         let bookmarks = await BookmarkModel.find({}).exec();
@@ -21,10 +34,10 @@ export default async function handler(req, res) {
           userId,
           listingId,
         });
-          await newBookmark.save();
-          res
-            .status(201)
-            .json({ message: "Add Listing to Bookmark", bookmark: newBookmark });
+        await newBookmark.save();
+        res
+          .status(201)
+          .json({ message: "Add Listing to Bookmark", bookmark: newBookmark });
         break;
       case "DELETE":
         if (!userId) return res.status(401).json({ error: "UserId not found" });
@@ -53,4 +66,3 @@ export default async function handler(req, res) {
     });
   }
 }
-

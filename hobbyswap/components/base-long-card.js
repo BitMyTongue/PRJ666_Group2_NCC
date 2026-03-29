@@ -109,7 +109,9 @@ const BaseLongCard = function BaseLongCard({
 }) {
   const [showModal, setShowModal] = useState(false);
   const [saved, setSaved] = useState(isBookmarked);
-  const [imgSrc, setImgSrc] = useState(offerItem?.images?.[0] || "/images/no-image-available-default.jpg");
+  const [imgSrc, setImgSrc] = useState(
+    offerItem?.images?.[0] || "/images/no-image-available-default.jpg",
+  );
   const router = useRouter();
   const bookmarkCallback = () => {
     setSaved(!saved);
@@ -197,7 +199,7 @@ const BaseLongCard = function BaseLongCard({
               />
             </>
           )}
-          
+
           {status && (
             <strong style={{ textTransform: "uppercase" }}>{status}</strong>
           )}
@@ -232,13 +234,15 @@ const BaseLongCard = function BaseLongCard({
                 }}
               >
                 <Image
-                    className="object-fit-contain"
-                    alt={offerItem.itemName}
-                    src={imgSrc}
-                    width={69}
-                    height={96}
-                    onError={() => setImgSrc("/images/no-image-available-default.jpg")}
-                  />
+                  className="object-fit-contain"
+                  alt={offerItem.itemName}
+                  src={imgSrc}
+                  width={69}
+                  height={96}
+                  onError={() =>
+                    setImgSrc("/images/no-image-available-default.jpg")
+                  }
+                />
                 <div>
                   <p className="h4">{offerItem.itemName}</p>
                   <p style={{ height: "50px", overflowY: "auto" }}>
@@ -369,13 +373,15 @@ const BaseLongCard = function BaseLongCard({
                 }}
               >
                 <Image
-                    className="object-fit-contain"
-                    alt={offerItem.itemName}
-                    src={imgSrc}
-                    width={149}
-                    height={196}
-                    onError={() => setImgSrc("/images/no-image-available-default.jpg")}
-                  />
+                  className="object-fit-contain"
+                  alt={offerItem.itemName}
+                  src={imgSrc}
+                  width={149}
+                  height={196}
+                  onError={() =>
+                    setImgSrc("/images/no-image-available-default.jpg")
+                  }
+                />
                 <div>
                   <p className="fw-semibold fs-4 text-primary text-capitalize">
                     {offerItem.itemName}
@@ -743,9 +749,19 @@ const StatusCard = function StatusCard({
 
   const confirmDelete = async () => {
     setIsDeleting(true);
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert(`Error deleting listing: session has expired`);
+      setIsDeleting(false);
+      return;
+    }
     try {
       const response = await fetch(`/api/listings/${offerItem._id}`, {
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       if (!response.ok) {

@@ -24,13 +24,17 @@ export default async function handler(req, res) {
     res.setHeader("Cache-Control", "no-store");
     const { users } = await userReq.json();
     const user = users.find((u) => u.email == email);
-
+    console.log(user);
     if (user) {
       const putUser = await fetch(
         process.env.NEXT_PUBLIC_API_URL + "/api/users/" + user._id,
         {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${jwt.sign({ id: user._id }, process.env.JWT_SECRET)}`,
+            "Cache-Control": "no-cache",
+          },
           body: JSON.stringify({ password: password }),
         },
       );

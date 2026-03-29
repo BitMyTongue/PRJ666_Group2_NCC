@@ -66,7 +66,9 @@ export default function UserBookmark() {
         console.log(bookmarkedListings);
 
         // Fetch user data for each listing's owner
-        const uniqueUserIds = [...new Set(bookmarkedListings.map(l => l.userId))];
+        const uniqueUserIds = [
+          ...new Set(bookmarkedListings.map((l) => l.userId)),
+        ];
         const listingsWithUsers = await Promise.all(
           bookmarkedListings.map(async (listing) => {
             const userRes = await fetch(`/api/users/${listing.userId}`);
@@ -75,11 +77,10 @@ export default function UserBookmark() {
               ...listing,
               owner: userData,
             };
-          })
+          }),
         );
 
         setListings(listingsWithUsers);
-        
       } catch (e) {
         setLoadError(e.message);
       } finally {
@@ -121,9 +122,13 @@ export default function UserBookmark() {
 
     // Step 4: Apply Sort
     if (sortKey === "most-recent") {
-      filtered.sort((a, b) => new Date(b.datePosted || 0) - new Date(a.datePosted || 0));
+      filtered.sort(
+        (a, b) => new Date(b.datePosted || 0) - new Date(a.datePosted || 0),
+      );
     } else if (sortKey === "popular") {
-      filtered.sort((a, b) => new Date(a.datePosted || 0) - new Date(b.datePosted || 0));
+      filtered.sort(
+        (a, b) => new Date(a.datePosted || 0) - new Date(b.datePosted || 0),
+      );
     } else if (sortKey === "az") {
       filtered.sort((a, b) => a.itemName.localeCompare(b.itemName));
     } else if (sortKey === "za") {
@@ -145,95 +150,121 @@ export default function UserBookmark() {
     const paginatedListings = filteredListings.slice(startIdx, endIdx);
     setPageListings(paginatedListings);
   }, [currP, filteredListings]);
-  return  <>
-        <UserNavbar id={id} loading={loading}>
-          {listings.length > 0 ? (
-            <>
-              {/* Filter Section */}
-  
-              <SortFilter
-                isFilterVisible={true}
-                sortKey={sortKey}
-                setSortKey={setSortKey}
-                query={query}
-                setQuery={setQuery}
-                showSearch={showSearch}
-                setShowSearch={setShowSearch}
-                selectedCategory={selectedCategory}
-                setSelectedCategory={setSelectedCategory}
-                selectedCondition={selectedCondition}
-                setSelectedCondition={setSelectedCondition}
-              />
-  
-              {/* Card Section */}
-              <div className="container my-5 mx-auto">
-                {filteredListings.length > 0 ? (
-                  <>
-                    <Pagination
-                      dataLength={filteredListings.length}
-                      currPage={currP}
-                      setCurrPage={setCurrP}
-                      resultsPerPage={resultsPerPage}
-                    />
-                    {pageListings.map((listing, idx) => {
-                      const unavailable = listing.status === "COMPLETE" || listing.status === "IN TRADE";
-                      return (
-                        <div key={idx} className="my-4 position-relative">
-                          <div className={unavailable ? styles.bookmarkCardDimmed : ""}>
-                            <TradeCard
-                              user={listing.owner}
-                              offerItem={listing}
-                              requestMoney={listing.requestMoney}
-                              url={`/listings/${listing._id}`}
-                              isBookmarked={true}
-                            />
-                          </div>
-                          {unavailable && (
-                            <div className={`${styles.bookmarkOverlay} d-flex flex-column align-items-center justify-content-center`}>
-                              <span className={`${styles.bookmarkUnavailableLabel} fw-semibold text-white`}>
-                                Item no longer available
-                              </span>
-                              <button
-                                className={`${styles.bookmarkRemoveBtn} btn bg-white text-secondary border-0 fw-medium`}
-                                onClick={async () => {
-                                  await fetch("/api/bookmarks", {
-                                    method: "DELETE",
-                                    headers: { "Content-Type": "application/json" },
-                                    body: JSON.stringify({ userId: user._id, listingId: listing._id }),
-                                  });
-                                  setListings((prev) => prev.filter((l) => l._id !== listing._id));
-                                }}
-                              >
-                                Remove from bookmarks
-                              </button>
-                            </div>
-                          )}
+  return (
+    <>
+      <UserNavbar id={id} loading={loading}>
+        {listings.length > 0 ? (
+          <>
+            {/* Filter Section */}
+
+            <SortFilter
+              isFilterVisible={true}
+              sortKey={sortKey}
+              setSortKey={setSortKey}
+              query={query}
+              setQuery={setQuery}
+              showSearch={showSearch}
+              setShowSearch={setShowSearch}
+              selectedCategory={selectedCategory}
+              setSelectedCategory={setSelectedCategory}
+              selectedCondition={selectedCondition}
+              setSelectedCondition={setSelectedCondition}
+            />
+
+            {/* Card Section */}
+            <div className="container my-5 mx-auto">
+              {filteredListings.length > 0 ? (
+                <>
+                  <Pagination
+                    dataLength={filteredListings.length}
+                    currPage={currP}
+                    setCurrPage={setCurrP}
+                    resultsPerPage={resultsPerPage}
+                  />
+                  {pageListings.map((listing, idx) => {
+                    const unavailable =
+                      listing.status === "COMPLETE" ||
+                      listing.status === "IN TRADE";
+                    return (
+                      <div key={idx} className="my-4 position-relative">
+                        <div
+                          className={
+                            unavailable ? styles.bookmarkCardDimmed : ""
+                          }
+                        >
+                          <TradeCard
+                            user={listing.owner}
+                            offerItem={listing}
+                            requestMoney={listing.requestMoney}
+                            url={`/listings/${listing._id}`}
+                            isBookmarked={true}
+                          />
                         </div>
-                      );
-                    })}
-                    <Pagination
-                      dataLength={filteredListings.length}
-                      currPage={currP}
-                      setCurrPage={setCurrP}
-                      resultsPerPage={resultsPerPage}
-                    />
-                  </>
-                ) : (
-                  <div className="text-center my-8">
-                    <p className="text-muted text-capitalize fs-4 fst-italic">
-                      No bookmarks match your search
-                    </p>
-                  </div>
-                )}
-              </div>
-            </>
-          ) : (
-            <div className="container mx-auto my-8 text-center">
-              <p className="text-muted text-capitalize fs-4 fst-italic">
-                You have not saved any listings yet
-              </p>
+                        {unavailable && (
+                          <div
+                            className={`${styles.bookmarkOverlay} d-flex flex-column align-items-center justify-content-center`}
+                          >
+                            <span
+                              className={`${styles.bookmarkUnavailableLabel} fw-semibold text-white`}
+                            >
+                              Item no longer available
+                            </span>
+                            <button
+                              className={`${styles.bookmarkRemoveBtn} btn bg-white text-secondary border-0 fw-medium`}
+                              onClick={async () => {
+                                const token = localStorage.getItem("token");
+                                if (!token) {
+                                  alert("Bookmark failed: Session expired");
+                                  return;
+                                }
+
+                                await fetch("/api/bookmarks", {
+                                  method: "DELETE",
+                                  headers: {
+                                    "Content-Type": "application/json",
+                                    Authorization: `Bearer ${token}`,
+                                  },
+                                  body: JSON.stringify({
+                                    userId: user._id,
+                                    listingId: listing._id,
+                                  }),
+                                });
+                                setListings((prev) =>
+                                  prev.filter((l) => l._id !== listing._id),
+                                );
+                              }}
+                            >
+                              Remove from bookmarks
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                  <Pagination
+                    dataLength={filteredListings.length}
+                    currPage={currP}
+                    setCurrPage={setCurrP}
+                    resultsPerPage={resultsPerPage}
+                  />
+                </>
+              ) : (
+                <div className="text-center my-8">
+                  <p className="text-muted text-capitalize fs-4 fst-italic">
+                    No bookmarks match your search
+                  </p>
+                </div>
+              )}
             </div>
-          )}
-        </UserNavbar>
-      </>
+          </>
+        ) : (
+          <div className="container mx-auto my-8 text-center">
+            <p className="text-muted text-capitalize fs-4 fst-italic">
+              You have not saved any listings yet
+            </p>
+          </div>
+        )}
+      </UserNavbar>
+    </>
+  );
 }
