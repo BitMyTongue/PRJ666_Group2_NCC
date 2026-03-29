@@ -27,6 +27,19 @@ export default async function handler(req, res) {
   try {
     await mongooseConnect();
 
+    if (method == "PUT" || method == "DELETE") {
+      const auth = await fetch(
+        process.env.NEXT_PUBLIC_API_URL + "/api/auth/protect",
+        {
+          headers: req.headers,
+          cache: "no-store",
+        },
+      );
+      if (!auth.ok) return res.status(auth.status).json(auth.statusText);
+      const authUser = await auth.json();
+      if (id !== authUser.user._id) return res.status(403).end();
+    }
+
     switch (method) {
       case "GET":
         const user = await UserModel.findById(id).exec();
@@ -37,8 +50,7 @@ export default async function handler(req, res) {
             .json({ message: `User with id: ${id} not found` });
         }
 
-        res.status(200).json(user);
-        break;
+        return res.status(200).json(user);
 
       case "PUT":
         const updateData = {};
@@ -53,23 +65,22 @@ export default async function handler(req, res) {
         if (dateOfBirth !== undefined) updateData.dateOfBirth = dateOfBirth;
         if (profilePicture !== undefined)
           updateData.profilePicture = profilePicture;
-
         await UserModel.updateOne({ _id: id }, { $set: updateData }).exec();
         // return updated user so client can refresh state
         const updatedUser = await UserModel.findById(id).select("-password");
-        res
+        return res
           .status(200)
           .json({ message: `User with id: ${id} updated`, user: updatedUser });
-        break;
+
       case "DELETE":
         await UserModel.deleteOne({ _id: id }).exec();
-        res.status(200).json({ message: `Deleted User with id: ${id}` });
-        break;
+        return res.status(200).json({ message: `Deleted User with id: ${id}` });
+
       default:
         res.setHeader("Allow", ["GET", "PUT", "DELETE"]);
-        res.status(405).end(`Method ${method} Not Allowed`);
+        return res.status(405).end(`Method ${method} Not Allowed`);
     }
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    return res.status(500).json({ message: err.message });
   }
 }

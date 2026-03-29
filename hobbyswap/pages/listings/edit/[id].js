@@ -50,7 +50,7 @@ export default function UpdateListing() {
   const id = params?.id; // Getting ID from URL /listings/edit/[id]
   const searchParams = useSearchParams();
   const status = searchParams.get("status");
-  
+
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -68,7 +68,7 @@ export default function UpdateListing() {
   const [imageUrl, setImageUrl] = useState([]);
   // Keep preview URLs for selected files so we can remove files before upload
   const [selectedFilePreviews, setSelectedFilePreviews] = useState([]);
-  
+
   const [user, setUser] = useState(null);
   const [createdListing, setCreatedListing] = useState(null);
 
@@ -95,10 +95,10 @@ export default function UpdateListing() {
         setMeetUp(l.meetUp || false);
         setMeetUpLocation(l.location || "");
         setImageUrl(l.images || []);
-        
+
         // Find and set the location on the map
         if (l.location) {
-          const loc = pickUpLocations.find(p => p.name === l.location);
+          const loc = pickUpLocations.find((p) => p.name === l.location);
           if (loc) setSelectedLocation(loc);
         }
 
@@ -144,17 +144,27 @@ export default function UpdateListing() {
     }
 
     // Only keep valid HTTP(s) image URLs (ignore local blob previews) before upload
-    let finalImages = Array.isArray(imageUrl) ? imageUrl.filter((u) => typeof u === "string" && /^https?:\/\//.test(u)) : [];
+    let finalImages = Array.isArray(imageUrl)
+      ? imageUrl.filter((u) => typeof u === "string" && /^https?:\/\//.test(u))
+      : [];
 
     // If new files were added, upload them first
     if (selectedFile.length > 0) {
       const formData = new FormData();
       selectedFile.forEach((file) => formData.append("files", file));
       formData.append("userId", user._id);
+      const token = localStorage.getItem(token);
+      if (!token) {
+        setError("Session has expired");
+        return;
+      }
 
       try {
         const uploadRes = await fetch("/api/listings/upload", {
           method: "POST", // Post the image first and retrieve S3URL
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
           body: formData,
         });
         const uploadResult = await uploadRes.json();
@@ -172,10 +182,17 @@ export default function UpdateListing() {
     }
 
     try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("The session has expired");
+      }
       // 2. SUBMIT UPDATE: Use PUT or PATCH to update the specific ID
       const res = await fetch(`/api/listings/${id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({
           itemName,
           description,
@@ -228,10 +245,14 @@ export default function UpdateListing() {
     const previewIndex = selectedFilePreviews.indexOf(urlToRemove);
     if (previewIndex !== -1) {
       // Revoke preview URL to free memory
-      try { URL.revokeObjectURL(urlToRemove); } catch (e) {}
+      try {
+        URL.revokeObjectURL(urlToRemove);
+      } catch (e) {}
 
       setSelectedFile((prev) => prev.filter((_, i) => i !== previewIndex));
-      setSelectedFilePreviews((prev) => prev.filter((_, i) => i !== previewIndex));
+      setSelectedFilePreviews((prev) =>
+        prev.filter((_, i) => i !== previewIndex),
+      );
     }
 
     // Always remove from imageUrl so it won't be sent to server
@@ -260,12 +281,17 @@ export default function UpdateListing() {
     return `${parts[parts.length - 2].trim()}, ${parts[parts.length - 1].trim().split(" ")[0]}`;
   };
 
-  if (loading && !createdListing) return <div className="container mt-5"><h1>Loading Listing Data...</h1></div>;
+  if (loading && !createdListing)
+    return (
+      <div className="container mt-5">
+        <h1>Loading Listing Data...</h1>
+      </div>
+    );
 
   if (status === "true") {
     // createdListing is null on first render
     if (!createdListing) return <h1>Loading the created listing...</h1>;
-    
+
     const selectedMeetUpLocation = pickUpLocations.find(
       (loc) => loc.name === createdListing.location,
     );
@@ -338,9 +364,7 @@ export default function UpdateListing() {
                             {Array.from({ length: 5 }, (_, i) => (
                               <FontAwesomeIcon
                                 key={i}
-                                icon={
-                                  i < user.rating ? solidStar : emptyStar
-                                }
+                                icon={i < user.rating ? solidStar : emptyStar}
                                 className="text-secondary"
                               />
                             ))}
@@ -361,8 +385,10 @@ export default function UpdateListing() {
                     {selectedMeetUpLocation ? (
                       <>
                         Free Meet up at{" "}
-                        <span className="fw-bold">{selectedMeetUpLocation.name}</span> (
-                        {getCityProvince(selectedMeetUpLocation.address)})
+                        <span className="fw-bold">
+                          {selectedMeetUpLocation.name}
+                        </span>{" "}
+                        ({getCityProvince(selectedMeetUpLocation.address)})
                       </>
                     ) : (
                       "Free Meet up location not found"
@@ -447,163 +473,245 @@ export default function UpdateListing() {
       </>
     );
   } else {
-
-  return (
-    <div className="container-sm border border-gray rounded-4 shadow my-8 px-6 py-4">
-      <div className="row border-bottom border-gray">
-        <p className="text-primary mt-4 mb-4 fw-semibold fs-3">Edit Your Listing</p>
-      </div>
-
-      <form onSubmit={handleSubmit}>
-        {error && <div ref={errorRef} className="alert alert-danger mt-3">{error}</div>}
-
-        <div className="row mb-3 d-flex justify-content-center gap-md-3 mt-5">
-          <div className="col-md-4 col-12 text-center text-md-start">
-            <Image
-              src={imageUrl.length > 0 ? imageUrl[imageUrl.length - 1] : "/images/white-square-photo-frame.png"}
-              alt="Preview"
-              width={350}
-              className="mb-3 border border-gray rounded shadow img-fluid"
-            />
-            <div className="d-flex flex-wrap gap-2">
-              {imageUrl.map((url, index) => (
-                <div key={index} style={{ position: "relative", display: "inline-block", marginRight: 8 }}>
-                  <button
-                    type="button"
-                    aria-label="Remove image"
-                    className="btn btn-danger btn-sm position-absolute"
-                    style={{ top: -8, right: -8, zIndex: 2, borderRadius: 20, padding: '0 6px' }} // Top right Corner
-                    onClick={() => handleRemoveImage(index)}
-                  >
-                    ×
-                  </button>
-                  <Image src={url} alt={`thumb-${index}`} width={55} height={55} className="border rounded shadow" /> 
-                  {/* Image Thumbnails */}
-                </div>
-              ))}
-              <input type="file" id="file-upload" accept="image/*" onChange={handleFileChange} style={{ display: "none" }} />
-              <label htmlFor="file-upload" className="cursor-pointer">
-                <Image src="/images/upload-icon.png" alt="upload" width={55} height={55} />
-              </label>
-            </div>
-          </div>
-
-          <div className="col-md-7 col-12">
-            <input
-              className="form-control bg-light p-3 mb-3"
-              placeholder="Item Name*"
-              value={itemName}
-              onChange={(e) => setItemName(e.target.value)}
-            />
-            <select className="form-control bg-light p-3 mb-3" value={condition} onChange={(e) => setCondition(e.target.value)}>
-              <option value="">Condition*</option>
-              <option value="NEW">New</option>
-              <option value="USED">Used</option>
-            </select>
-            <select className="form-control bg-light p-3 mb-3" value={category} onChange={(e) => setCategory(e.target.value)}>
-              <option value="">Category</option>
-              <option value="POKEMON CARD">Pokemon Card</option>
-              <option value="BLIND BOX">Blind Box</option>
-              {/* ... other options ... */}
-            </select>
-            <textarea
-              className="form-control bg-light p-3 mb-3"
-              placeholder="Description"
-              rows="5"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-          </div>
+    return (
+      <div className="container-sm border border-gray rounded-4 shadow my-8 px-6 py-4">
+        <div className="row border-bottom border-gray">
+          <p className="text-primary mt-4 mb-4 fw-semibold fs-3">
+            Edit Your Listing
+          </p>
         </div>
 
-        {/* Request Items Section */}
-        <div className="row mb-3">
+        <form onSubmit={handleSubmit}>
+          {error && (
+            <div ref={errorRef} className="alert alert-danger mt-3">
+              {error}
+            </div>
+          )}
+
+          <div className="row mb-3 d-flex justify-content-center gap-md-3 mt-5">
+            <div className="col-md-4 col-12 text-center text-md-start">
+              <Image
+                src={
+                  imageUrl.length > 0
+                    ? imageUrl[imageUrl.length - 1]
+                    : "/images/white-square-photo-frame.png"
+                }
+                alt="Preview"
+                width={350}
+                className="mb-3 border border-gray rounded shadow img-fluid"
+              />
+              <div className="d-flex flex-wrap gap-2">
+                {imageUrl.map((url, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      position: "relative",
+                      display: "inline-block",
+                      marginRight: 8,
+                    }}
+                  >
+                    <button
+                      type="button"
+                      aria-label="Remove image"
+                      className="btn btn-danger btn-sm position-absolute"
+                      style={{
+                        top: -8,
+                        right: -8,
+                        zIndex: 2,
+                        borderRadius: 20,
+                        padding: "0 6px",
+                      }} // Top right Corner
+                      onClick={() => handleRemoveImage(index)}
+                    >
+                      ×
+                    </button>
+                    <Image
+                      src={url}
+                      alt={`thumb-${index}`}
+                      width={55}
+                      height={55}
+                      className="border rounded shadow"
+                    />
+                    {/* Image Thumbnails */}
+                  </div>
+                ))}
+                <input
+                  type="file"
+                  id="file-upload"
+                  accept="image/*"
+                  onChange={handleFileChange}
+                  style={{ display: "none" }}
+                />
+                <label htmlFor="file-upload" className="cursor-pointer">
+                  <Image
+                    src="/images/upload-icon.png"
+                    alt="upload"
+                    width={55}
+                    height={55}
+                  />
+                </label>
+              </div>
+            </div>
+
+            <div className="col-md-7 col-12">
+              <input
+                className="form-control bg-light p-3 mb-3"
+                placeholder="Item Name*"
+                value={itemName}
+                onChange={(e) => setItemName(e.target.value)}
+              />
+              <select
+                className="form-control bg-light p-3 mb-3"
+                value={condition}
+                onChange={(e) => setCondition(e.target.value)}
+              >
+                <option value="">Condition*</option>
+                <option value="NEW">New</option>
+                <option value="USED">Used</option>
+              </select>
+              <select
+                className="form-control bg-light p-3 mb-3"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+              >
+                <option value="">Category</option>
+                <option value="POKEMON CARD">Pokemon Card</option>
+                <option value="BLIND BOX">Blind Box</option>
+                {/* ... other options ... */}
+              </select>
+              <textarea
+                className="form-control bg-light p-3 mb-3"
+                placeholder="Description"
+                rows="5"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
+            </div>
+          </div>
+
+          {/* Request Items Section */}
+          <div className="row mb-3">
             <p className="text-primary fw-bold fs-5">Request Items</p>
             <div className="d-flex gap-2">
-                <input 
-                    type="text" 
-                    className="form-control bg-light w-50" 
-                    value={requestItemInput} 
-                    onChange={(e) => setRequestItemInput(e.target.value)}
-                />
-                <button type="button" onClick={handleAddRequestItem} className="btn btn-primary">Add</button>
+              <input
+                type="text"
+                className="form-control bg-light w-50"
+                value={requestItemInput}
+                onChange={(e) => setRequestItemInput(e.target.value)}
+              />
+              <button
+                type="button"
+                onClick={handleAddRequestItem}
+                className="btn btn-primary"
+              >
+                Add
+              </button>
             </div>
             <div className="mt-3">
-                {requestItems.map((item, i) => (
-                  <div key={i} style={{ position: "relative", display: "inline-block", marginRight: 8 }}>
+              {requestItems.map((item, i) => (
+                <div
+                  key={i}
+                  style={{
+                    position: "relative",
+                    display: "inline-block",
+                    marginRight: 8,
+                  }}
+                >
                   <button
                     type="button"
                     aria-label="Remove image"
                     className="btn btn-danger btn-sm position-absolute"
-                    style={{ top: -8, right: -8, zIndex: 2, borderRadius: 20, padding: '0 6px' }} // Top right Corner
+                    style={{
+                      top: -8,
+                      right: -8,
+                      zIndex: 2,
+                      borderRadius: 20,
+                      padding: "0 6px",
+                    }} // Top right Corner
                     onClick={() => handleRemoveItem(i)}
                   >
                     ×
                   </button>
-                    <span key={i} className="badge bg-secondary me-2 p-2">{item}</span>
-                  </div>
-                ))}
+                  <span key={i} className="badge bg-secondary me-2 p-2">
+                    {item}
+                  </span>
+                </div>
+              ))}
             </div>
-        </div>
-
-        {/* Request Money */}
-        <div className="row mb-3">
-            <p className="text-primary fw-bold fs-5">Request Money</p>
-            <input 
-                type="number" 
-                className="form-control bg-light w-25 ms-3" 
-                value={requestMoney} 
-                onChange={(e) => setRequestMoney(e.target.value)} 
-            />
-        </div>
-
-        {/* Maps Section */}
-        <div className="row mb-3">
-          <div className="form-check ms-3">
-            <input
-              type="checkbox"
-              className="form-check-input"
-              id="meetUpOption"
-              checked={meetUp}
-              onChange={(e) => setMeetUp(e.target.checked)}
-            />
-            <label className="form-check-label text-primary fw-semibold" htmlFor="meetUpOption">
-              Provide Meet Up Option
-            </label>
           </div>
 
-          {isLoaded && (
-            <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={10} onLoad={onLoad}>
-              {pickUpLocations.map((loc) => (
-                <MarkerF
-                  key={loc.name}
-                  position={{ lat: loc.latitude, lng: loc.longitude }}
-                  onClick={() => {
-                    setSelectedLocation(loc);
-                    setMeetUpLocation(loc.name);
-                  }}
-                />
-              ))}
-              {selectedLocation && (
-                <InfoWindowF 
-                    position={{ lat: selectedLocation.latitude, lng: selectedLocation.longitude }}
-                    onCloseClick={() => setSelectedLocation(null)}
-                >
-                  <div>
-                    <strong>{selectedLocation.name}</strong>
-                    <p className="m-0">{selectedLocation.address}</p>
-                  </div>
-                </InfoWindowF>
-              )}
-            </GoogleMap>
-          )}
-        </div>
+          {/* Request Money */}
+          <div className="row mb-3">
+            <p className="text-primary fw-bold fs-5">Request Money</p>
+            <input
+              type="number"
+              className="form-control bg-light w-25 ms-3"
+              value={requestMoney}
+              onChange={(e) => setRequestMoney(e.target.value)}
+            />
+          </div>
 
-        <button type="submit" className="btn btn-primary rounded-pill px-5 py-2 mt-3">
-          Save Changes
-        </button>
-      </form>
-    </div>
-  );
-}
+          {/* Maps Section */}
+          <div className="row mb-3">
+            <div className="form-check ms-3">
+              <input
+                type="checkbox"
+                className="form-check-input"
+                id="meetUpOption"
+                checked={meetUp}
+                onChange={(e) => setMeetUp(e.target.checked)}
+              />
+              <label
+                className="form-check-label text-primary fw-semibold"
+                htmlFor="meetUpOption"
+              >
+                Provide Meet Up Option
+              </label>
+            </div>
+
+            {isLoaded && (
+              <GoogleMap
+                mapContainerStyle={containerStyle}
+                center={center}
+                zoom={10}
+                onLoad={onLoad}
+              >
+                {pickUpLocations.map((loc) => (
+                  <MarkerF
+                    key={loc.name}
+                    position={{ lat: loc.latitude, lng: loc.longitude }}
+                    onClick={() => {
+                      setSelectedLocation(loc);
+                      setMeetUpLocation(loc.name);
+                    }}
+                  />
+                ))}
+                {selectedLocation && (
+                  <InfoWindowF
+                    position={{
+                      lat: selectedLocation.latitude,
+                      lng: selectedLocation.longitude,
+                    }}
+                    onCloseClick={() => setSelectedLocation(null)}
+                  >
+                    <div>
+                      <strong>{selectedLocation.name}</strong>
+                      <p className="m-0">{selectedLocation.address}</p>
+                    </div>
+                  </InfoWindowF>
+                )}
+              </GoogleMap>
+            )}
+          </div>
+
+          <button
+            type="submit"
+            className="btn btn-primary rounded-pill px-5 py-2 mt-3"
+          >
+            Save Changes
+          </button>
+        </form>
+      </div>
+    );
+  }
 }

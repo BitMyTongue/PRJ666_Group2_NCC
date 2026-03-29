@@ -19,7 +19,9 @@ export default function ItemCard({
   const router = useRouter();
   const { user } = useContext(UserContext);
   const [saved, setSaved] = useState(false);
-  const [imgSrc, setImgSrc] = useState(img || "/images/no-image-available-default.jpg");
+  const [imgSrc, setImgSrc] = useState(
+    img || "/images/no-image-available-default.jpg",
+  );
 
   useEffect(() => {
     if (!user || !listingId) return;
@@ -29,7 +31,7 @@ export default function ItemCard({
       const data = await res.json();
 
       const exists = data.bm.some(
-        (b) => b.userId === user._id && b.listingId === listingId
+        (b) => b.userId === user._id && b.listingId === listingId,
       );
 
       setSaved(exists);
@@ -43,6 +45,11 @@ export default function ItemCard({
       alert("Please login to bookmark listings");
       return;
     }
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Bookmark failed: Session expired");
+      return;
+    }
 
     const method = saved ? "DELETE" : "POST";
 
@@ -50,6 +57,7 @@ export default function ItemCard({
       method,
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
         userId: user._id,

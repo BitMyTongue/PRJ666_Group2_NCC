@@ -27,6 +27,17 @@ export default async function handler(req, res) {
 
         // validate required fields
         if (!userId) return res.status(401).json({ error: "UserId not found" });
+
+        const auth = await fetch(
+          process.env.NEXT_PUBLIC_API_URL + "/api/auth/protect",
+          {
+            headers: req.headers,
+            cache: "no-store",
+          },
+        );
+        if (!auth.ok) return res.status(auth.status).json(auth.statusText);
+        const authUser = await auth.json();
+        if (userId !== authUser.user._id) return res.status(403).end();
         if (!itemName)
           return res.status(400).json({ error: "Missing Item Name" });
         if (!description)
@@ -38,12 +49,10 @@ export default async function handler(req, res) {
 
         // if meet up checked, must provide a meet up location
         if (meetUp === true && (!location || String(location).trim() === "")) {
-          return res
-            .status(400)
-            .json({
-              error:
-                "If meet up option is offered, you must provide a meet up location.",
-            });
+          return res.status(400).json({
+            error:
+              "If meet up option is offered, you must provide a meet up location.",
+          });
         }
 
         // listing must request item(s) and/or money

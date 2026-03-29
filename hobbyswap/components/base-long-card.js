@@ -106,10 +106,13 @@ const BaseLongCard = function BaseLongCard({
   cancelBthLabel: cancelBtnLabel = "Cancel",
   offerLabel = "OFFERING",
   requestLabel = "REQUESTING",
+  tradePartner = null,
 }) {
   const [showModal, setShowModal] = useState(false);
   const [saved, setSaved] = useState(isBookmarked);
-  const [imgSrc, setImgSrc] = useState(offerItem?.images?.[0] || "/images/no-image-available-default.jpg");
+  const [imgSrc, setImgSrc] = useState(
+    offerItem?.images?.[0] || "/images/no-image-available-default.jpg",
+  );
   const router = useRouter();
   const bookmarkCallback = () => {
     setSaved(!saved);
@@ -181,23 +184,23 @@ const BaseLongCard = function BaseLongCard({
             <div>{isSameUser ? "YOU" : user.username}</div>
           </div>
           {rating > -1 && <Rating rating={rating} />}
-          {status.toUpperCase() === "TRADE COMPLETED" && (
+          {status.toUpperCase() === "TRADE COMPLETED" && tradePartner && (
             <>
               <Button
                 className="btn-light rounded-pill text-primary"
                 onClick={() => setShowModal(true)}
               >
-                How was the trade with {user.username}
+                How was the trade with {tradePartner.username}
               </Button>
               <ReviewUserModal
                 show={showModal}
                 setShow={setShowModal}
-                user={user}
+                user={tradePartner}
                 reviewer={currUser}
               />
             </>
           )}
-          
+
           {status && (
             <strong style={{ textTransform: "uppercase" }}>{status}</strong>
           )}
@@ -232,13 +235,15 @@ const BaseLongCard = function BaseLongCard({
                 }}
               >
                 <Image
-                    className="object-fit-contain"
-                    alt={offerItem.itemName}
-                    src={imgSrc}
-                    width={69}
-                    height={96}
-                    onError={() => setImgSrc("/images/no-image-available-default.jpg")}
-                  />
+                  className="object-fit-contain"
+                  alt={offerItem.itemName}
+                  src={imgSrc}
+                  width={69}
+                  height={96}
+                  onError={() =>
+                    setImgSrc("/images/no-image-available-default.jpg")
+                  }
+                />
                 <div>
                   <p className="h4">{offerItem.itemName}</p>
                   <p style={{ height: "50px", overflowY: "auto" }}>
@@ -369,13 +374,15 @@ const BaseLongCard = function BaseLongCard({
                 }}
               >
                 <Image
-                    className="object-fit-contain"
-                    alt={offerItem.itemName}
-                    src={imgSrc}
-                    width={149}
-                    height={196}
-                    onError={() => setImgSrc("/images/no-image-available-default.jpg")}
-                  />
+                  className="object-fit-contain"
+                  alt={offerItem.itemName}
+                  src={imgSrc}
+                  width={149}
+                  height={196}
+                  onError={() =>
+                    setImgSrc("/images/no-image-available-default.jpg")
+                  }
+                />
                 <div>
                   <p className="fw-semibold fs-4 text-primary text-capitalize">
                     {offerItem.itemName}
@@ -727,6 +734,7 @@ const StatusCard = function StatusCard({
   requestMoney = 0.0,
   requestUser = null,
   cancelCallback = null,
+  tradePartner = null,
 }) {
   const { user: currUser } = useContext(UserContext);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -743,9 +751,19 @@ const StatusCard = function StatusCard({
 
   const confirmDelete = async () => {
     setIsDeleting(true);
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert(`Error deleting listing: session has expired`);
+      setIsDeleting(false);
+      return;
+    }
     try {
       const response = await fetch(`/api/listings/${offerItem._id}`, {
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       if (!response.ok) {
@@ -974,6 +992,7 @@ const StatusCard = function StatusCard({
         cancelCallback={cancelCallback ?? currType.cancel}
         cancelBtnLabel={currType.cancelLabel}
         requestUser={requestUser}
+        tradePartner={tradePartner}
       >
         {currType.layout}
       </BaseLongCard>
