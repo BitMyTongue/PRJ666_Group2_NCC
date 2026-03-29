@@ -194,7 +194,7 @@ export default function MessagePage() {
   useEffect(() => {
     const effectAsync = async () => {
       if (!client) return;
-      if (!user || !userQuery || user?._id === userQuery) return;
+      if (!userQuery || user?._id === userQuery) return;
       const channel = client.channel("messaging", {
         members: [user._id, userQuery],
       });

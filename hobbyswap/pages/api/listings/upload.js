@@ -11,20 +11,19 @@ export const config = {
   },
 };
 
+
 //S3 Client
 const S3 = new S3Client({
   region: process.env.AWS_REGION,
   credentials: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  },
-});
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+  }
+})
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
-    return res
-      .status(405)
-      .json({ message: "Method not allowed", data: req.body });
+    return res.status(405).json({ message: "Method not allowed", "data": req.body });
   }
 
   const form = formidable({ multiples: true });
@@ -37,19 +36,7 @@ export default async function handler(req, res) {
       });
     });
 
-    const userId = Array.isArray(fields.userId)
-      ? fields.userId[0]
-      : fields.userId;
-    const auth = await fetch(
-      process.env.NEXT_PUBLIC_API_URL + "/api/auth/protect",
-      {
-        headers: req.headers,
-        cache: "no-store",
-      },
-    );
-    if (!auth.ok) return res.status(auth.status).json(auth.statusText);
-    const authUser = await auth.json();
-    if (userId !== authUser.user._id) return res.status(403).end();
+    const userId = Array.isArray(fields.userId) ? fields.userId[0] : fields.userId;
 
     const imageFiles = files.files; // match frontend "files"
     if (!imageFiles) {
@@ -65,6 +52,7 @@ export default async function handler(req, res) {
     const uploadedFilesUrls = [];
 
     for (const file of uploadedFiles) {
+
       const fileBuffer = await fs.readFile(file.filepath);
       const key = `listings/${userId}/images/${uuid()}-${file.originalFilename}`;
       // const key = `listings/${uuid()}-${file.originalFilename}`;
@@ -75,7 +63,7 @@ export default async function handler(req, res) {
           Key: key,
           Body: fileBuffer,
           ContentType: file.mimetype,
-        }),
+        })
       );
 
       //Previous uploaded Files URL images
@@ -85,10 +73,11 @@ export default async function handler(req, res) {
       // await fs.copyFile(file.filepath, newFilePath);
       // uploadedFilesUrls.push(`/uploads/${newFileName}`);
 
+      
       // Public S3 URL
       const imageUrl = `https://${process.env.AWS_S3_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${key}`;
       uploadedFilesUrls.push(imageUrl);
-
+      
       //Clean up Temporary file (not saved - Locally)
       await fs.unlink(file.filepath);
     }

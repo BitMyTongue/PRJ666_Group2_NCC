@@ -44,8 +44,7 @@ const center = {
   lng: -79.3884,
 };
 
-export default function CreateListing() {
-  // http://localhost:3000/listings/create
+export default function CreateListing() { // http://localhost:3000/listings/create
   const router = useRouter();
   const searchParams = useSearchParams();
   const status = searchParams.get("status");
@@ -54,7 +53,7 @@ export default function CreateListing() {
   // for displaying confirmation
   const listingId = searchParams.get("id");
   const [createdListing, setCreatedListing] = useState(null);
-  const [createdListingError, setCreatedListingError] = useState("");
+  const [createdListingError, setCreatedListingError] = useState("")
 
   useEffect(() => {
     const load = async () => {
@@ -95,13 +94,13 @@ export default function CreateListing() {
   const [requestMoney, setRequestMoney] = useState("");
 
   const [meetUp, setMeetUp] = useState(false);
-  const [meetUpLocation, setMeetUpLocation] = useState(""); // store selectedLocation.name
-  const [user, setUser] = useState(null);
+  const [meetUpLocation, setMeetUpLocation] = useState("");   // store selectedLocation.name
+  const [user,setUser]=useState(null)
 
   // Keep preview URLs for selected files so we can remove files before upload
   const [selectedFilePreviews, setSelectedFilePreviews] = useState([]);
 
-  useEffect(() => {
+  useEffect(()=>{
     const token = localStorage.getItem("token");
     if (token) {
       fetch("/api/auth/protect", {
@@ -109,9 +108,10 @@ export default function CreateListing() {
           Authorization: `Bearer ${token}`,
         },
       })
-        .then((res) => res.json())
-        .then((data) => setUser(data.user));
+      .then((res) => res.json())
+      .then((data) => setUser(data.user))
     }
+    
   }, []);
 
   const handleSubmit = async (e) => {
@@ -122,7 +122,7 @@ export default function CreateListing() {
     const userId = user?._id;
 
     // --------- Validation --------- //
-    if (!userId) {
+    if(!userId) {
       setError("You must be logged in to create a listing.");
       return;
     }
@@ -143,9 +143,7 @@ export default function CreateListing() {
       return;
     }
     if (meetUp && (!meetUpLocation || meetUpLocation.trim() === "")) {
-      setError(
-        "If meet up option is offered, you must provide a meet up location.",
-      );
+      setError("If meet up option is offered, you must provide a meet up location.");
       return;
     }
     // Must request item(s) and/or money
@@ -167,18 +165,9 @@ export default function CreateListing() {
     const formData = new FormData();
     selectedFile.forEach((file) => formData.append("files", file));
     formData.append("userId", userId); // Added for file Creation (TO BE: corrected.)
-
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setError("Session has expired");
-      return;
-    }
     try {
       const response = await fetch("/api/listings/upload", {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
         body: formData,
       });
 
@@ -196,34 +185,18 @@ export default function CreateListing() {
       setError("Error uploading files");
       return;
     }
-
+    
     try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        throw new Error("Create listing failed: Session expired");
-      }
       const res = await fetch("/api/listings", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
         },
-        body: JSON.stringify({
-          userId,
-          itemName,
-          description,
-          category,
-          condition,
-          images: uploadedImageUrls,
-          meetUp,
-          location: meetUp ? meetUpLocation : "",
-          requestItems: itemArr,
-          requestMoney: moneyNum,
-          userId: userId,
-        }),
+        body: JSON.stringify({ 
+          userId, itemName, description, category, condition, images: uploadedImageUrls, meetUp, location: meetUp ? meetUpLocation : "", requestItems: itemArr, requestMoney: moneyNum, userId: userId})
 
-        //Focuse on images: uploadedImageUrls
-      });
+          //Focuse on images: uploadedImageUrls
+        });
 
       const data = await res.json();
 
@@ -291,14 +264,10 @@ export default function CreateListing() {
     const previewIndex = selectedFilePreviews.indexOf(urlToRemove);
     if (previewIndex !== -1) {
       // Revoke preview URL to free memory
-      try {
-        URL.revokeObjectURL(urlToRemove);
-      } catch (e) {}
+      try { URL.revokeObjectURL(urlToRemove); } catch (e) {}
 
       setSelectedFile((prev) => prev.filter((_, i) => i !== previewIndex));
-      setSelectedFilePreviews((prev) =>
-        prev.filter((_, i) => i !== previewIndex),
-      );
+      setSelectedFilePreviews((prev) => prev.filter((_, i) => i !== previewIndex));
     }
 
     // Always remove from imageUrl so it won't be sent to server
@@ -307,11 +276,11 @@ export default function CreateListing() {
 
   const handleAddRequestItem = () => {
     const trimmedItem = requestItemInput.trim();
-    if (!trimmedItem) return; // clicking Add button with no input
+    if (!trimmedItem) return;       // clicking Add button with no input 
 
-    setRequestItems((prev) => [...prev, trimmedItem]); // spread existing Requested Items array, add trimmed to the end
-    setRequestItemInput(""); // Reset field
-  };
+    setRequestItems((prev) => [...prev, trimmedItem]);    // spread existing Requested Items array, add trimmed to the end
+    setRequestItemInput("");    // Reset field
+  }
 
   const handleRemoveItem = (index) => {
     setRequestItems((prev) => prev.filter((_, i) => i !== index)); // Removing past element
@@ -322,7 +291,7 @@ export default function CreateListing() {
   if (status === "true") {
     // createdListing is null on first render
     if (!createdListing) return <h1>Loading the created listing...</h1>;
-
+    
     const selectedMeetUpLocation = pickUpLocations.find(
       (loc) => loc.name === createdListing.location,
     );
@@ -395,7 +364,9 @@ export default function CreateListing() {
                             {Array.from({ length: 5 }, (_, i) => (
                               <FontAwesomeIcon
                                 key={i}
-                                icon={i < user?.rating ? solidStar : emptyStar}
+                                icon={
+                                  i < user?.rating ? solidStar : emptyStar
+                                }
                                 className="text-secondary"
                               />
                             ))}
@@ -416,10 +387,8 @@ export default function CreateListing() {
                     {selectedMeetUpLocation ? (
                       <>
                         Free Meet up at{" "}
-                        <span className="fw-bold">
-                          {selectedMeetUpLocation.name}
-                        </span>{" "}
-                        ({getCityProvince(selectedMeetUpLocation.address)})
+                        <span className="fw-bold">{selectedMeetUpLocation.name}</span> (
+                        {getCityProvince(selectedMeetUpLocation.address)})
                       </>
                     ) : (
                       "Free Meet up location not found"
@@ -538,40 +507,21 @@ export default function CreateListing() {
                 />
               )}
               <div className="d-flex justify-content-start align-items-center gap-3">
-                {imageUrl.map((url, index) => (
-                  <div
-                    key={index}
-                    style={{
-                      position: "relative",
-                      display: "inline-block",
-                      marginRight: 8,
-                    }}
+              {imageUrl.map((url, index) => (
+                <div key={index} style={{ position: "relative", display: "inline-block", marginRight: 8 }}>
+                  <button
+                    type="button"
+                    aria-label="Remove image"
+                    className="btn btn-danger btn-sm position-absolute"
+                    style={{ top: -8, right: -8, zIndex: 2, borderRadius: 20, padding: '0 6px' }} // Top right Corner
+                    onClick={() => handleRemoveImage(index)}
                   >
-                    <button
-                      type="button"
-                      aria-label="Remove image"
-                      className="btn btn-danger btn-sm position-absolute"
-                      style={{
-                        top: -8,
-                        right: -8,
-                        zIndex: 2,
-                        borderRadius: 20,
-                        padding: "0 6px",
-                      }} // Top right Corner
-                      onClick={() => handleRemoveImage(index)}
-                    >
-                      ×
-                    </button>
-                    <Image
-                      src={url}
-                      alt={`thumb-${index}`}
-                      width={55}
-                      height={55}
-                      className="border rounded shadow"
-                    />
-                    {/* Image Thumbnails */}
-                  </div>
-                ))}
+                    ×
+                  </button>
+                  <Image src={url} alt={`thumb-${index}`} width={55} height={55} className="border rounded shadow" /> 
+                  {/* Image Thumbnails */}
+                </div>
+              ))}
 
                 <input
                   type="file"
@@ -653,7 +603,7 @@ export default function CreateListing() {
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       e.preventDefault();
-                      handleAddRequestItem();
+                      handleAddRequestItem();  
                     }
                   }}
                 />
@@ -664,44 +614,26 @@ export default function CreateListing() {
                 disabled={!trimmedRequestItem}
                 className="btn btn-primary fw-semibold rounded-pill px-4 py-2 mb-5"
                 aria-label="Add requested item"
-              >
-                Add Requested Item
+              >Add Requested Item
               </button>
             </div>
-            <p className="text-muted fw-semibold mt-2 mb-2">
-              Requested Items:{" "}
-            </p>
+            <p className="text-muted fw-semibold mt-2 mb-2">Requested Items: </p>
             {/* Showing the requested items */}
             <div className="col-md-5 col-9">
-              {requestItems.map((item, i) => (
-                <div
-                  key={i}
-                  style={{
-                    position: "relative",
-                    display: "inline-block",
-                    marginRight: 8,
-                  }}
-                >
+                {requestItems.map((item, i) => (
+                  <div key={i} style={{ position: "relative", display: "inline-block", marginRight: 8 }}>
                   <button
                     type="button"
                     aria-label="Remove image"
                     className="btn btn-danger btn-sm position-absolute"
-                    style={{
-                      top: -8,
-                      right: -8,
-                      zIndex: 2,
-                      borderRadius: 20,
-                      padding: "0 6px",
-                    }} // Top right Corner
+                    style={{ top: -8, right: -8, zIndex: 2, borderRadius: 20, padding: '0 6px' }} // Top right Corner
                     onClick={() => handleRemoveItem(i)}
                   >
                     ×
                   </button>
-                  <span key={i} className="badge bg-secondary me-2 p-2">
-                    {item}
-                  </span>
-                </div>
-              ))}
+                    <span key={i} className="badge bg-secondary me-2 p-2">{item}</span>
+                  </div>
+                ))}
             </div>
           </div>
 
@@ -717,7 +649,7 @@ export default function CreateListing() {
                 value={requestMoney}
                 onChange={(e) => {
                   const value = e.target.value;
-                  if (value < 0) return; // ignore negatives
+                  if (value < 0) return;   // ignore negatives
                   setRequestMoney(value);
                 }}
               />
@@ -754,7 +686,7 @@ export default function CreateListing() {
             <p className="text-primary mt-4 mb-3 fw-semibold">
               Meet up location
             </p>
-
+            
             {isLoaded && (
               <GoogleMap
                 mapContainerStyle={containerStyle}
@@ -766,10 +698,7 @@ export default function CreateListing() {
                 {pickUpLocations.map((location) => (
                   <MarkerF
                     key={`${location.address}-${location.name}`}
-                    position={{
-                      lat: location.latitude,
-                      lng: location.longitude,
-                    }}
+                    position={{ lat: location.latitude, lng: location.longitude }}
                     onClick={() => {
                       if (location === selectedLocation) {
                         setSelectedLocation(null);

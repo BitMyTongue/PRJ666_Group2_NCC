@@ -16,7 +16,7 @@ export default function BookmarkIcon({ listingId, size = "xl", ...props }) {
       const data = await res.json();
 
       const exists = data.bm.some(
-        (b) => b.userId === user._id && b.listingId === listingId,
+        (b) => b.userId === user._id && b.listingId === listingId
       );
 
       setSaved(exists);
@@ -31,19 +31,12 @@ export default function BookmarkIcon({ listingId, size = "xl", ...props }) {
       return;
     }
 
-    const token = localStorage.getItem("token");
-    if (!token) {
-      alert("Bookmark failed: Session expired");
-      return;
-    }
-
     const method = saved ? "DELETE" : "POST";
 
     const res = await fetch("/api/bookmarks", {
       method,
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
         userId: user._id,
@@ -54,9 +47,7 @@ export default function BookmarkIcon({ listingId, size = "xl", ...props }) {
     if (res.ok) {
       setSaved(!saved);
       if (method === "DELETE") {
-        window.dispatchEvent(
-          new CustomEvent("bookmarkRemoved", { detail: { listingId } }),
-        );
+        window.dispatchEvent(new CustomEvent("bookmarkRemoved", { detail: { listingId } }));
       }
     }
   };

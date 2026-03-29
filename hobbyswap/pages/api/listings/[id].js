@@ -18,23 +18,9 @@ export default async function handler(req, res) {
 
   try {
     await mongooseConnect();
-    const listing = await ListingModel.findById(id);
-    if (method !== "GET") {
-      if (!listing) {
-        return res.status(404).json({ error: "Listing not found" });
-      }
-      const auth = await fetch(
-        process.env.NEXT_PUBLIC_API_URL + "/api/auth/protect",
-        {
-          headers: req.headers,
-          cache: "no-store",
-        },
-      );
-      if (!auth.ok) return res.status(auth.status).json(auth.statusText);
-      const authUser = await auth.json();
-      if (listing.userId !== authUser.user._id) return res.status(403).end();
-    }
+
     if (method === "DELETE") {
+      const listing = await ListingModel.findById(id);
       if (!listing) {
         return res.status(404).json({ error: "Listing not found" });
       }
@@ -60,15 +46,13 @@ export default async function handler(req, res) {
                 new DeleteObjectCommand({
                   Bucket: process.env.AWS_S3_BUCKET,
                   Key,
-                }),
+                })
               );
-            }),
+            })
           );
         } catch (err) {
           console.error("S3 delete error:", err);
-          return res
-            .status(500)
-            .json({ error: "Failed to delete images from S3" });
+          return res.status(500).json({ error: "Failed to delete images from S3" });
         }
       }
 
@@ -76,30 +60,35 @@ export default async function handler(req, res) {
       await ListingModel.findByIdAndDelete(id);
 
       return res.status(200).json({ message: "Listing deleted successfully" });
-    } else if (method === "GET") {
-      const listing = await ListingModel.findById(id).populate("userId"); // 👈 THIS is the fix
+    }
+
+    else if (method === "GET") {
+      const listing = await ListingModel
+        .findById(id)
+        .populate("userId"); // 👈 THIS is the fix
 
       if (!listing) {
         return res.status(404).json({ error: "Listing not found" });
       }
 
       return res.status(200).json({ listing });
-    } else if (method === "PUT") {
+    }
+
+    else if (method === "PUT") {
+
       const { images = [], ...updates } = req.body; // Images as S3 URL arrays + other fields
+
+      const listing = await ListingModel.findById(id);
       if (!listing) return res.status(404).json({ error: "Listing not found" });
 
       const oldImages = listing.images || [];
       // Keep only valid http(s) URLs (ignore blob: preview URLs from client)
-      const sanitizedImages = Array.isArray(images)
-        ? images.filter((u) => typeof u === "string" && /^https?:\/\//.test(u))
-        : [];
-      const toDelete = oldImages.filter(
-        (img) => !sanitizedImages.includes(img),
-      );
+      const sanitizedImages = Array.isArray(images) ? images.filter((u) => typeof u === "string" && /^https?:\/\//.test(u)) : [];
+      const toDelete = oldImages.filter((img) => !sanitizedImages.includes(img));
 
       // DELETE REMOVED IMAGES FROM S3
       if (toDelete.length > 0) {
-        console.log(toDelete);
+        console.log(toDelete)
         try {
           const s3 = new S3Client({
             region: process.env.AWS_REGION,
@@ -117,15 +106,13 @@ export default async function handler(req, res) {
                 new DeleteObjectCommand({
                   Bucket: process.env.AWS_S3_BUCKET,
                   Key,
-                }),
+                })
               );
-            }),
+            })
           );
         } catch (err) {
           console.error("S3 delete error:", err);
-          return res
-            .status(500)
-            .json({ error: "Failed to delete old images from S3" });
+          return res.status(500).json({ error: "Failed to delete old images from S3" });
         }
       }
 

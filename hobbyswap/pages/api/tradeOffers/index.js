@@ -3,7 +3,7 @@ import { TradeOfferModel } from "@/lib/tradeOffer";
 import { ListingModel } from "@/lib/listing";
 import { UserModel } from "@/lib/dbUtils";
 import { Knock } from "@knocklabs/node";
-
+ 
 const knockClient = new Knock({ apiKey: process.env.KNOCK_API_KEY });
 
 export default async function handler(req, res) {
@@ -24,17 +24,6 @@ export default async function handler(req, res) {
         // validate required fields
         if (!requesterId)
           return res.status(401).json({ error: "RequesterId not found" });
-
-        const auth = await fetch(
-          process.env.NEXT_PUBLIC_API_URL + "/api/auth/protect",
-          {
-            headers: req.headers,
-            cache: "no-store",
-          },
-        );
-        if (!auth.ok) return res.status(auth.status).json(auth.statusText);
-        const authUser = await auth.json();
-        if (requesterId !== authUser.user._id) return res.status(403).end();
         if (!listingId)
           return res.status(400).json({ error: "Missing ListingId" });
 
@@ -66,9 +55,11 @@ export default async function handler(req, res) {
           offerStatus: { $in: ["PENDING", "ACCEPTED"] },
         }).exec();
         if (existingActive) {
-          return res.status(409).json({
-            error: "You've already proposed an offer for this listing.",
-          });
+          return res
+            .status(409)
+            .json({
+              error: "You've already proposed an offer for this listing.",
+            });
         }
 
         // validate proposed items + money
@@ -100,23 +91,21 @@ export default async function handler(req, res) {
           createdAt: new Date(),
         });
         await newTradeOffer.save();
-        const tradeListing = await ListingModel.findById(listingId)
-          .select("itemName")
-          .exec();
-
+        const tradeListing =await ListingModel.findById(listingId).select("itemName").exec();
+       
         try {
           await knockClient.workflows.trigger("new-activity", {
             data: {
               tradeAction: "offer_created",
               listingName: String(tradeListing.itemName),
-              proposedItems: newTradeOffer.proposedItems,
+              proposedItems: newTradeOffer.proposedItems, 
               proposedMoney: newTradeOffer.proposedMoney,
-              meetUp: newTradeOffer.meetUp,
+              meetUp: newTradeOffer.meetUp, 
               offerStatus: newTradeOffer.offerStatus,
               tradeStatus: newTradeOffer.tradeStatus,
-              action_url: `${process.env.NEXT_PUBLIC_BASE_URL}/tradeOffers?listingId=${newTradeOffer.listingId}`,
+              action_url: `${process.env.NEXT_PUBLIC_BASE_URL}/tradeOffers?listingId=${newTradeOffer.listingId}`
             },
-            recipients: [listing.userId.toString()],
+            recipients: [listing.userId.toString()], 
             actor: requesterId.toString(),
           });
           console.log("Knock Workflow Triggered for New Trade Offer");
