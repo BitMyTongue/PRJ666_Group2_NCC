@@ -3,7 +3,7 @@ import { Rating } from "./rating";
 import Image from "next/image";
 import BookmarkIcon from "./bookmark-icon";
 import UserIcon from "./user-icon";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { UserContext } from "@/contexts/UserContext";
 import ReviewUserModal from "./modals/review-listing-modal";
@@ -111,6 +111,9 @@ const BaseLongCard = function BaseLongCard({
   const [showModal, setShowModal] = useState(false);
   const [saved, setSaved] = useState(isBookmarked);
   const [imgSrc, setImgSrc] = useState(offerItem?.images?.[0] || "/images/no-image-available-default.jpg");
+  useEffect(() => {
+    setImgSrc(offerItem?.images?.[0] || "/images/no-image-available-default.jpg");
+  }, [offerItem]);
   const router = useRouter();
   const bookmarkCallback = () => {
     setSaved(!saved);
