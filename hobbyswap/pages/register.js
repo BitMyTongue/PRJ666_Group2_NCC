@@ -66,9 +66,9 @@ export default function Register() {
           username: formData.username,
           email: formData.email,
           password: formData.password,
-          address: formData.address,
-          site: formData.site,
-          gender: formData.gender,
+          address: formData.address || null,
+          site: formData.site || null,
+          gender: formData.gender || null,
           dateOfBirth: formData.dateOfBirth || null,
           profilePicture: profileImageUrl || null,
         }),
@@ -130,33 +130,6 @@ export default function Register() {
               value={formData.email}
               onChange={handleChange}
             />
-            <input
-              type="text"
-              className="form-control bg-light p-3"
-              id="address"
-              placeholder="Address (Optional)"
-              value={formData.address}
-              onChange={handleChange}
-            />
-            <input
-              type="text"
-              className="form-control bg-light p-3"
-              id="site"
-              placeholder="Website (Optional)"
-              value={formData.site}
-              onChange={handleChange}
-            />
-            <select
-              className="form-control bg-light p-3"
-              id="gender"
-              value={formData.gender}
-              onChange={handleChange}
-            >
-              <option value="Not Specified">Gender (Optional)</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Not Specified">Not Specified</option>
-            </select>
             <input
               type="date"
               className="form-control bg-light p-3"
