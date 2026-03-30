@@ -123,11 +123,11 @@ export default function CreateTradeOffer() {
   const [meetUp, setMeetUp] = useState(false);
 
     const calculateAverageRating = () => {
-    if (!listing.userId?.reviews || listing.userId.reviews.length === 0) {
+    if (!listing.userId?.reviews || listing.userId?.reviews.length === 0) {
       return 0;
     }
-    const sum = listing.userId.reviews.reduce((acc, review) => acc + review.rating, 0);
-    return (sum / listing.userId.reviews.length).toFixed(1);
+    const sum = listing.userId?.reviews.reduce((acc, review) => acc + review.rating, 0);
+    return (sum / listing.userId?.reviews.length).toFixed(1);
   };
 
     const getRatingStars = (rating) => {
@@ -227,6 +227,7 @@ export default function CreateTradeOffer() {
   const handleRemoveItem = (index) => {
     setProposedItems((prev) => prev.filter((_, i) => i !== index)); // Removing past element
   };
+  
 
   const { isLoaded } = useJsApiLoader({
     id: "google-map-script",
@@ -256,7 +257,8 @@ export default function CreateTradeOffer() {
     (loc) => loc.name === listing?.location
   );
 
-const avatar = listing.userId?.profilePicture || "/images/default-avatar.png";
+
+  const avatar = listing?.userId?.profilePicture || "/images/default-avatar.png";
   // ------------------- //
   // RENDER CONFIRMATION //
   // ------------------- //
@@ -266,7 +268,7 @@ const avatar = listing.userId?.profilePicture || "/images/default-avatar.png";
     // createdOffer is null on first render
     if (!createdOffer) return <h1>Loading the created offer...</h1>;
     if (!listing) return <h1>Loading listing...</h1>;
-
+    const avatar = listing.userId?.profilePicture || "/images/default-avatar.png";
     const offerMoney = Number(createdOffer.proposedMoney) || 0;
     const offerItems = Array.isArray(createdOffer.proposedItems) ? createdOffer.proposedItems : [];
 
@@ -460,6 +462,8 @@ const avatar = listing.userId?.profilePicture || "/images/default-avatar.png";
     // ----------------- //
     // RENDER OFFER FORM //
     // ----------------- //
+
+    
 
     {
     return (
