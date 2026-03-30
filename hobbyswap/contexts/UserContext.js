@@ -1,4 +1,5 @@
 import { createContext, useState, useEffect } from "react";
+import { StreamChat } from "stream-chat";
 
 export const UserContext = createContext();
 
@@ -6,7 +7,11 @@ export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const logout = () => {
+  const logout = async () => {
+    const client = StreamChat.getInstance(
+      process.env.NEXT_PUBLIC_STREAM_CHAT_KEY,
+    );
+    await client.disconnectUser();
     localStorage.removeItem("token");
     setUser(null);
   };
@@ -18,7 +23,13 @@ export const UserProvider = ({ children }) => {
       return;
     }
 
-    fetch("/api/auth/protect", { headers: { Authorization: `Bearer ${token}`,"Cache-Control":"no-cache"},cache:"no-store" })
+    fetch("/api/auth/protect", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Cache-Control": "no-cache",
+      },
+      cache: "no-store",
+    })
       .then((res) => {
         if (!res.ok) throw new Error("Token invalid");
 
@@ -31,7 +42,7 @@ export const UserProvider = ({ children }) => {
   }, []);
 
   return (
-    <UserContext.Provider value={{ user, setUser, logout, loading}}>
+    <UserContext.Provider value={{ user, setUser, logout, loading }}>
       {children}
     </UserContext.Provider>
   );

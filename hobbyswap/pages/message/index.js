@@ -133,6 +133,7 @@ export default function MessagePage() {
   };
 
   const { user: userQuery } = router.query;
+  const [searchUser, setSearchUser] = useState(userQuery);
   const [hasUnread, setHasUnread] = useState(false);
   const [loading, setLoading] = useState(true);
   const [client, setClient] = useState(null);
@@ -191,18 +192,32 @@ export default function MessagePage() {
 
     effectAsync();
   }, [user]);
+
+  useEffect(() => {
+    setSearchUser(userQuery);
+  }, [userQuery]);
+
   useEffect(() => {
     const effectAsync = async () => {
       if (!client) return;
-      if (!userQuery || user?._id === userQuery) return;
+      if (!user || !searchUser || user?._id === searchUser) return;
+      if (searchUser) {
+        const check = await client.queryUsers({
+          id: { $in: [searchUser] },
+        });
+        if (check.users.length == 0) {
+          setSearchUser(undefined);
+          return;
+        }
+      }
       const channel = client.channel("messaging", {
-        members: [user._id, userQuery],
+        members: [user._id, searchUser],
       });
       const result = await channel.watch({ presence: true });
       setActiveCh(result.channel.id);
     };
     effectAsync();
-  }, [user, client, userQuery]);
+  }, [user, client, searchUser]);
 
   return (
     <div id="root" className="sm-d-shadow">
@@ -211,7 +226,7 @@ export default function MessagePage() {
       ) : client &&
         options &&
         user &&
-        (!userQuery || user._id === userQuery || activeCh) ? (
+        (!searchUser || user._id === searchUser || activeCh) ? (
         <Chat client={client} initialNavOpen={false}>
           <ChannelList
             List={CustomChannelList}
