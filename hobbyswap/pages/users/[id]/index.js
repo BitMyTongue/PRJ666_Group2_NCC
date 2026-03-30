@@ -415,7 +415,7 @@ export default function User() {
                             : "N/A"}
                         </p>
                       </div>
-                      {isOwnerOfProfile && (
+                      {/* {isOwnerOfProfile && (
                         <div className="row mb-2">
                           <p className="fs-6 text-primary fw-semibold mb-0 col-4 align-self-center">
                             Password
@@ -424,7 +424,7 @@ export default function User() {
                             Change Password
                           </button>
                         </div>
-                      )}
+                      )} */}
                     </div>
                   </div>
                 </>
