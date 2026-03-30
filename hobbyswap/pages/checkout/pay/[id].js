@@ -435,13 +435,26 @@ export default function CardPayment() {
     }
 
     if (step === "make a payment") {
+      const token = localStorage.getItem("token");
       fetch(`/api/listings/${id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(token && { Authorization: `Bearer ${token}` }),
+        },
         body: JSON.stringify({ status: "COMPLETE", images: listing.images }),
-      }).finally(() => {
-        router.push(`/checkout/pay/${id}?step=confirmation`);
-      });
+      })
+        .then(async (res) => {
+          if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            throw new Error(data?.error || "Failed to complete payment");
+          }
+          router.push(`/checkout/pay/${id}?step=confirmation`);
+        })
+        .catch((err) => {
+          console.error("Payment error:", err);
+          setError(err.message || "Something went wrong. Please try again.");
+        });
     }
   };
 

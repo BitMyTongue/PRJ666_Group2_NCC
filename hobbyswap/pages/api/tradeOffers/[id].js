@@ -16,6 +16,7 @@ const knockClient = new Knock({ apiKey: process.env.KNOCK_API_KEY });
  * R5. Only the Owner or Requester can CANCEL or COMPLETE a TRADE.
  * R6. If ONGOING TRADE is canceled, listing.status is set to ACTIVE (people can offer on the listing again) 
  * R7. If TRADE is COMPLETE, listing.status is also set to COMPLETE 
+ * R8. TRADES can only be CANCELED within a 2 HOUR period from the time the trade was accepted.
  * 
  **********************************************************************************************************/
 
@@ -161,6 +162,24 @@ export default async function handler(req, res) {
           return res.status(403).json({ error: "Not authorized to cancel this trade" });
         }
 
+        if (tradeOffer.tradeStatus !== "ONGOING") {
+          return res.status(400).json({ error: "Trade is not active" });
+        }
+        
+        // R8
+        const TWO_HOURS_MS = 2 * 60 * 60 * 1000;
+
+        if (!tradeOffer.respondedAt) {
+          return res.status(400).json({ error: "Owner has not responded to this offer" });
+        }
+
+        const acceptedTime = new Date(tradeOffer.respondedAt).getTime();
+        const now = Date.now();
+        
+        if (now - acceptedTime > TWO_HOURS_MS) {
+          return res.status(403).json({ error: "Cancel window has expired (2 hours)" });
+        }
+
         // R6
         tradeOffer.tradeStatus = "CANCELED";
         tradeOffer.offerStatus = "CANCELED";
@@ -168,7 +187,6 @@ export default async function handler(req, res) {
         await tradeOffer.save();
         listing.status = "ACTIVE";
         await listing.save();
-
 
       try {
         await knockClient.workflows.trigger("new-activity", {
@@ -233,7 +251,7 @@ export default async function handler(req, res) {
 
           await knockClient.workflows.trigger("new-activity", {
             data: {
-              tradeAction: "trade_canceled",
+              tradeAction: "trade_completed",
               listingName: listing.itemName,
               offerStatus: tradeOffer.offerStatus,
               tradeStatus: tradeOffer.tradeStatus,
@@ -243,7 +261,7 @@ export default async function handler(req, res) {
             actor: actorId.toString(),
           });
 
-          console.log("Knock Workflow Triggered for Trade Canceled");
+          console.log("Knock Workflow Triggered for Trade Completed");
         } catch (knockErr) {
           console.error("Knock Trigger Error:", knockErr.message);
         }

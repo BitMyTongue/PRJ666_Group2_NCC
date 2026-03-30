@@ -3,7 +3,7 @@ import { Rating } from "./rating";
 import Image from "next/image";
 import BookmarkIcon from "./bookmark-icon";
 import UserIcon from "./user-icon";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { UserContext } from "@/contexts/UserContext";
 import ReviewUserModal from "./modals/review-listing-modal";
@@ -106,10 +106,14 @@ const BaseLongCard = function BaseLongCard({
   cancelBthLabel: cancelBtnLabel = "Cancel",
   offerLabel = "OFFERING",
   requestLabel = "REQUESTING",
+  tradePartner = null,
 }) {
   const [showModal, setShowModal] = useState(false);
   const [saved, setSaved] = useState(isBookmarked);
   const [imgSrc, setImgSrc] = useState(offerItem?.images?.[0] || "/images/no-image-available-default.jpg");
+  useEffect(() => {
+    setImgSrc(offerItem?.images?.[0] || "/images/no-image-available-default.jpg");
+  }, [offerItem]);
   const router = useRouter();
   const bookmarkCallback = () => {
     setSaved(!saved);
@@ -181,18 +185,18 @@ const BaseLongCard = function BaseLongCard({
             <div>{isSameUser ? "YOU" : user.username}</div>
           </div>
           {rating > -1 && <Rating rating={rating} />}
-          {status.toUpperCase() === "TRADE COMPLETED" && (
+          {status.toUpperCase() === "TRADE COMPLETED" && tradePartner && (
             <>
               <Button
                 className="btn-light rounded-pill text-primary"
                 onClick={() => setShowModal(true)}
               >
-                How was the trade with {user.username}
+                How was the trade with {tradePartner.username}
               </Button>
               <ReviewUserModal
                 show={showModal}
                 setShow={setShowModal}
-                user={user}
+                user={tradePartner}
                 reviewer={currUser}
               />
             </>
@@ -727,6 +731,7 @@ const StatusCard = function StatusCard({
   requestMoney = 0.0,
   requestUser = null,
   cancelCallback = null,
+  tradePartner = null,
 }) {
   const { user: currUser } = useContext(UserContext);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -828,7 +833,11 @@ const StatusCard = function StatusCard({
         <MsgButton user={user} onClick={handleMessage} />
       </>
     ),
-
+    COMPLETED_LAYOUT: (
+      <>
+        <MsgButton user={user} onClick={handleMessage} />
+      </>
+    ),
     CHOICE_LAYOUT: (
       <>
         <AcceptButton onClick={handleAccept} />
@@ -902,7 +911,7 @@ const StatusCard = function StatusCard({
       id: StatusType.COMPLETED,
       msg: "trade completed",
       color: "#3A8402",
-      layout: ButtonLayout.MAIN_LAYOUT1,
+      layout: ButtonLayout.COMPLETED_LAYOUT,
       cancel: null,
       cancelLabel: "Dismiss",
     },
@@ -970,6 +979,7 @@ const StatusCard = function StatusCard({
         cancelCallback={cancelCallback ?? currType.cancel}
         cancelBtnLabel={currType.cancelLabel}
         requestUser={requestUser}
+        tradePartner={tradePartner}
       >
         {currType.layout}
       </BaseLongCard>
