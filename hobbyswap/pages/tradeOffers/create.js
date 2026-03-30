@@ -14,7 +14,7 @@ import {
 import {
   faPeopleLine,
   faTruck,
-  faStar as solidStar,
+  faStar,
 } from "@fortawesome/free-solid-svg-icons";
 import UserIcon from "@/components/user-icon";
 import Link from "next/link";
@@ -122,6 +122,52 @@ export default function CreateTradeOffer() {
   const [proposedItems, setProposedItems] = useState([]);
   const [meetUp, setMeetUp] = useState(false);
 
+    const calculateAverageRating = () => {
+    if (!listing.userId?.reviews || listing.userId.reviews.length === 0) {
+      return 0;
+    }
+    const sum = listing.userId.reviews.reduce((acc, review) => acc + review.rating, 0);
+    return (sum / listing.userId.reviews.length).toFixed(1);
+  };
+
+    const getRatingStars = (rating) => {
+    const stars = [];
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 >= 0.5;
+
+    for (let i = 0; i < 5; i++) {
+      if (i < fullStars) {
+        stars.push(
+          <FontAwesomeIcon
+            key={i}
+            icon={faStar}
+            className="text-secondary"
+          />
+        );
+      } else if (i === fullStars && hasHalfStar) {
+        stars.push(
+          <FontAwesomeIcon
+            key={i}
+            icon={faStar}
+            className="text-secondary"
+            style={{ opacity: 0.5 }}
+          />
+        );
+      } else {
+        stars.push(
+          <FontAwesomeIcon
+            key={i}
+            icon={faStar}
+            className="text-secondary"
+            style={{ opacity: 0.2 }}
+          />
+        );
+      }
+    }
+    return stars;
+  };
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -210,6 +256,7 @@ export default function CreateTradeOffer() {
     (loc) => loc.name === listing?.location
   );
 
+const avatar = listing.userId?.profilePicture || "/images/default-avatar.png";
   // ------------------- //
   // RENDER CONFIRMATION //
   // ------------------- //
@@ -285,22 +332,14 @@ export default function CreateTradeOffer() {
                           <div>
                             <UserIcon
                               user={listing.userId.username}
-                              img={listing.userId.avatar}
+                              img={avatar}
                               size={45}
                             />
                           </div>
                           <div>
                             <p className="mb-1">{listing.userId.username}</p>
                             <div className="d-flex">
-                              {Array.from({ length: 5 }, (_, i) => (
-                                <FontAwesomeIcon
-                                  key={i}
-                                  icon={
-                                    i < user?.rating ? solidStar : emptyStar
-                                  }
-                                  className="text-secondary"
-                                />
-                              ))}
+                              {calculateAverageRating() > 0 ? getRatingStars(calculateAverageRating()) : "No ratings"}
                             </div>
                           </div>
                         </div>
@@ -487,22 +526,14 @@ export default function CreateTradeOffer() {
                       <div>
                         <UserIcon
                           user={listing.userId.username}
-                          img={listing.userId.avatar}
+                          img={avatar}
                           size={45}
                         />
                       </div>
                       <div>
                         <p className="mb-1">{listing.userId.username}</p>
                         <div className="d-flex">
-                          {Array.from({ length: 5 }, (_, i) => (
-                            <FontAwesomeIcon
-                              key={i}
-                              icon={
-                                i < user?.rating ? solidStar : emptyStar
-                              }
-                              className="text-secondary"
-                            />
-                          ))}
+                          {calculateAverageRating() > 0 ? getRatingStars(calculateAverageRating()) : "No ratings"}
                         </div>
                       </div>
                     </div>

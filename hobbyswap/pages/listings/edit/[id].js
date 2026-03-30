@@ -72,7 +72,7 @@ export default function UpdateListing() {
   const [user, setUser] = useState(null);
   const [createdListing, setCreatedListing] = useState(null);
 
-    const calculateAverageRating = () => {
+  const calculateAverageRating = () => {
     if (!user?.reviews || user.reviews.length === 0) {
       return 0;
     }
@@ -116,6 +116,7 @@ export default function UpdateListing() {
     }
     return stars;
   };
+
 
   // 1. DATA RETRIEVAL: Load existing listing data to edit
   useEffect(() => {
@@ -315,6 +316,8 @@ export default function UpdateListing() {
       (loc) => loc.name === createdListing.location,
     );
 
+    const avatar = user?.profilePicture || "/images/default-avatar.png";
+
     return (
       <>
         <div className="container-sm border border-gray rounded-4 shadow mt-7 mb-3 px-5 py-4">
@@ -373,7 +376,7 @@ export default function UpdateListing() {
                         <div>
                           <UserIcon
                             user={user.username}
-                            img={user.avatar}
+                            img={avatar}
                             size={45}
                           />
                         </div>

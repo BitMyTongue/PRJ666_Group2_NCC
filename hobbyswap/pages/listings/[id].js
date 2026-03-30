@@ -87,11 +87,11 @@ export default function Listing() {
 
 
   const calculateAverageRating = () => {
-    if (!user?.reviews || user.reviews.length === 0) {
+    if (!owner?.reviews || owner.reviews.length === 0) {
       return 0;
     }
-    const sum = user.reviews.reduce((acc, review) => acc + review.rating, 0);
-    return (sum / user.reviews.length).toFixed(1);
+    const sum = owner.reviews.reduce((acc, review) => acc + review.rating, 0);
+    return (sum / owner.reviews.length).toFixed(1);
   };
 
   const getRatingStars = (rating) => {
