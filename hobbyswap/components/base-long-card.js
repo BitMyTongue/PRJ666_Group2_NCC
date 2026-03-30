@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { Button, Modal, Stack } from "react-bootstrap";
 import { Rating } from "./rating";
 import Image from "next/image";
@@ -647,7 +648,7 @@ const TradeCard = function TradeCard({
           Trade Now
         </Button>
       )}
-      {requestMoney && (
+      {(requestMoney || requestMoney != 0) && (
         <Button variant="light rounded-pill text-primary">Buy Now</Button>
       )}
       <Button
